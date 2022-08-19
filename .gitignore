@@ -279,4 +279,4 @@ TSWLatexianTemp*
 *.vimtags
 *.pdf
 *.DS_Store
-
+*.tex
