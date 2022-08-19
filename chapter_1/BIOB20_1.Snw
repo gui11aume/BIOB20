@@ -1,0 +1,822 @@
+\documentclass[a4paper]{article}
+
+% Packages.
+\usepackage{amsthm}
+\usepackage[answerdelayed]{exercise}
+\usepackage[usenames,dvipsnames]{color}
+
+% Bibliography.
+\bibliographystyle{abbrv}
+
+% Definitions.
+\theoremstyle{definition}
+\newtheorem{definition}{Definition}
+
+% Exercise layout.
+\renewcommand{\ExerciseHeader}{\par\noindent\textbf{\large
+\ExerciseName\ \ExerciseHeaderNB\ExerciseHeaderTitle
+\ExerciseHeaderOrigin}\par}
+
+\renewcommand{\AnswerHeader}{\par\noindent\textbf{
+Answer of \ExerciseName\ \ExerciseHeaderNB}\par}
+
+\setlength{\ExerciseSkipAfter}{3mm}
+
+% Document layout.
+\setlength{\oddsidemargin}{18pt}
+\setlength{\textwidth}{420pt}
+\setlength{\marginparwidth}{0pt}
+\setlength{\marginparsep}{0pt}
+
+% Options.
+\SweaveOpts{keep.source=TRUE}
+
+\title{Random shufflings / randomized clinical trials}
+\author{Guillaume Filion}
+
+
+
+\begin{document}
+\maketitle
+
+\section{Overview}
+
+In this chapter we introduce the notion of pseudo random generator and we
+show how to use it to test scientific hypotheses. We also show some basic
+methods of estimation, allowing us to learn something about an unknown
+variable of interest. We use the framework of vaccine testing to
+illustrate how these concepts are embedded in the scientific method.
+
+
+%% The problem %%
+\section{The problem}
+
+At the onset of the COVID-19 epidemic, multiple projects were initiated to
+develop vaccines against SARS-CoV-2. Some of these projects were based on
+recent technologies to trigger the immune system with an mRNA. The
+efficiency of such mRNA vaccines had been tested as cancer treatments
+\cite{verbeke2019three} but not for immunization campaigns against
+infectious diseases.
+
+We will review the efficiency data of the clinical trial for the mRNA-1273
+vaccine produced by the company Moderna. The vaccine was designed in
+January 2020, within 24 hours of the publication of the SARS-CoV-2 genome
+\cite{corbett2020sars}. The phase-1 clinical trial started on March 16
+2020, the phase-2 clinical trial on May 29 2020, and the phase-3 clinical
+trial on July 27 2020. The initial results of the phase-3 trial were
+published in early February 2021 \cite{baden2020efficacy}.
+
+We will use randomizations in R to quantify the confidence about the
+efficiency of the vaccine.
+
+
+%% Randomness and the pseudo random generator %%
+\section{Randomness and the pseudo random generator}
+
+To tackle the question, we will need some background to understand how
+R generates randomness.
+
+\begin{Exercise}[name=Question]
+Start R, type the command \texttt{sample(x=10)} and press enter. Do you
+obtain the same result as shown below?
+<< >>=
+sample(x=10)
+@
+\par\noindent\textcolor{Blue}{\textbf{Note:} the `greater than' symbol
+\texttt{>} in front of the command is called the prompt. It indicates that
+R expects some input. It is already present in your R session and you
+should not insert it again.}
+\end{Exercise}
+\begin{Answer}
+The results are different. The function \texttt{sample(...)} uses the
+pseudo random generator so it gives a potentially different result on
+every call, and gives a potentially different result between users.
+\end{Answer}
+
+
+\begin{Exercise}[name=Question]
+Now use the command \texttt{set.seed(123)} before calling
+\texttt{sample(x=10)}. Do you obtain the same result as shown below?
+<< >>=
+set.seed(123)
+sample(x=10)
+@
+\end{Exercise}
+\begin{Answer}
+The results are the same. Calling \texttt{set.seed(123)} fixes the
+internal state of the pseudo random generator to \texttt{123}. Once this
+is done, the pseudo random generator is guaranteed to return the same
+sequence of numbers. The sequence of numbers has some aspects of
+randomness (the numbers cannot be predicted before the are produced) and
+some aspects of determinism (the numbers can be reproduced). This is why
+the generator is said to be \emph{pseudo random}. Such a sequence is
+called a reproducible random example or a reproducible random sample.
+\end{Answer}
+
+
+The number \texttt{123} in the previous example is called a random seed.
+There is nothing special about \texttt{123}, other than it is a popular
+choice and that it is the number I usually choose.
+
+
+\begin{Exercise}[name=Question]
+Try using different seeds starting from \texttt{1}, \texttt{2}, ... Which
+is the smallest seed such that the 10-th value in the output of
+\texttt{sample(x=10)} is equal to \texttt{10}?
+\end{Exercise}
+\begin{Answer}
+When the random seed is \texttt{6}, the 10-th value in the output is 10.
+<< >>=
+set.seed(1)
+sample(x=10)
+set.seed(2)
+sample(x=10)
+set.seed(3)
+sample(x=10)
+set.seed(4)
+sample(x=10)
+set.seed(5)
+sample(x=10)
+set.seed(6)
+sample(x=10)
+@
+\end{Answer}
+
+
+\begin{Exercise}[name=Question]
+\label{Quercus}
+You will use the random seed \texttt{123} to answer some questions on
+Quercus. This one is a practice round to demonstrate how it works. When
+you see the indication in red that you have to use seed 123 and
+concatenate if you are using Quercus (as in this question), run the code
+as shown below with \texttt{set.seed(123)}, concatenate all the numbers
+and paste them in the answer box.
+<< >>=
+set.seed(123)
+sample(x=5)
+@
+In this case, enter \texttt{32541} in the answer box on Quercus.
+\par\noindent\textcolor{BrickRed}{\textbf{Quercus:} use seed 123 and
+concatenate.}
+\end{Exercise}
+
+
+
+\section{Random draws with \texttt{sample(...)} }
+
+The R symbol \texttt{sample} reresents a function. To make this clear, I
+will write it as \texttt{sample(...)}, reminding ourselves that it should
+always be used with some arguments that are passed between brackets.
+
+One can access the documentation about R functions such as
+\texttt{sample(...)} with the commands \texttt{help(sample)} and
+\texttt{?sample}.
+
+
+\begin{Exercise}[name=Question]
+\label{exnoreplace}
+Using the documentation if necessary, modify the call
+\texttt{sample(x=10)} so as to draw 5 numbers at random without
+replacement (instead of the default 10).
+\par\noindent\textcolor{BrickRed}{\textbf{Quercus:} use seed 123 and
+concatenate.}
+\end{Exercise}
+\begin{Answer}
+<< >>=
+set.seed(123)
+sample(x=10, size=5)
+@
+\end{Answer}
+
+
+%\begin{Exercise}
+%How many different outputs can be generated by the call of
+%Question~\ref{exnoreplace}?
+%\end{Exercise}
+%\begin{Answer}
+%Draw 5 numbers one after the other. There are 10 possible choices for the
+%first number, then 9 possible choices for the second \textit{etc}.
+%Multiplying all the possibilities together we obtain
+%$10 \times 9 \times 8 \times 7 \times 6 = 30,240.$
+%\end{Answer}
+
+
+\begin{Exercise}[name=Question]
+\label{exreplace}
+Further modify the call of Question~\ref{exnoreplace} so as to draw 5
+numbers at random with replacement.
+\par\noindent\textcolor{BrickRed}{\textbf{Quercus:} use seed 123 and
+concatenate.}
+\end{Exercise}
+\begin{Answer}
+<< >>=
+set.seed(123)
+sample(x=10, size=5, replace=TRUE)
+@
+\end{Answer}
+
+
+%\begin{Exercise}
+%How many different outputs can be generated by the call of
+%Question~\ref{exreplace}?
+%\end{Exercise}
+%\begin{Answer}
+%Draw 5 numbers one after the other. There are 10 possible choices for the
+%first number, then 10 possible choices for the second \textit{etc}.
+%Multiplying all the possibilities together we obtain
+%$10 \times 10 \times 10 \times 10 \times 10 = 100,000.$
+%\end{Answer}
+
+
+
+\section{Creating and combining vectors}
+
+The R function \texttt{c(...)} is used to concatenate multiple values into
+what is called a vector. For instance, below is the call to create a
+vector with the first 6 prime numbers.
+<< >>=
+c(2, 3, 5, 7, 11, 13)
+@
+
+This is a vector with 6 elements, or a vector of length 6. The number
+\texttt{[1]} in front of the output indicates the index of the first value
+(\texttt{2} in this case). It is just a way to keep track of the indices
+when the vectors are long. You can ignore it for now, but this will become
+useful at some point.
+
+\begin{Exercise}[name=Question]
+Use the function \texttt{sample(...)} to pick 5 numbers at random from the
+first 6 prime numbers without replacement.
+\par\noindent\textcolor{BrickRed}{\textbf{Quercus:} use seed 123 and
+concatenate.}
+\end{Exercise}
+\begin{Answer}
+<< >>=
+set.seed(123)
+sample(x=c(2,3,5,7,11,13), size=5)
+@
+\end{Answer}
+
+
+The function \texttt{rep(...)} is used to repeat the same value or the
+same vector multiple times. For instance, below is the call to repeat 30
+times the value \texttt{0}.
+<< >>=
+rep(x=0, times=20)
+@
+
+\begin{Exercise}[name=Question]
+Use the function \texttt{rep(...)} to repeat the pair $(0,1)$ 50 times.
+What is the length of that vector?
+\end{Exercise}
+\begin{Answer}
+<< >>=
+rep(x=c(0,1), times=50)
+@
+This is a vector of length 100.
+\end{Answer}
+
+
+
+\section{Randomized clinical trials}
+
+A clinical trial is an investigative protocol to determine the efficiency
+and the safety of a given medicaltreatment. Patients are enrolled in a
+cohort that is monitored by physicians who test the treatment and
+eventually determine if it is effective.
+
+Clinical trials are organized in phases that serve different purposes.
+Phase 3 is usually the last, where the purpose is to test the treatment on
+large samples in order to validate it on all the representative groups of
+the population (and otherwise identify groups of people that should not
+receive the treatment).
+
+To establish a baseline for comparisons, only some patients of the cohort
+receive the treatment, while others receive a placebo. A placebo is a
+neutral molecule (usually water) that is packaged like the treatment so
+that the patients believe that they receive the treatment.
+
+A clinical trial is \textit{randomized} if the decision to give the
+treatment or the placebo is random. This is considered best practice to
+avoid treatment biases (\textit{e.g.}, as when physicians decide to give
+an aggressive treatment to the patients who are most likely to tolerate
+it). The clinical trial is \textit{blinded} if the physicians do not know
+whether they administer the treatment or the placebo. This is considered
+best practice to avoid interpretation biases (\textit{e.g.,}, as when
+physicians spend run more diagnoses on patients who received the
+traetments).
+
+The phase-3 clinical trial of the mRNA-1723 vaccine was observer-blinded,
+meaning that person doing the injection knew whether it was the treatment
+or the vaccine, but no one else did \cite{baden2020efficacy}. In the
+words of the authors, ``Once the injection was completed, only trial staff
+who were unaware of treatment assignments performed assessments and
+interacted with the participants.''
+
+The logic of this protocol is that if the treatment is effective, the
+patients who receive the treatment should be healthier than those who
+received the placebo. But the results are never ``all or none'' so we need
+interpret them with a critical mind if we want to evaluate our confdience
+in the outcome.
+
+
+\begin{Exercise}[name=Question]
+\label{extrial}
+Let us replicate the Moderna clinical trial \cite{baden2020efficacy} and
+draw a random sample of patients from the cohort. The authors write ``The
+trial enrolled 30,420 volunteers who were randomly assigned in a 1:1 ratio
+to receive either vaccine or placebo (15,210 participants in each
+group)''.
+
+Assign the number 0 to patients who received the placebo and number 1 to
+patients who received the vaccine. Use the function \texttt{sample(...)}
+to draw a random sample of size 196 from this cohort. Then use the
+function \texttt{sum(...)} to compute how many people in the sample
+received the vaccine.
+\par\noindent\textcolor{BrickRed}{\textbf{Quercus:} use seed 123.}
+\end{Exercise}
+\begin{Answer}
+<< >>=
+set.seed(123)
+sum(sample(x=rep(x=c(0,1), times=15210), size=196))
+@
+\end{Answer}
+
+Randomized clinical trials are examples of statistical tests;
+understanding one is the same as understanding the other.
+
+\begin{definition}[statistical test]
+\label{test}
+A statistical test is a protocol consisting of:
+  \begin{enumerate}
+  \item
+  A null hypothesis.
+  \item
+  An alternative  hypothesis.
+  \item
+  A protocol to collect data.
+  \item
+  A test statistic.
+  \item
+  A decision rule.
+  \end{enumerate}
+\end{definition}
+
+
+\begin{Exercise}[name=Question]
+What are the null hypothesis and the alternative hypothesis in the case of
+the Moderna clinical trial?
+\end{Exercise}
+\begin{Answer}
+The null hypothesis is that there is no difference of any kind between the
+vaccine and the placebo. The alternative hypothesis is that the vaccine
+protects better than the placebo against COVID-19.
+\end{Answer}
+
+
+\begin{Exercise}[name=Question]
+What is the protocol to collect data in the case of the Moderna clinical
+trial?
+\end{Exercise}
+\begin{Answer}
+The protocol to collect data is the randomized observer-blinded protocol
+referred to earlier. It is actually fairly complex and contains clauses
+about the diversity of the participants and some stratification to ensure
+that vaccine and placebo are distributed equally among all the groups of
+the cohort \cite{baden2020efficacy}.
+\end{Answer}
+
+
+\begin{Exercise}[name=Question]
+Propose a score that is expected to have a different value depending on
+whether the null or the alternative hypothesis is true.
+\end{Exercise}
+\begin{Answer}
+There are many possible answers. Our score will be the number of
+vaccinated people among the patients who develop symptomatic COVID-19. The
+score is expected to be approximately half of the subsample in case the
+null hypothesis is true, and substantially less than half in case the
+alternative hypothesis is true.
+\end{Answer}
+
+
+We now have to find a good decision rule. In order to do this, we need to
+understand how the score behaves when the null hypothesis is true. This is
+where we use randomizations in order to get an idea of what to expect if
+the clinical trial fails.
+
+
+\begin{Exercise}[name=Question]
+Repeat 5 times the procedure of Question~\ref{extrial} and record the
+lowest value.
+\par\noindent\textcolor{BrickRed}{\textbf{Quercus:} use seed 123.}
+\end{Exercise}
+\begin{Answer}
+<< >>=
+# The lowest value is 85.
+set.seed(123)
+sum(sample(x=rep(x=c(0,1), times=15210), size=196))
+sum(sample(x=rep(x=c(0,1), times=15210), size=196))
+sum(sample(x=rep(x=c(0,1), times=15210), size=196))
+sum(sample(x=rep(x=c(0,1), times=15210), size=196))
+sum(sample(x=rep(x=c(0,1), times=15210), size=196))
+@
+\end{Answer}
+
+The formulas become more and more complicated. It is time to introduce a
+way to simplify them by defining variables. A variable can hold the result
+of any operation in R. It is defined with the operator \texttt{<-} (this
+is a `less than' sign followed by a `minus' sign). Below is an example
+showing how to define a variable called \texttt{cohort}.
+<< >>=
+cohort <- rep(x=c(0,1), times=15210)
+@
+
+This vector will come in handy to answer some questions, starting with the
+next.
+
+\begin{Exercise}[name=Question]
+Answer Question~\ref{extrial} using the vector \texttt{cohort} defined
+above.
+\par\noindent\textcolor{BrickRed}{\textbf{Quercus:} use seed 123.}
+\end{Exercise}
+\begin{Answer}
+<< >>=
+set.seed(123)
+sum(sample(x=cohort, size=196))
+@
+\end{Answer}
+
+Based on our procedure so far, we can conclude that the values we obtained
+are fairly typical when the null hypothesis is true. If the number of
+vaccinated patients with symptomatic COVID-19 were equal to any of those
+values, we would not have strong reasons to believe that the vaccine is
+effective.
+
+To obtain a good decision rule, we need to find numbers that are unlikely
+when the null hypothesis is true. The function \texttt{replicate(...)}
+allows us to repeat a complex operation a large number of times.
+<< >>=
+replicate(n=3, expr=sum(sample(x=5, size=3)))
+@
+
+This will be useful to find rare events and threshold for the decision
+rules of statistical tests.
+
+
+\begin{Exercise}[name=Question]
+\label{exmin}
+Use the function \texttt{replicate(...)} to repeat 1000 times the
+procedure of Question~\ref{extrial} and use the function \texttt{min(...)}
+to record the minimum.
+\par\noindent\textcolor{BrickRed}{\textbf{Quercus:} use seed 123.}
+\end{Exercise}
+\begin{Answer}
+<< >>=
+set.seed(123)
+min(replicate(n=1000, expr=sum(sample(x=cohort, size=196))))
+@
+\end{Answer}
+
+If the null hypothesis is true (\textit{i.e.}, if the vaccine is exactly
+as efficient as the placebo), it is unlikely that there are fewer
+vaccinated patients among the 196 with symptomatic COVID-19. In fact, the
+chance is less than 1 in 1000 (approximately) that we observe a number
+that is smaller than the minimum we obtained at Question~\ref{exmin}.
+
+We can thus use this value as a threshold. If the number of vaccinated
+patients among the 196 with symptomatic COVID-19 is lower than this value,
+we will have to conclude that chance alone is not a plausible explanation
+for the result. In that case we reject the null hypothesis and we conclude
+that the vaccine is more efficient than the placebo. Otherwise, there is
+insufficient evidence to claim that the vaccine is more efficient than the
+placebo and we accept the null hypothesis.
+
+
+\begin{Exercise}[name=Question]
+In the Moderna clinical trial \cite{baden2020efficacy}, 11 out of 196
+patients with symptomatic COVID-19 were vaccinted. What is your
+conclusion?
+\end{Exercise}
+\begin{Answer}
+11 is lower than 79 (the threshold of Question~\ref{exmin}). It is
+unlikely that such a low number can be obtained due to chance alone.
+We reject the null hypothesis and we conclude that the vaccine is more
+efficient than the placebo.
+\end{Answer}
+
+
+\section{Vaccine efficiency}
+
+Our approach so far has allowed us to decide whether the vaccine is more
+efficient than the placebo, but is this sufficient? For instance, if the
+vaccine offers a real but very small protection, would it justify massive
+vaccination campaigns?
+
+
+The function \texttt{sample(...)} has an argument \texttt{prob} allowing
+us to simulate biased random draws. For instance, the command below
+samples 15 numbers from $\{0,1\}$ with replacement, in such a way that the
+probability of sampling 1 is 0.2 times the probability of sampling 0
+(\textit{i.e.}, 1s are expected to appear five times less frequently than
+0s).
+<< >>=
+sample(x=c(0,1), size=15, replace=TRUE, prob=c(1, 0.2))
+@
+
+\begin{definition}[vaccine efficiency]
+\label{eff}
+If a vaccine reduces a given risk by a factor $x$ compared to the placebo,
+it is said to have an efficiency of $1-x$ against this risk, usually
+expressed as a percentage. Note that there is no such thing as  ``the
+efficiency of a vaccine'' as one always needs to specify the risk that is
+considered (vaccinces can protect against a given symptom, against
+hospitalisation, against transmission \textit{etc}.).
+\end{definition}
+
+Following up on the example above, if a vaccine reduces the risk by a
+factor 5, it has an efficiency of 0.8 or 80\%.
+
+
+\begin{Exercise}[name=Question]
+\label{ex20}
+Using the function \texttt{sample(...)}, replicate a random sample from
+the Moderna clinical trial, this time assuming that the vaccine has an
+efficiency of 80\% against developing symptomatic COVID-19. Compute the
+number of vaccinated patients in the sample using the function
+\texttt{sum(...)}.
+\par\noindent\textcolor{Blue}{\textbf{Hint:} use the function
+\texttt{rep(...)} to define a vector \texttt{bias} holding the value of
+the argument \texttt{prob}.}
+\par\noindent\textcolor{BrickRed}{\textbf{Quercus:} use seed 123.}
+\end{Exercise}
+\begin{Answer}
+<< >>=
+bias <- rep(x=c(1, 0.2), times=15210)
+set.seed(123)
+sum(sample(x=cohort, size=196, prob=bias))
+@
+\end{Answer}
+
+
+\begin{Exercise}[name=Question]
+\label{exrephalf}
+Use the function \texttt{replicate(...)} to repeat 5 times the procedure
+of Question~\ref{ex20}.
+\par\noindent\textcolor{BrickRed}{\textbf{Quercus:} use seed 123 and
+concatenate.}
+\end{Exercise}
+\begin{Answer}
+<< >>=
+set.seed(123)
+replicate(n=5, expr=sum(sample(x=cohort, size=196, prob=bias)))
+@
+\end{Answer}
+
+Based on this result, we can already have an idea as to whether the
+efficiency of the vaccine against developing symptomatic COVID-19 is
+higher or lower than 80\%. If the random samples typically have
+\emph{less} than 11 vaccinated patients, then the true efficiency of the
+vaccine must be below 80\% to explain that there are more vaccinated
+patients in the real sample. The reverse argument applies if the random
+samples typically have \emph{more} than 11 vaccinated patients.
+
+Still, it would be better to have a concrete value for the efficiency of
+the vaccine against developing symptomatic COVID-19.
+
+To make progress on this question, we will need an additional tool. In R,
+the function \texttt{sum(...)} can be combined with the operator
+\texttt{==} (two `equal' signs in a row) to count how many elements of a
+vector are equal to a certain value, as in the example below.
+<< >>=
+sum(c(8, 11, 9, 11) == 11)
+@
+
+\begin{Exercise}[name=Question]
+\label{exsum}
+Use the function \texttt{replicate(...)} to repeat 1000 times the
+procedure of Question~\ref{ex20}. Using \texttt{sum(...)} and \texttt{==},
+count the number of samples (out of 1000) where 1 is present exactly 11
+times. \par\noindent\textcolor{BrickRed}{\textbf{Quercus:} use seed 123}
+\end{Exercise}
+\begin{Answer}
+<< >>=
+bias <- rep(x=c(1, 0.2), times=15210)
+set.seed(123)
+sum(replicate(n=1000, expr=sum(sample(x=cohort, size=196, prob=bias))) == 11)
+@
+\end{Answer}
+
+
+\begin{Exercise}[name=Question]
+\label{exml}
+Keeping the number of replications at 1000 as in Question~\ref{exsum},
+decrease the sampling bias from 0.175 to 0.025 by 0.025 decrements. For which
+value of the bias do you obtain the highest amount of samples where 1 is
+present exactly 11 times?
+\par\noindent\textcolor{BrickRed}{\textbf{Quercus:} use seed 123 for every
+call to \texttt{replicate(...)}.}
+\end{Exercise}
+\begin{Answer}
+<< >>=
+bias <- rep(x=c(1, 0.175), times=15210)
+set.seed(123)
+sum(replicate(n=1000, expr=sum(sample(x=cohort, size=196, prob=bias))) == 11)
+bias <- rep(x=c(1, 0.150), times=15210)
+set.seed(123)
+sum(replicate(n=1000, expr=sum(sample(x=cohort, size=196, prob=bias))) == 11)
+bias <- rep(x=c(1, 0.125), times=15210)
+set.seed(123)
+sum(replicate(n=1000, expr=sum(sample(x=cohort, size=196, prob=bias))) == 11)
+bias <- rep(x=c(1, 0.100), times=15210)
+set.seed(123)
+sum(replicate(n=1000, expr=sum(sample(x=cohort, size=196, prob=bias))) == 11)
+bias <- rep(x=c(1, 0.075), times=15210)
+set.seed(123)
+sum(replicate(n=1000, expr=sum(sample(x=cohort, size=196, prob=bias))) == 11)
+bias <- rep(x=c(1, 0.050), times=15210)
+set.seed(123)
+sum(replicate(n=1000, expr=sum(sample(x=cohort, size=196, prob=bias))) == 11)
+bias <- rep(x=c(1, 0.025), times=15210)
+set.seed(123)
+sum(replicate(n=1000, expr=sum(sample(x=cohort, size=196, prob=bias))) == 11)
+@
+\end{Answer}
+
+The procedure of Question~\ref{exml} is a form of \emph{maximum likelihood
+estimation}. This strategy is based on an idea that is very banal and yet
+very deep: events that happen are more likely than events that do not
+happen. Pushing this argument one step further, we should favor hypotheses
+whereby events that have happened were likely to happen. In short, the
+hypothesis we should favor the most is that whereby the events that have
+happened were the most likely to happen.
+
+Based on this concept, we can estimate the efficiency of the vaccine
+against developing symptomatic COVID-19 as the value where we most often
+observe 11 vaccinated patients in the random samples. There is no better
+estimate, because every other value accounts less well for the
+observation. We have not checked all the possible values, but we can at
+least choose the best estimate among the values that we tested.
+
+
+\section{Optional questions}
+
+Notice that maximum likelihood estimation merely says which value of the
+efficiency we should favor, but it does not say how plausible this value
+is. Can we compute the probability that the efficiency is within a certain
+window?
+
+Suprisingly, there is no answer to this question. Depending on your
+beliefs about existence you may answer yes or no. More concretely, if you
+subscribe to the \emph{frequentist} view, you believe that probabilities
+are the limit frequencies of reoccurring events, and since there is only
+one Moderna vaccine, its efficiency against developing symptomatic
+COVID-19 has no probability. The frequentist takes great care to
+distinguish ``unknown'' from ``random''; the efficiency of the vaccine is
+unknown but it is not random, so one cannot put a probability on it.
+
+On the contrary, if you subscribe to the \emph{Bayesian} view, you believe
+that probabilities are measures of our ignorance, so unknown and random
+are the same and everything has a probability. In this framework, it is
+possible to compute the probability that the efficiency is above a certain
+value or within a certain window.
+
+A full development of the Bayesian approach would take us too far, but we
+can introduce some of the most important ideas. First we specify our
+initial knowledge. In this case, we had no preconception and we believed
+that all the possible values between 0 and 100\% are equally plausible.
+
+Next, we count up the cases where our simulations produced the same
+results as those we obtained in reality.
+
+\begin{Exercise}[name=Question]
+In Question~\ref{exml}, how many samples with 11 vaccinated people did we
+obtain in total?
+\end{Exercise}
+\begin{Answer}
+<< >>=
+0+0+3+27+87+103+18
+@
+\end{Answer}
+
+
+Then, we count how many such cases are within a set of interest. Here we
+will consider the threshold at 95\% efficiency.
+
+\begin{Exercise}[name=Question]
+In Question~\ref{exml}, how many samples with 11 vaccinated people came
+from cases where the  vaccine efficiency was 95\% or greater?
+\end{Exercise}
+\begin{Answer}
+<< >>=
+103+18
+@
+\end{Answer}
+
+
+Finally, we compute the probability that the efficiency is 95\% or higher as
+the ratio between the two numbers. The logic of this operation is better
+represented as a sketch.
+
+\begin{center}
+\includegraphics{the_prob_we_are_looking_for.pdf}
+\end{center}
+
+
+\begin{Exercise}[name=Question]
+With the estimates we obtained previously, what is the proability that the
+efficiency is 95\% or greater?
+\end{Exercise}
+\begin{Answer}
+<< >>=
+(103+18) / (0+0+3+27+87+103+18)
+@
+\end{Answer}
+
+
+There are a lot of approximations in this rationale. Importantly, we also
+made some assumptions that impact the result. For instance, we could know
+from the historical records that the vaccines making it to phase-3
+clinical trials often have an efficiency above 95\% (this is a fictitious
+example). Say that the values of efficiency at 95\% or above are twice as
+likely as those below 95\%. If this were the case, we should generate
+twice as many samples for those values in Question~\ref{exml},
+\textit{i.e.} we should use \texttt{n=2000} instead of \texttt{n=1000} in
+\texttt{replicate(...)} for those set of values. This way, we would
+incorporate our belief that the base rate of those values is twice that of
+the other values.
+
+\begin{Exercise}[name=Question]
+Recompute the estimated probability that the efficiency is 95\% or higher
+based on this modified initial belief.
+\end{Exercise}
+\begin{Answer}
+We can make new simulations for the efficiency values of 95\% and 97.5\%
+but we can also reason that doubling the number of trials should
+approximately double the totals in the outcome, so the updated formula
+would be as below.
+<< >>=
+(2*103+2*18) / (0+0+3+27+87+2*103+2*18)
+@
+
+Doubling the amount of trials gives the following results.
+<< >>=
+set.seed(123)
+bias <- rep(x=c(1, 0.050), times=15210)
+sum(replicate(n=2000, expr=sum(sample(x=cohort, size=196, prob=bias))) == 11)
+bias <- rep(x=c(1, 0.025), times=15210)
+set.seed(123)
+sum(replicate(n=2000, expr=sum(sample(x=cohort, size=196, prob=bias))) == 11)
+# Updated estimate:
+(219+23) / (0+0+3+27+87+219+23)
+@
+\end{Answer}
+
+
+With those prior beliefs, our estimates show \emph{more} confidence that
+the efficiency is 95\% or higher. It is thus important to understand that
+our prejudices influence our conclusions. Intuitively, if we have strong
+expectations, then we will need less confirmatory evidence to conclude and
+more contradicting evidence to change our mind.
+
+
+\section{Conclusions}
+
+The strategy that we developed to analyze randomized clinical trials can
+be generalized to all the aspects of experimental research. The key steps
+are to postulate a hypothesis of interest, design a score that varies when
+the hypothesis is true or false, use pseudo random generators to predict
+the distribution of the score when the hypothesis is true, and finally
+compare reality with our expectations in order to make a judgement about
+the hypothesis.
+
+Random clinical trials were designed to facilitate the process above. For
+other problems, we will need to be creative to find appropriate scores and
+compute their distribution, but the overall process will remain remarkably
+similar.
+
+We have also introduced a method called maximum likelihood estimation,
+which is based on the idea that we should favor the hypothesis whereby the
+events that actually happened were as likely as possible. This is not the
+only method for estimation (see optional questions) but it is very general
+and usually gives reliable results.
+
+We have seen that the programming language R contains many useful
+functions to implement the strategy above. The function
+\texttt{set.seed(...)} has a special status because it allows us to create
+reproducible random samples, which are useful to share our results with
+others. The function \texttt{replicate(...)} allows us to reproduce the
+same random operation as many times as we want, which is the basis for
+creating large random samples. Finally, the function \texttt{sample(...)}
+allows us to generate random draws from a finite set of values. The other
+functions that we showcased, such as \texttt{sum(...)} and
+\texttt{min(...)} are general features of the R programming language.
+R features many other functions that we will explore in the following
+chapters.
+
+
+\bibliography{references}
+
+\cleardoublepage
+\shipoutAnswer
+\end{document}

@@ -1,0 +1,282 @@
+\documentclass[a4paper]{article}
+
+% Packages.
+\usepackage{amsthm}
+\usepackage[answerdelayed]{exercise}
+\usepackage[usenames,dvipsnames]{color}
+
+% Bibliography.
+\bibliographystyle{abbrv}
+
+% Definitions.
+\theoremstyle{definition}
+\newtheorem{definition}{Definition}
+
+% Exercise layout.
+\renewcommand{\ExerciseHeader}{\par\noindent\textbf{\large
+\ExerciseName\ \ExerciseHeaderNB\ExerciseHeaderTitle
+\ExerciseHeaderOrigin}\par}
+
+\renewcommand{\AnswerHeader}{\par\noindent\textbf{
+Answer of \ExerciseName\ \ExerciseHeaderNB}\par}
+
+\setlength{\ExerciseSkipAfter}{3mm}
+
+% Document layout.
+\setlength{\oddsidemargin}{18pt}
+\setlength{\textwidth}{420pt}
+\setlength{\marginparwidth}{0pt}
+\setlength{\marginparsep}{0pt}
+
+% Options.
+\SweaveOpts{keep.source=TRUE}
+
+\title{Uniform variables / circadian clocks}
+\author{Guillaume Filion}
+
+
+
+\begin{document}
+\maketitle
+
+\section{Overview}
+
+
+
+%% The problem %%
+\section{The problem}
+
+At the end of the 1960s, Ronald Konopka and Seymour Benzer, two
+researchers at the California Institute of Technology were studying
+whether insects could keep track of time in the absence of external
+signals.
+
+
+\section{The experiments of Konopa and Benzer}
+
+In their 1971 landmark article~\cite{konopka1971clock}, Konopa and Benzer
+studied hatching in fruit flies of the species \textit{Drosophila
+melanogaster}. They kept the larvae in light--dark cycles of 12 hours
+each, and then maintained the pupae (the equivalent of cocoons for flies)
+in complete darkness for 4 consecutive days and used an automated system
+to record how many hatched over time.
+
+Load the data in your R session with the command below.
+<< >>=
+url <- "https://github.com/gui11aume/BIOB20/2_clocks/kb_wt.txt"
+scan(url)
+@
+
+Whenever you load external data in R, you should run some routine checks
+to make sure that it was loaded properly. For instance, you should always
+check the size of the data set. For this, you can use the function
+\texttt{length(...)}, which returns the number of elements of a vector.
+
+\begin{Exercise}[name=Question]
+What is the number of elements in the data set?
+\end{Exercise}
+\begin{Answer}
+<< >>=
+length(x)
+@
+\end{Answer}
+
+
+It is also good practice to watch the first elements of the data set in
+order to understand what type of values it contains. For this, you can use
+the function \texttt{head(...)}, which returns the first 6 elements of a
+data structure.
+
+
+\begin{Exercise}[name=Question]
+What are the first 6 elements of the data set?
+\par\noindent\textcolor{BrickRed}{\textbf{Quercus:} concatenate.}
+\end{Exercise}
+\begin{Answer}
+<< >>=
+head(x)
+@
+\end{Answer}
+
+
+Every entry in the data corresponds to a fly that hatched in the course of
+the 4 days, and the value is the time it did, expressed in hours since the
+beginning of the experiment. The values are sorted in increasing order.
+
+It would be interesting to know if flies can hatch at any time, or if in
+the contrary they hatch at preferential hours of the day.
+
+
+% The uniform distribution %% Maybe move later?
+\section{The uniform distribution}
+
+In R, the function \texttt{runif(...)} generates a random sample of
+numbers between 0 and 1. Numbers are drawn from the uniform distribution,
+meaning that every value between 0 and 1 is equally likely.
+
+\begin{Exercise}[name=Question]
+Using the documentation if necessary, generate a single random number
+between 0 and 1 using the function \texttt{runif(...)}.
+\par\noindent\textcolor{BrickRed}{\textbf{Quercus:} use seed 123.}
+\end{Exercise}
+\begin{Answer}
+<< >>=
+set.seed(123)
+runif(n=1)
+@
+\end{Answer}
+
+In R, the function \texttt{sum(...)} can be combined with the operator
+\texttt{==} to count how many elements of a vector are equal to a target
+value.
+<< >>=
+sum(c(0.23, 0.17, 0.91, 0.23) == 0.23)
+@
+
+Likewise, we can use the operators \texttt{>} and \texttt{<} to
+count how many elements are above or below a target value. 
+<< >>=
+sum(c(0.23, 0.17, 0.91, 0.23) > 0.23)
+@
+
+
+\begin{Exercise}[name=Question]
+Generate 1000 numbers between 0 and 1 using the function
+\texttt{runif(...)} and count how many of them are above 0.5.
+\par\noindent\textcolor{BrickRed}{\textbf{Quercus:} use seed 123.}
+\end{Exercise}
+\begin{Answer}
+<< >>=
+set.seed(123)
+sum(runif(n=1000) > 0.5)
+@
+\end{Answer}
+
+The uniform distribution is not restricted to numbers between 0 and 1. One
+can produce uniform random numbers between any two threshold values.
+
+
+\begin{Exercise}[name=Question]
+Using the documentation if necessary, generate 1000 uniform numbers
+between 0 and $2\pi$ using the function \texttt{runif(...)} and count how
+many of them are above 0.5.
+\par\noindent\textcolor{Blue}{\textbf{Note:} in R, the constant $\pi$ is
+written \texttt{pi}.}
+\par\noindent\textcolor{BrickRed}{\textbf{Quercus:} use seed 123.}
+\end{Exercise}
+\begin{Answer}
+<< >>=
+set.seed(123)
+sum(runif(n=1000, max=2*pi) > 0.5)
+@
+\end{Answer}
+
+
+\section{The \texttt{circular} package}
+
+The R programming language can be extended with so-called packages, created
+by statistics enthusiasts all over the world. The \texttt{circular}
+package will prove particularly useful to study the properties of the
+uniform distribution and of circandian clocks.
+
+You should already have installed the package. If this is not the case,
+run the code below:
+<< eval=FALSE, echo=TRUE >>=
+install.packages(circular)
+@
+
+Depending on your machine and how you installed R, you will eitehr have to
+click on the mirror you want to download the package from or choose a
+number from a list. It does not matter which you choose because they are
+all identical, but it makes sense to pick the one nearest to you (there is
+one in Toronto). Most likely, R will also install another package and will
+inform you with the statement ``\texttt{also installing the dependency
+`mvtnorm'}''.
+
+When the package is installed, you have to activate it before using it
+with the command \texttt{library(circular)}. You need to run this command
+only once per session.
+
+
+\begin{Exercise}[name=Question]
+The code below activates the packages \texttt{circular} and plots a few
+points at random on a circle. Run the code in your R session. How many
+points are above the horizontal line?
+<< eval=FALSE, echo=TRUE >>=
+library(circular)
+set.seed(123)
+plot(circular(runif(n=20, max=2*pi)))
+@
+\end{Exercise}
+\begin{Answer}
+<< fig=TRUE >>=
+library(circular)
+set.seed(123)
+plot(circular(runif(n=20, max=2*pi)))
+# There are 9 points above the horizontal line.
+@
+\end{Answer}
+
+We will explore the function \texttt{plot(...)} in details later. For now,
+we just need to know that it genreates nice circular diagrams if we use it
+in combination with the function \texttt{circular(...)} from the package
+with the same name. For now, let us practice a little more.
+
+We can sometimes make it a little easier to see how many points are in
+different areas by using the options \texttt{stack=TRUE, sep=.05}.
+
+
+\begin{Exercise}[name=Question]
+Run the code below in your R session. How many points are above the
+horizontal line? 
+<< eval=FALSE, echo=TRUE >>=
+set.seed(123)
+plot(circular(runif(n=50, max=2*pi)), stack=TRUE, sep=.05)
+@
+\par\noindent\textcolor{Blue}{\textbf{Note:} you can run the code without
+the option \texttt{stack=TRUE} to see how hard it becomes to answer.}
+\end{Exercise}
+\begin{Answer}
+<< fig=TRUE >>=
+library(circular)
+set.seed(123)
+plot(circular(runif(n=50, max=2*pi)), stack=TRUE, sep=.05)
+# There are 25 points above the horizontal line.
+@
+\end{Answer}
+
+
+Using the functions \texttt{plot(...)} and \texttt{circular(...)} can
+allow us to see that some distributions accumulate around a certain value.
+
+\begin{Exercise}[name=Question]
+Generate the random samples \texttt{S1} and \texttt{S2} by running the
+code below.
+<< >>=
+set.seed(123)
+S1 <- runif(n=100, max=2*pi) + 0.12345
+S2 <- runif(n=100, max=2*pi) * 0.12345
+@
+Using the combination of functions \texttt{plot(circular(...))}, find out
+which the two seems more uniformly distributed on the circle.
+\par\noindent\textcolor{Blue}{\textbf{Note:} remember that the construct
+\texttt{<-} is used to hold the result of a command in a variable.}
+\end{Exercise}
+\begin{Answer}
+Sample \texttt{S1} is more uniformly distributed than sample \texttt{S2}.
+<< fig=TRUE >>=
+plot(circular(S1))
+@
+<< fig=TRUE >>=
+plot(circular(S2))
+@
+\end{Answer}
+
+
+
+
+\bibliography{references}
+
+\cleardoublepage
+\shipoutAnswer
+\end{document}

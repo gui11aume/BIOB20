@@ -274,3 +274,9 @@ TSWLatexianTemp*
 
 # Makeindex log files
 *.lpz
+
+# Additional files:
+*.vimtags
+*.pdf
+*.DS_Store
+
