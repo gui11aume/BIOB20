@@ -52,18 +52,20 @@ whether insects could keep track of time in the absence of external
 signals.
 
 
-\section{The experiments of Konopa and Benzer}
+\section{The experiments of Konopka and Benzer}
 
-In their 1971 landmark article~\cite{konopka1971clock}, Konopa and Benzer
+In their 1971 landmark article~\cite{konopka1971clock}, Konopka and Benzer
 studied hatching in fruit flies of the species \textit{Drosophila
 melanogaster}. They kept the larvae in light--dark cycles of 12 hours
 each, and then maintained the pupae (the equivalent of cocoons for flies)
 in complete darkness for 4 consecutive days and used an automated system
 to record when they hatched.
 
-The data of Konopa and Benzer were reproduced from \cite{konopka1971clock}
-with some edits to facilitate their representation. Load the first data
-set in your R session with the command below.
+The data of Konopka and Benzer were reproduced from \cite{konopka1971clock}
+with some edits to facilitate their representation. The function
+\texttt{scan(...)} can be used to read in data that consists of a single
+entry per line. Load the first data set in your R session with the command
+below.
 << >>=
 url <- "https://raw.githubusercontent.com/gui11aume/BIOB20/main/chapter_2/KB71_wt.txt"
 KBwt <- scan(url)
@@ -91,8 +93,8 @@ data structure.
 
 
 \begin{Exercise}[name=Question]
-What are the first 6 elements of the vector \texttt{KBwt}?
-\par\noindent\textcolor{BrickRed}{\textbf{Quercus:} concatenate.}
+Use the function \texttt{head(...)} to show the first 6 elements of the
+vector \texttt{KBwt}. What is the first value?
 \end{Exercise}
 \begin{Answer}
 << >>=
@@ -137,10 +139,11 @@ package will be available.
 
 
 \begin{Exercise}[name=Question]
+\label{excirc}
 The code below activates the packages \texttt{circular} and plots the
 hatching data in a circular way, each dot representing a fly that hatched.
-Run the code in your R session. Which is the hour where flies hatch the
-most?
+Run the code in your R session. How many flies hatched in the interval
+2:00 to 3:00?
 << eval=FALSE, echo=TRUE >>=
 library(circular)
 plot(circular(KBwt, template="clock24", units="hours"), stack=TRUE)
@@ -150,65 +153,15 @@ plot(circular(KBwt, template="clock24", units="hours"), stack=TRUE)
 << fig=TRUE >>=
 library(circular)
 plot(circular(KBwt, template="clock24", units="hours"), stack=TRUE)
+# There are two data points in the interval 2:00 to 3:00.
 @
 \end{Answer}
 
-We will explore the function \texttt{plot(...)} in details later. For now,
-we just need to know that it genreates nice circular diagrams if we use it
-in combination with the function \texttt{circular(...)} from the package
-with the same name. For now, let us practice a little more.
-
-We can sometimes make it a little easier to see how many points are in
-different areas by using the options \texttt{stack=TRUE, sep=.05}.
+Maybe our eye perceives some imbalance in the distribution, but we do not
+have any expectation of what the plot should look like if flies were
+hatching at random times. This is where we should start.
 
 
-\begin{Exercise}[name=Question]
-Run the code below in your R session. How many points are above the
-horizontal line? 
-<< eval=FALSE, echo=TRUE >>=
-set.seed(123)
-plot(circular(runif(n=50, max=2*pi)), stack=TRUE, sep=.05)
-@
-\par\noindent\textcolor{Blue}{\textbf{Note:} you can run the code without
-the option \texttt{stack=TRUE} to see how hard it becomes to answer.}
-\end{Exercise}
-\begin{Answer}
-<< fig=TRUE >>=
-library(circular)
-set.seed(123)
-plot(circular(runif(n=50, max=2*pi)), stack=TRUE, sep=.05)
-# There are 25 points above the horizontal line.
-@
-\end{Answer}
-
-
-Using the functions \texttt{plot(...)} and \texttt{circular(...)} can
-allow us to see that some distributions accumulate around a certain value.
-
-\begin{Exercise}[name=Question]
-Generate the random samples \texttt{S1} and \texttt{S2} by running the
-code below.
-<< >>=
-set.seed(123)
-S1 <- runif(n=100, max=2*pi) + 0.12345
-S2 <- runif(n=100, max=2*pi) * 0.12345
-@
-Using the combination of functions \texttt{plot(circular(...))}, find out
-which the two seems more uniformly distributed on the circle.
-\par\noindent\textcolor{Blue}{\textbf{Note:} remember that the construct
-\texttt{<-} is used to hold the result of a command in a variable.}
-\end{Exercise}
-\begin{Answer}
-Sample \texttt{S1} is more uniformly distributed than sample \texttt{S2}.
-<< fig=TRUE >>=
-plot(circular(S1))
-@
-<< fig=TRUE >>=
-plot(circular(S2))
-@
-\end{Answer}
-
-% The uniform distribution %% Maybe move later?
 \section{The uniform distribution}
 
 In R, the function \texttt{runif(...)} generates a random sample of
@@ -227,51 +180,306 @@ runif(n=1)
 @
 \end{Answer}
 
-In R, the function \texttt{sum(...)} can be combined with the operator
-\texttt{==} to count how many elements of a vector are equal to a target
-value.
-<< >>=
-sum(c(0.23, 0.17, 0.91, 0.23) == 0.23)
-@
 
-Likewise, we can use the operators \texttt{>} and \texttt{<} to
-count how many elements are above or below a target value. 
-<< >>=
-sum(c(0.23, 0.17, 0.91, 0.23) > 0.23)
-@
-
+The uniform distribution is not restricted to numbers from 0 to 1. One can
+produce uniform random numbers between any two values.
 
 \begin{Exercise}[name=Question]
-Generate 1000 numbers between 0 and 1 using the function
-\texttt{runif(...)} and count how many of them are above 0.5.
+Using the documentation if necessary, generate a uniform random number
+between 0 and 24.
 \par\noindent\textcolor{BrickRed}{\textbf{Quercus:} use seed 123.}
 \end{Exercise}
 \begin{Answer}
 << >>=
 set.seed(123)
-sum(runif(n=1000) > 0.5)
+sum(runif(n=1, max=24))
 @
 \end{Answer}
 
-The uniform distribution is not restricted to numbers between 0 and 1. One
-can produce uniform random numbers between any two threshold values.
 
+We can now see how a typical uniform random sample would look like in the
+representation of Question~\ref{excirc}.
 
 \begin{Exercise}[name=Question]
-Using the documentation if necessary, generate 1000 uniform numbers
-between 0 and $2\pi$ using the function \texttt{runif(...)} and count how
-many of them are above 0.5.
-\par\noindent\textcolor{Blue}{\textbf{Note:} in R, the constant $\pi$ is
-written \texttt{pi}.}
+\label{exunif}
+Produce a uniform random sample between 0 and 24 with the same size as
+the data set \texttt{KBwt}. Call this random sample \texttt{KBrnd}. Using
+the same command as in Question~\ref{excirc}, plot this sample in circular
+format. How many stacks of 5 points appear on the plot?
+\par\noindent\textcolor{BrickRed}{\textbf{Quercus:} use seed 123.}
+\end{Exercise}
+\begin{Answer}
+<< fig=TRUE >>=
+set.seed(123)
+KBrnd <- runif(n=length(KBwt), max=24)
+plot(circular(KBrnd, template="clock24", units="hours"), stack=TRUE)
+# There are two stacks of 5 points: one in the interval 6:00 to 7:00
+# and the other one in the interval 9:00 to 10:00.
+@
+\end{Answer}
+
+
+The plots of Question~\ref{excirc} and Question~\ref{exunif} have a
+different look and we are tempted to conclude that flies may have a
+mechanism to keep track of time in the absence of external cues. But how
+sure are we that the plot of Question~\ref{excirc} cannot be obtained by
+chance alone? If it were, we may be looking for mechanisms that do not
+actually exist.
+
+To answer this question, we need to return to the framework of statistical
+testing. Namely, we need
+\begin{enumerate}
+  \item
+  A null hypothesis.
+  \item
+  An alternative  hypothesis.
+  \item
+  A protocol to collect data.
+  \item
+  A test statistic (or score).
+  \item
+  A decision rule.
+\end{enumerate}
+
+\begin{Exercise}[name=Question]
+What are the null and the alternative hypotheses in this case?
+\end{Exercise}
+\begin{Answer}
+The null hypothesis is that the time at which fruit flies hatch is
+uniformly random throughout the 24 hours of the day. The alternative
+hypothesis is that fruit flies preferentially hatch at some (unspecified)
+time of the day.
+\end{Answer}
+
+
+The protocol to collect data was designed by Konopka and Benzer and is
+detailed in reference~\cite{konopka1971clock}. The main difficulty is to
+monitor hatching in the dark without disturbing the pupae, which was done
+with a machine called a ``bang-box''. The data was somewhat modified so
+that it is easier to plot, but we will not go deeper into the data
+collection protocol here.
+
+Finding a good statistic is not straightforward. We will have to learn a
+more about R in order to carry out the computations we need.
+
+
+\section{The test statistic}
+
+Many statistics have been proposed to discriminate the null hypothesis
+from the alternative hypothesis in the case of circular
+data~\cite{ajne1968simple,pycke2010some}. However, they are fairly
+elaborate and we would like to use something simpler. The image below
+illustrates the logic of our approach.
+
+\begin{center}
+\includegraphics{our_statistic.pdf}
+\end{center}
+
+
+The sum of the distances between the points is always the same (it is
+equal to the length of a full circle) so we cannot use it as a score.
+However, the sum of the squared distances depends on the exact arrangement
+of the points. To take an extreme examples, if 4 points are dividing a
+circle of length 1 in equal parts, the sum of the squared distances is
+$0.25^2 + 0.25^2 + 0.25^2 + 0.25^2  = 0.25$. In comparison, if the points
+are exactly on top of each other, the score is $0^2 + 0^2 + 0^2 + 1^2 =
+1$, which is gerater. Our statistic will thus be the sum of the squared
+distances between the points.
+
+
+The first ingredient to compute our score is the function
+\texttt{sort(...)}.
+
+\begin{Exercise}[name=Question]
+Generate 5 numbers between 0 and 1 and sort them using the function
+\texttt{sort(...)} What is the smallest value?
 \par\noindent\textcolor{BrickRed}{\textbf{Quercus:} use seed 123.}
 \end{Exercise}
 \begin{Answer}
 << >>=
 set.seed(123)
-sum(runif(n=1000, max=2*pi) > 0.5)
+sort(runif(n=5))
 @
 \end{Answer}
 
+
+Next we need the function \texttt{diff(...)} to compute the distance
+between consecutive points.
+
+\begin{Exercise}[name=Question]
+Generate 5 numbers between 0 and 1 and sort them using the function
+\texttt{sort(...)}. Compute the distances between consecutive points using
+the function \texttt{diff(...)}. What is the smallest distance?
+\par\noindent\textcolor{BrickRed}{\textbf{Quercus:} use seed 123.}
+\end{Exercise}
+\begin{Answer}
+<< >>=
+set.seed(123)
+diff(sort(runif(n=5)))
+@
+\end{Answer}
+
+
+Note that the function \texttt{diff(...)} has one element fewer than its
+input vector. This is because it does not ``wrap around'' to compute the
+distance between the last element and the first. This is a bit of an
+issue, but we are going to ignore it in order to keep our score simple.
+
+Finally, we need to compute the square of the distances, which we can do
+by raising them to the power 2 with the operator \texttt{\^{}2}.
+
+One of the most important features of R is that numeric values are not
+numbers, they are \emph{vectors}. This means that mathematical operations
+such as \texttt{\^{}2} are applied to all the values of the input
+simultaneously.
+<< >>=
+c(1,2,3,4)^2
+@
+
+
+\begin{Exercise}[name=Question]
+Generate 5 numbers between 0 and 1 and sort them using the function
+\texttt{sort(...)}. Compute the distances between consecutive points using
+the function \texttt{diff(...)}. Compute their squares with the operator
+\texttt{\^{}2}. Finally, compute the sum of the squared distances with the
+function \texttt{sum(...)}.
+\par\noindent\textcolor{BrickRed}{\textbf{Quercus:} use seed 123.}
+\end{Exercise}
+\begin{Answer}
+<< >>=
+set.seed(123)
+sum(diff(sort(runif(n=5)))^2)
+@
+\end{Answer}
+
+
+\section{The decision rule}
+
+Now that we have a score, we need to make up a decision rule. As usual,
+the null hypothesis will allow us to create random samples of the score so
+that we know what fluctuations to expect under this hypothesis. From
+there, we will decide which values of the statistic are not compatible
+with the null hypothesis.
+
+
+\begin{Exercise}[name=Question]
+Produce a uniform random sample between 0 and 24 with the same size as the
+data set \texttt{KBwt}. Compute the statistic of the previous section on
+this random sample.
+\par\noindent\textcolor{BrickRed}{\textbf{Quercus:} use seed 123.}
+\end{Exercise}
+\begin{Answer}
+<< >>=
+set.seed(123)
+sum(diff(sort(runif(n=length(KBwt), max=24)))^2)
+@
+\end{Answer}
+
+
+\begin{Exercise}[name=Question]
+Using the function \texttt{replicate(...)}, produce 1000 random values of
+the statistic under the null hypothesis. Store them in a variable called
+\texttt{nulld} (this stands for ``null distribution''). Use the function
+\texttt{mean(...)} to compute the approximate averge of the score under
+the null hypothesis.
+\par\noindent\textcolor{BrickRed}{\textbf{Quercus:} use seed 123.}
+\end{Exercise}
+\begin{Answer}
+<< >>=
+set.seed(123)
+nulld <- replicate(n=1000, sum(diff(sort(runif(n=length(KBwt), max=24)))^2))
+mean(nulld)
+@
+\end{Answer}
+
+
+The average gives us an idea of the typical value of the score when the
+null hypothesis is true. But to make a decision rule we need to know which
+values are atypical, so that we can confidently reject the null hypothesis
+when the score is too large to be explained by chance. The simplest
+strategy is to take the maximum ever observed by chance.
+
+\begin{Exercise}[name=Question]
+Use the function \texttt{max(...)} to return the maximum value of
+\texttt{nulld}.
+\end{Exercise}
+\begin{Answer}
+<< >>=
+max(nulld)
+@
+\end{Answer}
+
+
+It is unlikely that we would obtain a large value than this by chance,
+because out of 1000 random samples, we never observed them. Let us now
+return to the experimental data and conclude.
+
+The last difficulty is that the original numbers go from 0 to 4 $\times$
+24 = 96. We need to reset the count every 24 hours. We can do this with
+the operator ``modulo 24'', which is written \texttt{\%\% 24}.
+<< >>=
+c(23.12, 24.67) %% 24
+@
+
+\begin{Exercise}[name=Question]
+Compute the statistic for the experimental data set \texttt{KBwt} and
+conclude.
+\end{Exercise}
+\begin{Answer}
+<< >>=
+sum(diff(sort(KBwt %% 24))^2)
+@
+The score is higher than the maximum ever observed by chance (4.346533 >
+2.183868). It is unlikely that the asymetries observed in the experimental
+sample are due to chance alone so we reject the null hypothesis and
+conclude that fruit flies have a way to keep track of time in the absence
+of external cues. Fruit flies of the species \it{Drosophila melanogaster}
+have a preference for hatching 5 to 12 hours after sunrise, even if they
+cannot see the sunlight.
+\end{Answer}
+
+
+\section{The clock mutant}
+
+In their article, Konopka and Benzer obtained a mutant line of fruit flies
+that they claimed had lost the capacity to keep track of
+time~\cite{konopka1971clock}. They recorded the same type of data on the
+mutant, which you can load into your R session with the command below.
+<< >>=
+url <- "https://raw.githubusercontent.com/gui11aume/BIOB20/main/chapter_2/KB71_mut.txt"
+KBmut <- scan(url)
+@
+
+\begin{Exercise}[name=Question]
+As always, make the routine checks on external data you load into your R
+session. What is the length of the vector \texttt{KBmut}?
+\end{Exercise}
+\begin{Answer}
+<< >>=
+length(KBmut)
+@
+\end{Answer}
+
+
+%\begin{Exercise}[name=Question]
+%What is the first value of the vector \texttt{KBmut}?
+%\end{Exercise}
+%\begin{Answer}
+%<< >>=
+%head(KBmut)
+%@
+%\end{Answer}
+%
+%
+%\begin{Exercise}[name=Question]
+%Compute the value of the statistic for this mutant. What is your
+%conclusion?
+%\end{Exercise}
+%\begin{Answer}
+%<< >>=
+%sum(diff(sort(KBmut))^2)
+%@
+%\end{Answer}
 
 
 
