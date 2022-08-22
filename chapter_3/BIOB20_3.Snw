@@ -31,7 +31,7 @@ Answer of \ExerciseName\ \ExerciseHeaderNB}\par}
 % Options.
 \SweaveOpts{keep.source=TRUE}
 
-\title{Uniform variables / circadian clocks}
+\title{Binomial variables / Mendelian genetics}
 \author{Guillaume Filion}
 
 
@@ -593,12 +593,6 @@ of the first clock gene. The most challenging step was the design of a
 score that would discriminate the null from the alternative hypothesis,
 while being easy to compute. We came up with a pragmatic solution that did
 the job.
-
-The null hypothesis revolved around the uniform distribution, which can be
-simulated with the function \texttt{runif(...)}. The principal feature of
-the uniform distribution is that every value is equally probable as any
-other. This is the distribution that most people have in mind when they
-say ``at random''.
 
 We have introduced the concept of p-value, which is used to measure the
 confidence in our final decision to accept or reject the null hypothesis.

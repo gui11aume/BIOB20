@@ -524,15 +524,13 @@ probability of sampling 1 is 0.2 times the probability of sampling 0
 sample(x=c(0,1), size=15, replace=TRUE, prob=c(1, 0.2))
 @
 
-\begin{definition}[vaccine efficiency]
-\label{eff}
+These considerations lead us to define the \emph{efficiency} of a vaccine.
 If a vaccine reduces a given risk by a factor $x$ compared to the placebo,
 it is said to have an efficiency of $1-x$ against this risk, usually
 expressed as a percentage. Note that there is no such thing as  ``the
 efficiency of a vaccine'' as one always needs to specify the risk that is
 considered (vaccinces can protect against a given symptom, against
 hospitalisation, against transmission \textit{etc}.).
-\end{definition}
 
 Following up on the example above, if a vaccine reduces the risk by a
 factor 5, it has an efficiency of 0.8 or 80\%.
@@ -659,7 +657,7 @@ observation. We have not checked all the possible values, but we can at
 least choose the best estimate among the values that we tested.
 
 
-\section{Optional questions}
+\section{Going further with a Bayesian approach}
 
 Notice that maximum likelihood estimation merely says which value of the
 efficiency we should favor, but it does not say how plausible this value
