@@ -2,6 +2,7 @@
 
 % Packages.
 \usepackage{amsthm}
+\usepackage{amsmath}
 \usepackage[answerdelayed]{exercise}
 \usepackage[usenames,dvipsnames]{color}
 
@@ -31,9 +32,9 @@ Answer of \ExerciseName\ \ExerciseHeaderNB}\par}
 % Options.
 \SweaveOpts{keep.source=TRUE}
 
-\title{Uniform variables / circadian clocks}
+\title{The binomial distribution / Mendelian genetics}
 \author{Guillaume Filion}
-
+\date{}
 
 
 \begin{document}
@@ -43,352 +44,197 @@ Answer of \ExerciseName\ \ExerciseHeaderNB}\par}
 
 
 
-%% The problem %%
 \section{The problem}
 
-At the end of the 1960s, Ronald Konopka and Seymour Benzer, two
-researchers at the California Institute of Technology were studying
-whether insects could keep track of time in the absence of external
-signals.
+In 1913, an undergraduate student named Alfred H. Sturtevant published one
+of the most influential scientific discoveries in genetics
+\cite{sturtevant1913linear}. He was working in the laboratory of Thomas H.
+Morgan who had just figured out the rules of inheritance for genes on the
+X chromosome of the fruit fly \textit{Drosophila melanogaster}.
+
+Back then, scientists knew that genes are on chromosomes, but they had no
+idea what they were made of --- the fact that it is DNA would come only in
+1944\cite{avery1944studies}. Yet, Sturtevant found a way to map the genes
+relative to each other.
 
 
-\section{The experiments of Konopka and Benzer}
+\section{The binomial distribution}
 
-In their 1971 landmark article~\cite{konopka1971clock}, Konopka and Benzer
-studied hatching in fruit flies of the species \textit{Drosophila
-melanogaster}. They kept the larvae in light--dark cycles of 12 hours
-each, and then maintained the pupae (the equivalent of cocoons for flies)
-in complete darkness for 4 consecutive days and used an automated system
-to record when they hatched.
+Wild fruit flies isolates have a black body and red eyes, but Sturtevant
+had access to mutants with a yellow body or with vermilion eyes (bright
+red eyes). He knew that the mutated genes were on the X chromosome in both
+cases. The allele for black body will be labeled $b^0$ and that for yellow
+body $b^1$. Likewise, the allele for red eyes will be labelled $r^0$ and
+that for vermilion eyes $r^1$.
 
-The data of Konopka and Benzer were reproduced from \cite{konopka1971clock}
-with some edits to facilitate their representation. The function
-\texttt{scan(...)} can be used to read in data that consists of a single
-entry per line. Load the first data set in your R session with the command
-below.
-<< >>=
-url <- "https://raw.githubusercontent.com/gui11aume/BIOB20/main/chapter_2/KB71_wt.txt"
-KBwt <- scan(url)
-@
+In one of his experiments, Sturtevant crossed heterozygous females
+$b^0/b^1$ and looked at the phenotype of the males in the progeny. Males
+have only one X chromosome, which they pass on to their daughters but not
+to their son so in this case the genotype of the father is irrelevant.
 
-Whenever you load external data in R, you should run some routine checks
-to make sure that it was loaded properly. For instance, you should always
-check the size of the data set. For this, you can use the function
-\texttt{length(...)}, which returns the number of elements of a vector.
-
-\begin{Exercise}[name=Question]
-What is the number of elements in the vector \texttt{KBwt}?
-\end{Exercise}
-\begin{Answer}
-<< >>=
-length(KBwt)
-@
-\end{Answer}
-
-
-It is also good practice to watch the first elements of the data set in
-order to understand what type of values it contains. For this, you can use
-the function \texttt{head(...)}, which returns the first 6 elements of a
-data structure.
+Among the 1084 males in the progeny of the crosses, 571 were black and 513
+were yellow. From this, Sturtevant concluded that males were equally
+likely to receive the $b^0$ or the $b^1$ allele from their mother.
 
 
 \begin{Exercise}[name=Question]
-Use the function \texttt{head(...)} to show the first 6 elements of the
-vector \texttt{KBwt}. What is the first value?
-\end{Exercise}
-\begin{Answer}
-<< >>=
-head(KBwt)
-@
-\end{Answer}
-
-
-Every entry in the vector \texttt{KBwt} corresponds to a fly that hatched
-within the 4 days of the experiment, and the value is the time it did,
-expressed in hours since the start. The values are sorted in increasing
-order.
-
-Our first question is whether flies hatch at any time, or on the contrary
-whether they hatch at preferential hours of the day. For this we will need
-an elaborate way of representing the data.
-
-
-\section{The \texttt{circular} package}
-
-The R programming language can be extended with so-called packages, created
-by statistics enthusiasts all over the world. The \texttt{circular}
-package will prove particularly useful to represent the data at hand.
-
-You should already have installed the package. If this is not the case,
-run the code below:
-<< eval=FALSE, echo=TRUE >>=
-install.packages(circular)
-@
-
-Depending on your machine and on how you installed R, you will eitehr have
-to click on the mirror you want to download the package from, or choose a
-number from the list. Your choice will not affect the result, but it makes
-sense to pick the mirror nearest to you (there is one in Toronto). Most
-likely, R will also install another package and will print the
-statement ``\texttt{also installing the dependency `mvtnorm'}''.
-
-When the package is installed, you have to activate it before using it
-with the command \texttt{library(circular)}. You need to run this command
-only once per session. After the first call, all the functions of the
-package will be available.
-
-
-\begin{Exercise}[name=Question]
-\label{excirc}
-The code below activates the packages \texttt{circular} and plots the
-hatching data in a circular way, each dot representing a fly that hatched.
-Run the code in your R session. How many flies hatched in the interval
-2:00 to 3:00?
-<< eval=FALSE, echo=TRUE >>=
-library(circular)
-plot(circular(KBwt, template="clock24", units="hours"), stack=TRUE)
-@
-\end{Exercise}
-\begin{Answer}
-<< fig=TRUE >>=
-library(circular)
-plot(circular(KBwt, template="clock24", units="hours"), stack=TRUE)
-# There are two data points in the interval 2:00 to 3:00.
-@
-\end{Answer}
-
-Maybe our eye perceives some imbalance in the distribution, but we do not
-have any expectation of what the plot should look like if flies were
-hatching at random times. This is where we should start.
-
-
-\section{The uniform distribution}
-
-In R, the function \texttt{runif(...)} generates a random sample of
-numbers between 0 and 1. Numbers are drawn from the uniform distribution,
-meaning that every value between 0 and 1 is equally likely.
-
-\begin{Exercise}[name=Question]
-Using the documentation if necessary, generate a single random number
-between 0 and 1 using the function \texttt{runif(...)}.
-\par\noindent\textcolor{BrickRed}{\textbf{Quercus:} use seed 123.}
+\label{exsimple}
+Using the function \texttt{sample(...)}, produce a random sample of size
+5 from the pair $\{0,1\}$.
+\par\noindent\textcolor{BrickRed}{\textbf{Quercus:} use seed 123 and
+concatenate}
 \end{Exercise}
 \begin{Answer}
 << >>=
 set.seed(123)
-runif(n=1)
+sample(x=c(0,1), size=5, replace=TRUE)
 @
 \end{Answer}
 
 
-The uniform distribution is not restricted to numbers from 0 to 1. One can
-produce uniform random numbers between any two values.
-
 \begin{Exercise}[name=Question]
-Using the documentation if necessary, generate a uniform random number
-between 0 and 24.
-\par\noindent\textcolor{BrickRed}{\textbf{Quercus:} use seed 123.}
+\label{exsample}
+Using the answer of Question~\ref{exsimple} and the function
+\texttt{sum(...)}, produce a random sample of size 1084 from the pair
+$\{0,1\}$. Return the total number of 1s in the sample.
+\par\noindent\textcolor{BrickRed}{\textbf{Quercus:} use seed 123}
 \end{Exercise}
 \begin{Answer}
 << >>=
 set.seed(123)
-sum(runif(n=1, max=24))
+sum(sample(x=c(0,1), size=1084, replace=TRUE))
 @
 \end{Answer}
 
 
-We can now see how a typical uniform random sample would look like in the
-representation of Question~\ref{excirc}.
+The distribution that we have sampled in Question~\ref{exsample} is called
+the binomial distribution.
+
+\begin{definition}[binomial distribution]
+The binomial distribution describes the total occurences of some events
+that are independent and have the same proability of occurence. The
+binomial distribution is usually represented by the symbol $B(n,p)$, where
+$n$ is the maximum number of events (sometimes referred to as the size)
+and $p$ is their probability.
+\end{definition}
+
+We will not need it, but one should note that a variable $X$ follows the
+binomial distribution $B(n,p)$ if and only if the probability that $X$
+takes the value $k$ is given by the expression
+\begin{equation}
+\label{formula}
+P(X = k) = \frac{n!}{k!(n-k)!}p^k(1-p)^{n-k}.
+\end{equation}
+
+We are thus interested in generating samples from the distribution
+$B(1084, 1/2)$ because there are 1084 events in total and the alleles
+$b^0$ and $b^1$ are assumed to have the same probablity 1/2. We can do
+this with the solution of Question~\ref{exsample} but R provides the
+function \texttt{rbinom(...)}, which is more efficient and less verbose.
+
 
 \begin{Exercise}[name=Question]
-\label{exunif}
-Produce a uniform random sample between 0 and 24 with the same size as
-the data set \texttt{KBwt}. Call this random sample \texttt{KBrnd}. Using
-the same command as in Question~\ref{excirc}, plot this sample in circular
-format. How many stacks of 5 points appear on the plot?
-\par\noindent\textcolor{BrickRed}{\textbf{Quercus:} use seed 123.}
+\label{exbinom}
+Using the documentation if necessary, produce a random sample of size 1
+from $B(1084, 1/2)$ using the function \texttt{rbinom(...)}.
+\par\noindent\textcolor{Blue}{\textbf{Note:} $n$ is the parameter
+\texttt{size} of the \texttt{rbinom} function.}
+\par\noindent\textcolor{BrickRed}{\textbf{Quercus:} use seed 123}
 \end{Exercise}
 \begin{Answer}
-<< fig=TRUE >>=
+<< >>=
 set.seed(123)
-KBrnd <- runif(n=length(KBwt), max=24)
-plot(circular(KBrnd, template="clock24", units="hours"), stack=TRUE)
-# There are two stacks of 5 points: one in the interval 6:00 to 7:00
-# and the other one in the interval 9:00 to 10:00.
+rbinom(n=1, size=1084, prob=1/2)
 @
 \end{Answer}
 
 
-The plots of Question~\ref{excirc} and Question~\ref{exunif} have a
-different look and we are tempted to conclude that flies may have a
-mechanism to keep track of time in the absence of external cues. But how
-sure are we that the plot of Question~\ref{excirc} cannot be obtained by
-chance alone? If it were, we may be looking for mechanisms that do not
-actually exist.
+We see that the samples that are produced in Question~\ref{exsample} and
+in Question~\ref{exbinom} are not identical, even when we use the same
+random seed. This means that the function \texttt{runif(...)} is not just
+a wrapper (a shortcut for a longer expression) for the solution that we
+provided at Question~\ref{exsample}. As mentioned above, the
+implementation of \texttt{runif} is computationally more efficient. We
+will thus use the function \texttt{rbinom(...)} to sample from the
+binomial distribution.
 
-To answer this question, we need to return to the framework of statistical
-testing. Namely, we need
+
+\section{Analyses with one gene}
+
+Now that we can easily produce samples from the target distribution, we
+can use a standard statistical analysis to test whether the alleles $b^0$
+and $b^1$ are equally probable. To this end, we need
 \begin{enumerate}
-  \item
-  A null hypothesis.
-  \item
-  An alternative  hypothesis.
-  \item
-  A protocol to collect data.
-  \item
-  A test statistic (or score).
-  \item
-  A decision rule.
+\item
+A null hypothesis.
+\item
+An alternative  hypothesis.
+\item
+A protocol to collect data.
+\item
+A test statistic.
+\item
+A decision rule.
 \end{enumerate}
 
+
 \begin{Exercise}[name=Question]
-What are the null and the alternative hypotheses in this case?
+What are the null and the alternative hypotheses?
 \end{Exercise}
 \begin{Answer}
-The null hypothesis is that the time at which fruit flies hatch is
-uniformly random throughout the 24 hours of the day. The alternative
-hypothesis is that fruit flies preferentially hatch at some (unspecified)
-time of the day.
+The number of $b^0$ alleles, say, is assumed to be drawn from the binomial
+distribution $B(1084, p)$. The null hypothesis is that $p = 1/2$ and the
+alternative hypothesis is that $p\neq 1/2$.
+\par\noindent\textcolor{Blue}{\textbf{Note:} the alternative is \emph{not}
+that the null hypothesis is false. It is more specific.}
 \end{Answer}
 
 
-The protocol to collect data was designed by Konopka and Benzer; it is
-detailed in reference~\cite{konopka1971clock}. The main difficulty is to
-monitor hatching in the dark without disturbing the pupae, which was done
-with a machine called a ``bang-box''. The data was somewhat modified so
-that it is easier to plot, but we will not go deeper into the data
-collection protocol here.
-
-Finding a good statistic is not straightforward. We will have to learn a
-more about R in order to carry out the computations we need.
-
-
-\section{The test statistic}
-
-Many statistics have been proposed to discriminate the null hypothesis
-from the alternative hypothesis in the case of circular
-data~\cite{ajne1968simple,pycke2010some}. However, they are fairly
-elaborate and we would like to use something simpler. The image below
-illustrates the logic of our approach.
-
-\begin{center}
-\includegraphics{our_statistic.pdf}
-\end{center}
-
-
-The sum of the distances between the points is always the same (it is
-equal to the length of a full circle) so we cannot use it as a score.
-However, the sum of the squared distances depends on the exact arrangement
-of the points. To take an extreme examples, if 4 points are dividing a
-circle of length 1 in equal parts, the sum of the squared distances is
-$0.25^2 + 0.25^2 + 0.25^2 + 0.25^2  = 0.25$. In comparison, if the points
-are exactly on top of each other, the score is $0^2 + 0^2 + 0^2 + 1^2 =
-1$, which is gerater. Our statistic will thus be the sum of the squared
-distances between the points.
-
-
-The first ingredient to compute our score is the function
-\texttt{sort(...)}.
+The protocol to collect the data was given by Sturtevant in
+reference~\cite{sturtevant1913linear}. Here we will simply assume that he
+followed the principles of unbiased data collection and we will not look
+further into this.
 
 \begin{Exercise}[name=Question]
-Generate 5 numbers between 0 and 1 and sort them using the function
-\texttt{sort(...)} What is the smallest value?
-\par\noindent\textcolor{BrickRed}{\textbf{Quercus:} use seed 123.}
+What statistic could we use to distinguish the null from the alternative
+hypothesis?
+\end{Exercise}
+\begin{Answer}
+There are many options. If the null hypothesis is true, we expect that
+approximately half of the sample should consist of $b^0$ alleles. We will
+thus choose the absolute difference to 1084 / 2 = 542.
+\end{Answer}
+
+
+To find a quantitative decision rule, we need to know more about the
+distribution of the statistic so that we can have clear expectations.
+
+\begin{Exercise}[name=Question]
+Produce a random sample of size 1 from $B(1084, 1/2)$ using the function
+\texttt{rbinom(...)} and compute the value of the stastic on this sample
+using the function \texttt{abs(...)} to compute the absolute value.
+\par\noindent\textcolor{BrickRed}{\textbf{Quercus:} use seed 123}
 \end{Exercise}
 \begin{Answer}
 << >>=
 set.seed(123)
-sort(runif(n=5))
-@
-\end{Answer}
-
-
-Next we need the function \texttt{diff(...)} to compute the distance
-between consecutive points.
-
-\begin{Exercise}[name=Question]
-Generate 5 numbers between 0 and 1 and sort them using the function
-\texttt{sort(...)}. Compute the distances between consecutive points using
-the function \texttt{diff(...)}. What is the smallest distance?
-\par\noindent\textcolor{BrickRed}{\textbf{Quercus:} use seed 123.}
-\end{Exercise}
-\begin{Answer}
-<< >>=
-set.seed(123)
-diff(sort(runif(n=5)))
-@
-\end{Answer}
-
-
-Note that the function \texttt{diff(...)} has one element fewer than its
-input vector. This is because it does not ``wrap around'' to compute the
-distance between the last element and the first. This is a bit of an
-issue, but we are going to ignore it in order to keep our score simple.
-
-Finally, we need to compute the square of the distances, which we can do
-by raising them to the power 2 with the operator \texttt{\^{}2}.
-
-One of the most important features of R is that numeric values are not
-numbers, they are \emph{vectors}. This means that mathematical operations
-such as \texttt{\^{}2} are applied to all the values of the input
-simultaneously.
-<< >>=
-c(1,2,3,4)^2
-@
-
-
-\begin{Exercise}[name=Question]
-Generate 5 numbers between 0 and 1 and sort them using the function
-\texttt{sort(...)}. Compute the distances between consecutive points using
-the function \texttt{diff(...)}. Compute their squares with the operator
-\texttt{\^{}2}. Finally, compute the sum of the squared distances with the
-function \texttt{sum(...)}.
-\par\noindent\textcolor{BrickRed}{\textbf{Quercus:} use seed 123.}
-\end{Exercise}
-\begin{Answer}
-<< >>=
-set.seed(123)
-sum(diff(sort(runif(n=5)))^2)
-@
-\end{Answer}
-
-
-\section{The decision rule}
-
-Now that we have a score, we need to make up a decision rule. As usual,
-the null hypothesis will allow us to create random samples of the score so
-that we know what fluctuations to expect under this hypothesis. From
-there, we will decide which values of the statistic are not compatible
-with the null hypothesis.
-
-
-\begin{Exercise}[name=Question]
-Produce a uniform random sample between 0 and 24 with the same size as the
-data set \texttt{KBwt}. Compute the statistic of the previous section on
-this random sample.
-\par\noindent\textcolor{BrickRed}{\textbf{Quercus:} use seed 123.}
-\end{Exercise}
-\begin{Answer}
-<< >>=
-set.seed(123)
-sum(diff(sort(runif(n=length(KBwt), max=24)))^2)
+abs(rbinom(n=1, size=1084, prob=1/2) - 542)
 @
 \end{Answer}
 
 
 \begin{Exercise}[name=Question]
-\label{exnulld}
 Using the function \texttt{replicate(...)}, produce 1000 random values of
-the statistic under the null hypothesis. Store them in a variable called
+the statistic under the null distribution. Store them in a variable called
 \texttt{nulld} (this stands for ``null distribution''). Use the function
-\texttt{mean(...)} to compute the approximate averge of the score under
-the null hypothesis.
-\par\noindent\textcolor{BrickRed}{\textbf{Quercus:} use seed 123.}
+\texttt{mean(...)} to compute the approximate expected value of the
+statistic under the null hypothesis.
+\par\noindent\textcolor{BrickRed}{\textbf{Quercus:} use seed 123}
 \end{Exercise}
 \begin{Answer}
 << >>=
 set.seed(123)
-nulld <- replicate(n=1000, sum(diff(sort(runif(n=length(KBwt), max=24)))^2))
+nulld <- replicate(n=1000, abs(rbinom(n=1, size=1084, prob=1/2) - 542))
 mean(nulld)
 @
 \end{Answer}
@@ -397,12 +243,13 @@ mean(nulld)
 The average gives us an idea of the typical value of the score when the
 null hypothesis is true. But to make a decision rule we need to know which
 values are atypical, so that we can confidently reject the null hypothesis
-when the score is too large to be explained by chance. The simplest
-strategy is to take the maximum ever observed by chance.
+when the score is too large to be explained by chance. A simple option is
+to take the highest value ever observed by chance
+
 
 \begin{Exercise}[name=Question]
-Use the function \texttt{max(...)} to return the maximum value of
-\texttt{nulld}.
+Using the function \texttt{max(...)}, find the highest value of the
+statistic obtained among the 1000 random values of \texttt{nulld}.
 \end{Exercise}
 \begin{Answer}
 << >>=
@@ -411,200 +258,283 @@ max(nulld)
 \end{Answer}
 
 
-It is unlikely that we would obtain a large value than this by chance,
-because out of 1000 random samples, we never observed them. Let us now
-return to the experimental data and conclude.
+This approach is simple, but it has a major weakness: the maximum value
+keeps growing as the sample becomes larger. So if we had decided to
+produce samples of size 10,000 or 100,000 instead of 1000, the maximum
+value would be higher. The choice of 1000 is mostly dictated by the
+speed of our computers, so we would like to find a decision rule that is
+less sensitive to the circumstances.
 
-The last difficulty is that the original numbers go from 0 to 4 $\times$
-24 = 96. We need to reset the count every 24 hours. We can do this with
-the operator ``modulo 24'', which is written \texttt{\%\% 24}.
+A simple fix is to replace the maximum by the top 1\%. The value will
+fluctuate a bit if we generate larger samples, but it will not
+systematically increase. To compute this value, we can sort the random
+values in decreasing order and pick the tenth (because 1\% of 1000 is 10).
+<< eval=FALSE, echo=TRUE >>=
+sort(nulld, decreasing=TRUE)
+@
+
+The only inconvenience is that this produces a lot of output and since we
+only need the tenth value, we can use the function \texttt{head(...)} to
+keep only the part we care about.
 << >>=
-c(23.12, 24.67) %% 24
+head(sort(nulld, decreasing=TRUE), 10)
 @
 
 \begin{Exercise}[name=Question]
-Compute the statistic for the experimental data set \texttt{KBwt} and
-conclude.
+Finish the statistical analysis and conclude about the null hypothesis.
 \end{Exercise}
 \begin{Answer}
-<< >>=
-sum(diff(sort(KBwt %% 24))^2)
-@
-The score is higher than the maximum ever observed by chance (4.346533 >
-2.183868). It is unlikely that the asymetries observed in the experimental
-sample are due to chance alone so we reject the null hypothesis and
-conclude that fruit flies have a way to keep track of time in the absence
-of external cues. Fruit flies of the species \it{Drosophila melanogaster}
-have a preference for hatching 5 to 12 hours after sunrise, even if they
-cannot see the sunlight.
+The value at the top 1\% of the null distribution \texttt{nulld} is 43.
+This means that if the null hypothesis is true, there is an approximately
+1\% chance that the statistic is belowe 542 - 43 = 499 or higher than 542
++ 43 = 585. Sturtevant obtained 571 $b^0$ alleles, which is in the
+interval 499--585, so there is no reason to reject the null hypothesis.
+The results are compatible with expectations.
+
+A more automatic way of concluding is to note that the observed value of
+the stastic is $|571 - 542| = 29 < 43$. This kind of statement is in
+general sufficient to accept the null hypothesis.
 \end{Answer}
 
 
-Once a statistical analysis is finished, it is customary to deliver the
-conclusion with a so-called p-value.
+From the same 1084 males, Sturtevant obtained 574 with red eyes and 510
+with vermilion eyes.
 
-\begin{definition}[p-value]
-The p-value of a statistical test is the probability that the null
-distribution would produce a value that is greater than or equal to the
-observed statistic.
+\begin{Exercise}[name=Question]
+Perform a similar statistical analysis to decide whether the alleles
+$r^0$ and $r^1$ are equally probable.
+\end{Exercise}
+\begin{Answer}
+The null hypothesis, the alternative hypothesis, the data collection
+protocol, the statistic and the decision rule are the same. In this case
+the null distribution is also the same, so we can conclude directly.
+The observed stastic is $|574 - 542| = 32 < 43$ so we accept the null
+hypothesis.
+\end{Answer}
+
+
+\section{Analyses with two genes}
+
+Sturtevant actually recorded both characters for every male. Out of the
+1084 males in the progeny of the cross above, 385 were black with red eyes
+($b^0, r^0$), 186 were black with vermilion eyes ($b^0, r^1$), 189 were
+yellow with red eyes ($b^1, r^0$) and 324 were yellow with vermilion eyes
+($b^1, r^1$).
+
+In his landmark work of 1865, Gregor Mendel had showed that characters are
+inherited independently~\cite{mendel1866versuche} (an English translation
+is available in reference~\cite{mendel1996experiments}). But Gregor Mendel
+never knew that genes are on chromosome and Sturtevant was interested in
+testing whether characters were inherted independently even when they are
+on the same chromsome.
+
+\begin{definition}[independence]
+In statistics, two events are independent if the probability that they
+both occur is the product of the probabilities that each one occurs
+individually. Mathematically, $A$ and $B$ are two independent events if
+and only if  $\text{Prob}(A\cap B) = \text{Prob}(A) \text{Prob}(B)$.
 \end{definition}
 
-We cannot estiamte the p-value in our case because the null distribution
-never produced a value that is close to the observed statistic. In such
-cases, we can only specify that the p-value is estimated to be lower than
-a certain value.
+Since the frequency of the allele $b^0$ is 1/2 and that of the allele
+$r^0$ is also 1/2, the frequency of the genotype $b^0, r^0$ should be $1/2
+\times 1/2 = 1/4$ if the alleles are inherited independently. In other
+words, the number of genotypes $b^0, r^0$ should be distributed as
+$B(1084, 1/4)$.
 
 
 \begin{Exercise}[name=Question]
-What upper bound can we give for the p-value in the analysis above?
+In this context, what are the null and the alternative hypotheses?
 \end{Exercise}
 \begin{Answer}
-The null distribution has never produced a value greater than or equal to
-4.346533 out of 1000 samplings. We conclude that the probability of
-producing such a large value must be lower than 1/1000.
-\end{Answer}
-
-
-\section{The \textit{per} mutant}
-
-In their article, Konopka and Benzer obtained a mutant that they called
-\textit{per} for ``period'' and that that they claimed had lost the
-capacity to keep track of time~\cite{konopka1971clock}. They recorded the
-same type of data on the mutant, which you can load into your R session
-with the command below.
-<< >>=
-url <- "https://raw.githubusercontent.com/gui11aume/BIOB20/main/chapter_2/KB71_mut.txt"
-KBmut <- scan(url)
-@
-
-\begin{Exercise}[name=Question]
-As always, make the routine checks on external data you load into your R
-session. What is the length of the vector \texttt{KBmut}?
-\end{Exercise}
-\begin{Answer}
-<< >>=
-length(KBmut)
-@
+The number of genotypes $b^0, r^0$ is assumed to be drawn from the
+binomial distribution $B(1084, p)$. The null hypothesis is that $p = 1/4$
+and the alternative hypothesis is that $p\neq 1/4$.
 \end{Answer}
 
 
 \begin{Exercise}[name=Question]
-What is the first value of the vector \texttt{KBmut}?
+Can we use the same statistic as in the previous section?
 \end{Exercise}
 \begin{Answer}
-<< >>=
-head(KBmut)
-@
+The expected value is no longer 542 but 271. We should now compute the
+deviation from 271.
 \end{Answer}
 
 
 \begin{Exercise}[name=Question]
-Make a circular plot of the data using the command of
-Question~\ref{excirc} as a template. How many points are in the tallest
-stack in the interval from 3:00 to 4:00?
-\end{Exercise}
-\begin{Answer}
-<< fig=TRUE >>=
-plot(circular(KBmut, template="clock24", units="hours"), stack=TRUE)
-# There are 5 points inthe tallest stack in the
-# interval from 3:00 to 4:00.
-@
-\end{Answer}
-
-
-We need to recompute the null distribution for this case because the sample
-is larger than for the previous data set.
-
-
-\begin{Exercise}[name=Question]
-Recompute the null distribution of Question~\ref{exnulld} for the data set
-\texttt{KBmut}. Compute the mean of this new null distribution.
-\par\noindent\textcolor{BrickRed}{\textbf{Quercus:} use seed 123.}
+\label{exnulld_pair}
+Using the function \texttt{replicate(...)}, produce 1000 random values of
+the statistic under the null distribution. Store them in a variable called
+\texttt{nulld}. Use the function \texttt{mean(...)} to compute the
+approximate expected value of the statistic under the null hypothesis.
+\par\noindent\textcolor{BrickRed}{\textbf{Quercus:} use seed 123}
 \end{Exercise}
 \begin{Answer}
 << >>=
 set.seed(123)
-nulld <- replicate(n=1000, sum(diff(sort(runif(n=length(KBmut), max=24)))^2))
+nulld <- replicate(n=1000, abs(rbinom(n=1, size=1084, prob=1/4) - 271))
 mean(nulld)
 @
 \end{Answer}
 
 
 \begin{Exercise}[name=Question]
-Compute the value of the statistic for this mutant. What is your
-conclusion?
+What is the threshold value at the top 1\% with the new null distribution?
 \end{Exercise}
 \begin{Answer}
 << >>=
-sum(diff(sort(KBmut %% 24))^2)
+# The value is 36.
+head(sort(nulld, decreasing=TRUE), 10)
 @
 \end{Answer}
 
-
-In R, you can compute the number of elements that above or equal to a
-target value by combining the function \texttt{sum(...)} with the operator
-\texttt{>=} (a `greater than' sign follwed by an `equal' sign) in a
-similar way as it can be done for the operator \texttt{==}.
-<< >>=
-sum(c(1,2,3,4) == 3)
-sum(c(1,2,3,4) >= 3)
-@
 
 \begin{Exercise}[name=Question]
-Estimate the p-value that is associated with your previous conclusion.
+Finish the statistical analysis and conclude about the null hypothesis.
 \end{Exercise}
 \begin{Answer}
-<< >>=
-mean(nulld >= 0.9263827)
-@
-Approximately 21.7\% of the values sampled in the null distribution are
-greater than or equal to the observed statistic.
+The observed stastic is $|385 - 271| = 114 > 36$. This value is way higher
+than the threshold so we reject the null hypothesis. We conclude that the
+probability of ocurrence of $b^0, r^0$ is not 1/4 and the two alleles are
+not inherited independently.
 \end{Answer}
 
 
-Observe that the p-value is small when the null hypothesis is rejected and
-the p-value is large when the null hypothesis is accepted. Intuitievly, if
-the null hypothesis is a poor explanation for the data, the observed
-statistic will lie far from the typical values of the null distribution
-and the probability of obtaining greater values is small. On the contrary,
-if the null hypothesis is a good explanation for the data, the observed
-statistic will be among the typical calues of the null distribution and
-the probability of obtaining greater values is high.
+\section{Estimating the linkage}
 
-These considerations explain why p-values are commonly used to quantify
-the confidence in accepting or rejecting the null hypothesis.
+Sturtevant went further than observing that that genes were not inherited
+independently. He also use the probability of association between the
+alleles as a distance between the corresponding genes. In his footsteps,
+we set out to estimate the probability of occurrence of the genotype $b^0,
+r^0$.
+
+For this, we can use the maximum likelihood method, whereby we screen
+hypotheses and pick the one where the observed events are the most
+probable.
 
 
-\section{Conclusions}
+\begin{Exercise}[name=Question]
+How many times did the value 385 appear in the null distribution vector
+\texttt{nulld} from previous section?
+\end{Exercise}
+\begin{Answer}
+<< >>=
+sum(nulld == 385)
+@
+\end{Answer}
 
-The work of Konopka and Benzer demonstrated the existence of a genetic
-clock in fruit flies~\cite{konopka1971clock}. They identified a gene that
-they called \textit{period}, which was the first discovered component of
-the so-called circadian clock in flies. Two other genes called
-\textit{timeless} and \textit{doubletime} were identified
-later~\cite{hardcastle2021cracking}, together forming a clock that
-oscillates in every cell. This architecture with three core genes is
-conserved in plants, animals and fungi, so the discovery of Konopka and
-Benzer paved the way to understand a very general phenomenon associated
-with life on earth.
 
-We have applied the basic steps of statistical analysis to the discovery
-of the first clock gene. The most challenging step was the design of a
-score that would discriminate the null from the alternative hypothesis,
-while being easy to compute. We came up with a pragmatic solution that did
-the job.
+\begin{Exercise}[name=Question]
+\label{exnulld_pair}
+Using the function \texttt{replicate(...)}, produce 1000 random values
+from the distribution $B(1084, 1/4)$. How many times does the value 385
+appear in the output?
+\par\noindent\textcolor{BrickRed}{\textbf{Quercus:} use seed 123}
+\end{Exercise}
+\begin{Answer}
+<< >>=
+set.seed(123)
+sum(replicate(n=1000, rbinom(n=1, size=1084, prob=1/4)) == 385)
+@
+\end{Answer}
 
-The null hypothesis revolved around the uniform distribution, which can be
-simulated with the function \texttt{runif(...)}. The principal feature of
-the uniform distribution is that every value is equally probable as any
-other. This is the distribution that most people have in mind when they
-say ``at random''.
 
-We have introduced the concept of p-value, which is used to measure the
-confidence in our final decision to accept or reject the null hypothesis.
-The lower the p-value, the more confident we are that the null hypothesis
-should be rejected.
+\begin{Exercise}[name=Question]
+Repeat the procedure of Question~\ref{exnulld_pair} by setting
+\texttt{prob} to 0.30, 0.35, 0.40 and 0.45. Which is the value of
+\texttt{prob} such that 385 is the most frequent in the output?
+\par\noindent\textcolor{BrickRed}{\textbf{Quercus:} use seed 123 every
+time.}
+\end{Exercise}
+\begin{Answer}
+<< >>=
+set.seed(123)
+sum(replicate(n=1000, rbinom(n=1, size=1084, prob=.30)) == 385)
+set.seed(123)
+sum(replicate(n=1000, rbinom(n=1, size=1084, prob=.35)) == 385)
+set.seed(123)
+sum(replicate(n=1000, rbinom(n=1, size=1084, prob=.40)) == 385)
+set.seed(123)
+sum(replicate(n=1000, rbinom(n=1, size=1084, prob=.45)) == 385)
+# The highest is reached for prob = 0.35.
+@
+\end{Answer}
 
+
+We should favor the distribution $B(1084, p)$ where the observed value
+(\textit{i.e.}, 385) is as common as possible. Other distributions should
+be ignored because the observations would be very unlikely to occur. This
+makes sense at an intuitive level, but we have screened only a few values
+of $p$. How could we be more thorough?
+
+
+\begin{Exercise}[name=Question]
+The function \texttt{dbinom(...)} gives the probability of observing a
+result under a given binomial distribution. It is the numeric application
+of equation (\ref{formula}) (\textit{i.e.}, it is a deterministic function
+without random component). Using the documentation if necessary, compute
+the probability of observing 385 with the distribution $B(1084, 0.35)$
+\end{Exercise}
+\begin{Answer}
+<< >>=
+dbinom(x=385, size=1084, prob=0.35)
+@
+\end{Answer}
+
+
+We see that this approach gives almost the same result as the simulations.
+The simulations are inexact because of the random sampling, but for
+large samples, they approach the correct result.
+
+The function \texttt{dbinom(...)} allows us to compute the probability of
+interest on a large set of models.
+
+
+\begin{Exercise}[name=Question]
+The function \texttt{seq(...)} creates a regular sequence of values.
+Using the documentation if necessary, create a sequence with values
+$0.300, 0.305, 0.3100, \ldots  0.40$. Assign the result to a vector called
+\texttt{p}. What is the length of \texttt{p}?
+\end{Exercise}
+\begin{Answer}
+<< >>=
+p <- seq(from=0.3, to=.4, by=.005)
+length(p)
+@
+\end{Answer}
+
+
+\begin{Exercise}[name=Question]
+Use the functions \texttt{dbinom(...)} and \texttt{seq(...)} as above to
+return the probability of obtaining 385 when $p = 0.300, 0.305, \ldots
+0.40$. Assign the results to a variable called \texttt{lik} (for
+`likelihood'). For which value of $p$ is the maximum reached?
+\end{Exercise}
+\begin{Answer}
+<< >>=
+lik <- dbinom(x=385, size=1084, prob=p)
+# The maximum is reached for p=0.355.
+which.max(lik)
+@
+\end{Answer}
+
+
+It is interesting to represent these results graphically. The R
+programming language makes it easy to create figures from which further
+insight can be gained. Run the following command to plot the likelihood
+against the value of $p$ in the distribution $B(1084, p)$.
+<< >>=
+plot(p, lik, type="l")
+@
+
+
+\begin{Exercise}[name=Question]
+\end{Exercise}
+\begin{Answer}
+<< fig=TRUE >>=
+plot(p, lik, type="l")
+@
+\end{Answer}
 
 \bibliography{references}
 
