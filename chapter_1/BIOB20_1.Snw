@@ -66,7 +66,7 @@ January 2020, within 24 hours of the publication of the SARS-CoV-2 genome
 trial on July 27 2020. The initial results of the phase-3 trial were
 published in early February 2021 \cite{baden2020efficacy}.
 
-We will use R to analyze the outcome and to quntify our confidence in the
+We will use R to analyze the outcome and to quantify our confidence in the
 results and in the efficiency of the vaccine.
 
 
@@ -260,7 +260,7 @@ sample(x=c(2,3,5,7,11,13), size=5)
 
 
 The function \texttt{rep(...)} is used to repeat the same value or the
-same vector multiple times. For instance, below is the call to repeat 30
+same vector multiple times. For instance, below is the call to repeat 20
 times the value \texttt{0}.
 << >>=
 rep(x=0, times=20)
@@ -334,6 +334,10 @@ patients who received the vaccine. Use the function \texttt{sample(...)}
 to draw a random sample of size 196 from this cohort. Then use the
 function \texttt{sum(...)} to compute how many people in the sample
 received the vaccine.
+\par\noindent\textcolor{Blue}{\textbf{Note:} make sure that the argument
+\texttt{x} of \texttt{sample(...)} is exactly $0, 1, 0, 1, \ldots, 1$
+(with total length 30,420), otherwise the output will be slightly
+different.}
 \par\noindent\textcolor{BrickRed}{\textbf{Quercus:} use seed 123.}
 \end{Exercise}
 \begin{Answer}
