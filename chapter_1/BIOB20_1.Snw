@@ -607,7 +607,8 @@ sum(c(8, 11, 9, 11) == 11)
 Use the function \texttt{replicate(...)} to repeat 1000 times the
 procedure of Question~\ref{ex20}. Using \texttt{sum(...)} and \texttt{==},
 count the number of samples (out of 1000) where 1 is present exactly 11
-times. \par\noindent\textcolor{BrickRed}{\textbf{Quercus:} use seed 123}
+times.
+\par\noindent\textcolor{BrickRed}{\textbf{Quercus:} use seed 123.}
 \end{Exercise}
 \begin{Answer}
 << >>=
@@ -624,8 +625,8 @@ Keeping the number of replications at 1000 as in Question~\ref{exsum},
 decrease the values of \texttt{bias} from 0.175 to 0.025 by 0.025
 decrements. For which value of the bias do you obtain the highest amount
 of samples where 1 is present exactly 11 times?
-\par\noindent\textcolor{BrickRed}{\textbf{Quercus:} use seed 123 before every
-call to \texttt{replicate(...)}.}
+\par\noindent\textcolor{BrickRed}{\textbf{Quercus:} use seed 123 before
+every call to \texttt{replicate(...)}.}
 \end{Exercise}
 \begin{Answer}
 << >>=

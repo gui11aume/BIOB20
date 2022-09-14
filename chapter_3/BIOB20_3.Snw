@@ -42,7 +42,10 @@ Answer of \ExerciseName\ \ExerciseHeaderNB}\par}
 
 \section{Overview}
 
-Will come later.
+In this chapter we introduce the notion of likelihood and we cover maximum
+likelihood estimation in depth. We also introduce some basic plotting
+techniques. We use the framework of molecular evolution as an example of
+application for the new concepts.
 
 
 \section{The problem}
@@ -57,10 +60,10 @@ constant speed. They proposed that the evolution of proteins was a
 ``molecular clock''.
 
 In the late 1960s, Motoo Kimura, a researcher at the Japanese National
-Institute of Genetics carried this discovery forward by proposing the
-neutral theory of molecular evolution whereby most mutations have a too
-weak effect on fitness for natural selection to
-operate~\cite{kimura1968evolutionary}.
+Institute of Genetics gave a theoretical framework to understand this
+phenomenon. He put forward the neutral theory of molecular evolution,
+whereby he proposed that most mutations have a too weak effect on fitness
+for natural selection to operate~\cite{kimura1968evolutionary}.
 
 In 1983, Kimura summarized the molecular clock hypothesis as follows:
 ``For each protein, the rate of evolution in terms of amino acid
@@ -72,103 +75,626 @@ occasional gains or loss of functions~\cite{kimura1983neutral}.
 
 \section{The molecular clock in picture}
 
-The data is from~\cite{robinson2016revisiting}.
+We will work with a dataset that was published in
+2016~\cite{robinson2016revisiting} (note that some changes were applied to
+the data in order to suit the needs of this chapter).
 
-
-\section{The Poisson distribution}
-
-Let us consider the theoretical example of a protein that accumulates one
-mutation per million year on average. We define $T$ as a duration of
-million years and we split it in two equal parts of duration $T/2$. We
-consider that the two periods are independent and we propose to model the
-number of mutations with a binomial variable (the total number of
-mutations is the number of mutations in the first period plus the number
-of mutations in the second period).
 
 \begin{Exercise}[name=Question]
-Which binomial distribution has 2 independent events and an average of 1?
-Use the function \texttt{dbinom(...)} to find the probability of observing
-1 mutation in total.
+Load the data set in your R session with the command below.
+<< >>=
+url <- "https://raw.githubusercontent.com/gui11aume/BIOB20/main/chapter_3/prot.txt"
+prot <- read.delim(url)
+@
+How many rows are in the data frame \texttt{prot}?
 \end{Exercise}
 \begin{Answer}
-The distribution is $B(2, 1/2)$.
 << >>=
-dbinom(x=1, size=2, prob=1/2)
+dim(prot) # 22 rows.
+nrow(prot)
 @
 \end{Answer}
 
 
-We could use this distribution to model the number of mutations, but it is
-awkward to assume that there can be at most 1 mutation in each period. Let
-us make the intervals smaller. We now split $T$ in 4 equal parts of
-duration $T/4$ and check what happens to the probability of interest.
+The dataset is small enough to be shown in full. For this we just have to
+call the name of the variable it is stored in.
+<< >>=
+prot
+@
+
+Every entry corresponds to a pair of proteins from the same family
+(cytrochrome c, globins or fibrinopeptides), giving the time since their
+common ancestor (in million of years or Myr) and the number of
+differences between the sequences. The taxonomic groups are omitted for
+simplicity --- to give some ideas, 60 Myr is the divergence between
+primates vs other mammals, while 1350 Myr corresponds to the divergence
+between animals and plants. Entries 1, 11 and 17 are ``tautological'' as
+they indicate that two proteins are initially identical at the time they
+start diverging.
+
+Let us first draw a scatter plot of the data set in an attempt to
+understand the major trends. This is typically a good first approach.
 
 \begin{Exercise}[name=Question]
-Which binomial distribution has 4 independent events and an average of 1?
-Use the function \texttt{dbinom(...)} to find the probability of observing
-1 mutation in total.
+Plot the column \texttt{diff} against the column \texttt{time} for the
+whole dataset. Label the x-axis as ``Time (Myr)'' and the y-axis as
+``Differences''. Add a grid to the plot. What is the highest graduation
+appearing on the y-axis?
 \end{Exercise}
 \begin{Answer}
-The distribution is $B(4, 1/4)$.
 << >>=
-dbinom(x=1, size=4, prob=1/4)
+# The highest graduation is 500.
+plot(x=prot$time, y=prot$diff, xlab="Time (Myr)",
+  ylab="Differences", panel.first=grid())
 @
 \end{Answer}
 
 
-The probability we computed in both cases is not the same. However, if we
-keep making the intervals smaller, the process eventually stabilizes to a
-fixed probability.
+The figure is somewhat confusing because we cannot distinguish the protein
+families. We can try to plot just one of them in order to get a clearer
+picture.
 
 \begin{Exercise}[name=Question]
-Use the function \texttt{dbinom(...)} to find the probability of observing
-1 mutation in total when the duration $T$ is split into 64, 128, 256 and
-512 equal parts. What value does the process converge to (approximately)?
+\label{cytcfig}
+Plot the column \texttt{diff} against the column \texttt{time} for the
+family \texttt{cytc}. Label the x-axis as ``Time (Myr)'' and the y-axis as
+``Differences''. Add a grid to the plot. What is the highest graduation
+appearing on the y-axis?
 \end{Exercise}
 \begin{Answer}
 << >>=
-dbinom(x=1, size=64, prob=1/64)
-dbinom(x=1, size=128, prob=1/128)
-dbinom(x=1, size=256, prob=1/256)
-dbinom(x=1, size=512, prob=1/512)
+# The highest graduation is 50.
+plot(x=prot$time[1:10], y=prot$diff[1:10], xlab="Time (Myr)",
+  ylab="Differences", panel.first=grid())
 @
 \end{Answer}
 
 
-
-
+We will explore the available options for esthetics, so that we can
+display each family with a different color.
 
 \begin{Exercise}[name=Question]
-\label{exbinom}
-Using the documentation if necessary, produce a random sample of size 1
-from $B(1084, 1/2)$ using the function \texttt{rbinom(...)}.
-\par\noindent\textcolor{Blue}{\textbf{Note:} $n$ is the parameter
-\texttt{size} of the \texttt{rbinom} function.}
-\par\noindent\textcolor{BrickRed}{\textbf{Quercus:} use seed 123}
+\label{pch16}
+The option \texttt{pch} of the function \texttt{plot(...)} changes the
+symbol used in the scatter plot. Draw the scatter plot of
+Question~\ref{cytcfig} again, this time with \texttt{pch=1}. Keep drawing
+it again, each time with a different number. What is the smallest number
+that produces closed circles?
 \end{Exercise}
 \begin{Answer}
 << >>=
-set.seed(123)
-rbinom(n=1, size=1084, prob=1/2)
+plot(x=prot$time[1:10], y=prot$diff[1:10], xlab="Time (Myr)",
+  ylab="Differences", panel.first=grid(), pch=16)
 @
 \end{Answer}
 
-\begin{enumerate}
-\item
-A null hypothesis.
-\item
-An alternative  hypothesis.
-\item
-A protocol to collect data.
-\item
-A test statistic.
-\item
-A decision rule.
-\end{enumerate}
 
+\begin{Exercise}[name=Question]
+The option \texttt{col} of the function \texttt{plot(...)} changes the
+color of the symbols. Draw the scatter plot of Question~\ref{pch16} again,
+this time with \texttt{col=1}. Keep drawing it again, each time with a
+different number. What is the smallest number that produces gray symbols?
+\end{Exercise}
+\begin{Answer}
+<< >>=
+plot(x=prot$time[1:10], y=prot$diff[1:10], xlab="Time (Myr)",
+  ylab="Differences", panel.first=grid(), pch=16, col=8)
+@
+\end{Answer}
+
+
+R also allows the user to specify a color as a string like
+\texttt{"dodgerblue2"} or \texttt{"deeppink"}. The complete list has 657
+color names, which you can see by typing \texttt{colors()}, but we will
+mostly use the basic colors that are encoded by numbers (feel free to
+embellish your graphs though).
+
+
+\begin{Exercise}[name=Question]
+\label{plot3}
+You can add a series of points to an existing graph with the function
+\texttt{points(...)}. You have to specify \texttt{x} and \texttt{y}, and
+you can specify their esthetics as well, but the arguments belonging to
+the graph itself such as \texttt{xlab}, \texttt{ylab} or
+\texttt{panel.first} are ignored.
+Add to your graph points from the series \texttt{glob} as red filled
+circles, and points from the series \texttt{fibr} as blue filled circles.
+Do all the points of the dataset appear on the graph?
+\end{Exercise}
+\begin{Answer}
+Some points are missing because the y-axis is limited to 50.
+<< >>=
+points(x=prot$time[11:16], y=prot$diff[11:16], pch=16, col=2)
+points(x=prot$time[17:22], y=prot$diff[17:22], pch=16, col=4)
+@
+\end{Answer}
+
+
+The argument \texttt{ylim} of the function \texttt{plot(...)} allows the
+user to specify a range to adjust the y-axis. Since the largest value of
+the column \texttt{diff} is 573, we can use 600 as a boundaries for the
+y-axis.
+
+\begin{Exercise}[name=Question]
+Draw the plot of Question~\ref{plot3}, but this time use the argument
+\texttt{ylim} to force the y-axis to go from 0 to 600. What is the highest
+graduation appearing on the y-axis?
+\end{Exercise}
+\begin{Answer}
+Some points are missing because the y-axis is limited to 50.
+<< >>=
+# The highest graduation is 100.
+plot(x=prot$time[1:10], y=prot$diff[1:10], xlab="Time (Myr)",
+  ylab="Differences", panel.first=grid(), pch=16, col=8, ylim=c(0,600))
+points(x=prot$time[11:16], y=prot$diff[11:16], pch=16, col=2)
+points(x=prot$time[17:22], y=prot$diff[17:22], pch=16, col=4)
+@
+\end{Answer}
+
+
+Our plot is almost ready. We still need a legend to match the colors and
+the series. The function \texttt{legend(...)} adds a legend to an existing
+plot. The argument \texttt{legend} of the function \texttt{legend(...)} is
+a text vector for the labels and we have to specify matching esthetics
+with arguments such as \texttt{pch}, \texttt{col} \textit{etc.} For
+instance, a command for the current plot would start like
+\texttt{legend(legend=c("cytc", "glob", "fibr"), pch=16, col=c(8,2,4),
+...} and it would continue with additional options.
+
+\begin{Exercise}[name=Question]
+\label{plotfull}
+Use the documentation to see how to place the legend in the top right
+corner. What argument do you have to use?
+\end{Exercise}
+\begin{Answer}
+<< fig=TRUE >>=
+plot(x=prot$time[1:10], y=prot$diff[1:10], xlab="Time (Myr)",
+  ylab="Differences", panel.first=grid(), pch=16, col=8, ylim=c(0,600))
+points(x=prot$time[11:16], y=prot$diff[11:16], pch=16, col=2)
+points(x=prot$time[17:22], y=prot$diff[17:22], pch=16, col=4)
+# We have to add x="topright" (other options are for esthetics).
+legend(legend=c("cytc", "glob", "fibr"), pch=16, col=c(8,2,4),
+  x="topright", inset=0.02, bg="white", box.col="white")
+@
+\end{Answer}
+
+
+\section{An estimation problem}
+
+Plotting the data showed that for each protein family, the accumulation of
+differences (mutations) is proportional to the time of divergence.
+Interestingly, different protein families seem to have distinct rates of
+evolution.
+
+The protein family that evolves the slowest is the cytochrome c. How slow
+is it exactly? To answer this question, we will estimate $\theta$, defined
+as the number of differences per million year of evolution of the
+cytochrome c.
+
+\begin{Exercise}[name=Question]
+\label{rough}
+Based on the graphs we produced previously, what would be a good
+ballpark estimate for $\theta$? Call this value $\theta_0$ and store it
+into a variable called \texttt{theta0}.
+\end{Exercise}
+\begin{Answer}
+There are approximately 50 differences in approximately 1400 million years
+of evolution so $\theta_0 \approx 1400 / 50 \approx 0.036$.
+<< >>=
+theta0 <- 50 / 1500
+@
+\end{Answer}
+
+
+We will now search for an optimal estimate around $\theta_0$ using the
+method of maximum likelihood. This method consists in choosing the value
+of $\theta$ such that the results are as plausible as possible. The
+Poisson distribution seems a good choice for this kind of data.
+
+\begin{definition}[Poisson distribution]
+The Poisson distribution describes the count of events occurring at
+constant rate and without upper bound. It has one parameter usually called
+$\lambda$, which is the expected value of the distribution. The Poisson
+distribution with parameter $\lambda$ is usually represented by the
+symbol $P(\lambda)$.
+\end{definition}
+
+The Poisson distribution is equivalent to a binomial distribution $B(n,p)$
+with a very large number of binary events (the parameter $n$) and with a
+very small probability of outcome 1 (the parameter $p$).
+
+We will not need the formula, but a variable $X$ follows the distribution
+$P(\lambda)$ if and only if the probability that $X$ takes the value $k$
+is given by the expression
+\begin{equation}
+\label{formula}
+P(X = k) = e^{-\lambda}\frac{\lambda^k}{k!} \;\;\; (k=0, 1, \ldots).
+\end{equation}
+
+\begin{Exercise}[name=Question]
+The function \texttt{dpois(...)} returns the probability of an event
+following the Poisson distribution. It is a numeric application of
+equation~(\ref{formula}). Use it to compute the probability that a
+cytochrome c protein remains identical for 1 Myr when the parameter
+$\lambda$ is equal to $\theta_0$, the estimate of Question~\ref{rough}.
+\end{Exercise}
+\begin{Answer}
+<< >>=
+dpois(lambda=theta0, x=0)
+@
+\end{Answer}
+
+
+According to our definition, $\theta$ is the base rate of change, so over
+2 Myr the expected number of differences is $2\theta$, over 3 Myr it is
+$3\theta$ \textit{etc}.
+
+\begin{Exercise}[name=Question]
+If $\theta$ were equal to $\theta_0$, what would be the expected number of
+differences for the 10 data points of cytochrome c? Compute the
+probability of each observation.
+\par\noindent\textcolor{Blue}{\textbf{Hint:} the arguments \texttt{lambda}
+and \texttt{x} of the function \texttt{dpois(...)} can be vectors.}
+\par\noindent\textcolor{BrickRed}{\textbf{Quercus:} input the number of
+values that are below 0.05.}
+\end{Exercise}
+\begin{Answer}
+<< >>=
+prot$time[1:10]*theta0
+dpois(lambda=prot$time[1:10]*theta0, x=prot$diff[1:10])
+# Quercus answer.
+sum(dpois(lambda=prot$time[1:10]*theta0, x=prot$diff[1:10]) < .05)
+@
+\end{Answer}
+
+
+To compute the probability of the complete cytochrome c dataset, we will
+assume that events are independent. The probability of co-occurrence of
+independent events is the product of their individual probability of
+occurrence.
+
+\begin{Exercise}[name=Question]
+Use the function \texttt{prod(...)} to find the probability of observing
+the whole cytochrome dataset if $\theta$ were equal to $\theta_0$.
+\par\noindent\textcolor{BrickRed}{\textbf{Quercus:} is the value larger
+than $10^{-16}$?}
+\end{Exercise}
+\begin{Answer}
+<< >>=
+prod(dpois(lambda=prot$time[1:10]*theta0, x=prot$diff[1:10]))
+# Quercus answer.
+prod(dpois(lambda=prot$time[1:10]*theta0, x=prot$diff[1:10])) < 1e-16
+@
+\end{Answer}
+
+
+Note that we obtain a \emph{tiny} probability. This is normal, every
+observation only \emph{decreases} the collective probability because
+probabilities are lower than 1. The larger the dataset, the lower the
+probability of the observations. But this is not a problem since we only
+search the value of $\theta$ that makes this probability as large as
+possible. We do not care about the value of the maximum; we care only
+about the value of $\theta$ for which the maximum is reached.
+
+\begin{definition}[likelihood]
+The likelihood of a parameter at value $\theta$ is the probability of the
+observed dataset when the parameter is equal to $\theta$. The likelihood
+is thus a function that takes a model as input (or a parameter, it is the
+same thing) and outputs a positive number.
+\end{definition}
+
+Let me insist because it is important: the likelihood is a function of the
+parameters; it is not a function of the observations.
+
+\begin{center}
+\includegraphics[width=86mm]{duality.pdf}
+\end{center}
+
+A technical issue is that the likelihood can become so small that it
+underflows, \textit{i.e.}, it becomes too small to be represented
+accurately by the computer. It is customary to work with the logarithm of
+the likelihood instead, known as the log-likelihood. Taking the logarithm
+prevents underflow without changing the optimal value of $\theta$
+(remember that we do not care about the maximum value of the likelihood so
+we are not losing anything by taking the logarithm).
+
+\begin{Exercise}[name=Question]
+In most distributions implemented in R, the argument \texttt{log=TRUE}
+requests to return the logarithm of the probability instead of the
+probability. Compute the log-likelihood of $\theta$ at the value
+$\theta_0$ for the cytochrome c dataset. 
+\par\noindent\textcolor{Blue}{\textbf{Note:} using \texttt{log=TRUE} is
+faster and more accurate than using the function \texttt{log(...)}.}
+\end{Exercise}
+\begin{Answer}
+<< >>=
+sum(dpois(lambda=prot$time[1:10]*theta0, x=prot$diff[1:10], log=TRUE))
+@
+\end{Answer}
+
+
+\begin{Exercise}[name=Question]
+Add and remove 0.001 to $\theta_0$. Which value has higher likelihood than
+that of $\theta_0$? What does that mean for the maximum likelihood
+estimate of $\theta$?
+\end{Exercise}
+\begin{Answer}
+<< >>=
+sum(dpois(lambda=prot$time[1:10]*(theta0 - 0.001),
+  x=prot$diff[1:10], log=TRUE))
+sum(dpois(lambda=prot$time[1:10]*(theta0 + 0.001),
+  x=prot$diff[1:10], log=TRUE))
+@
+\end{Answer}
+
+
+We now need to compute the log-likelihood for many values of $\theta$ and
+find the value $\hat{\theta}$ where the maximum is reached. This is
+conceptually straightforward but the R commands for automation can be
+overwhelming.
+
+To keep it relatively simple, we will use matrices. Wherever R expects a
+vector, it is possible to pass a matrix. The difference between a matrix
+and a data frame is that the rows of a matrix are vectors, but the rows of
+a data frame are not (because they can be data of different types, like
+text and numbers). The sketch below shows the logic of using matrices: we
+can compute the sums over the columns to get the log-likelihood of the
+whole sample.
+
+\begin{center}
+\includegraphics[width=65mm]{matrix.pdf}
+\end{center}
+
+Replacing \texttt{x} by a matrix in \texttt{dpois(...)} is easy, we just
+have to use \texttt{replicate(...)}. Replacing \texttt{lambda} is a little
+harder because we need to multiply each value of $\theta$ by the 10 values
+of \texttt{prot\$time}, but this is exactly what the outer product does.
+
+We create a grid of $\theta$ values from $\theta_0 - 0.02$ to $\theta_0 +
+0.05$ by 0.0005 increments. Then we create matrix variants of the
+\texttt{lambda} and \texttt{x} parameters.
+
+<< >>=
+theta.grid <- seq(from=theta0-.02, to=theta0+.05, by=0.0005)
+lambda.mat <- outer(prot$time[1:10], theta.grid)
+x.mat <- replicate(n=length(theta.grid), prot$diff[1:10])
+@
+
+\begin{Exercise}[name=Question]
+Use the matrices \texttt{lambda.mat} and \texttt{x.mat} to compute the
+matrix of items log-likelihoods. What are the dimensions of that matrix.
+\par\noindent\textcolor{BrickRed}{\textbf{Quercus:} input the total number
+of elements of the matrix.}
+\end{Exercise}
+\begin{Answer}
+<< >>=
+dim(dpois(lambda=lambda.mat, x=x.mat, log=TRUE))
+# Quercus answer.
+prod(dim(dpois(lambda=lambda.mat, x=x.mat, log=TRUE)))
+@
+\end{Answer}
+
+
+\begin{Exercise}[name=Question]
+Use the function \texttt{colSums(...)} to compute the log-likelihood of
+the sample for each value of $\theta$ in \texttt{theta.grid}.
+\par\noindent\textcolor{BrickRed}{\textbf{Quercus:} input the total number
+of elements that are below -30.}
+\end{Exercise}
+\begin{Answer}
+<< >>=
+loglik <- colSums(dpois(lambda=lambda.mat, x=x.mat, log=TRUE))
+# Quercus answer.
+sum(loglik < -30)
+@
+\end{Answer}
+
+
+\begin{Exercise}[name=Question]
+\label{ll1}
+Plot the log-likelihood against the values of $\theta$ using the argument
+\texttt{type="l"} of \texttt{plot(...)}. Make sure that labels are
+meaningful and add a grid. What is the value of $\hat{\theta}$, the
+maximum likelihood estimate of $\theta$?
+\end{Exercise}
+\begin{Answer}
+<< fig=TRUE >>=
+plot(x=theta.grid, y=loglik, type="l", panel.first=grid(),
+  xlab="Theta", ylab="Log-likelihood")
+@
+
+See from the graph that $\hat{\theta} \approx 0.045$. The exact value from
+\texttt{theta.grid} is below.
+
+<< >>=
+theta.grid[which.max(loglik)]
+@
+\end{Answer}
+
+
+\begin{Exercise}[name=Question]
+\label{ll2}
+Repeat the analyses to find the maximum likelihood estimate of $\theta$
+for globins by using a grid of values from 0.2 to 0.4 and an increment
+of 0.0005. What is the value of $\hat{\theta}$, the maximum likelihood
+estimate of $\theta$ for globins?
+\end{Exercise}
+\begin{Answer}
+<< fig=TRUE >>=
+theta.grid <- seq(from=.2, to=.4, by=0.0005)
+lambda.mat <- outer(prot$time[11:16], theta.grid)
+x.mat <- replicate(n=length(theta.grid), prot$diff[11:16])
+loglik <- colSums(dpois(lambda=lambda.mat, x=x.mat, log=TRUE))
+plot(x=theta.grid, y=loglik, type="l", panel.first=grid(),
+  xlab="Theta", ylab="Log-likelihood")
+theta.grid[which.max(loglik)]
+@
+\end{Answer}
+
+
+\begin{Exercise}[name=Question]
+\label{ll3}
+Repeat the analyses to find the maximum likelihood estimate of $\theta$
+for fibrinopeptides by using a grid of values from 4 to 12 and an increment
+of 0.0005. What is the value of $\hat{\theta}$, the maximum likelihood
+estimate of $\theta$ for fibrinopeptides?
+\end{Exercise}
+\begin{Answer}
+<< fig=TRUE >>=
+theta.grid <- seq(from=4, to=12, by=0.0005)
+lambda.mat <- outer(prot$time[17:22], theta.grid)
+x.mat <- replicate(n=length(theta.grid), prot$diff[17:22])
+loglik <- colSums(dpois(lambda=lambda.mat, x=x.mat, log=TRUE))
+plot(x=theta.grid, y=loglik, type="l", panel.first=grid(),
+  xlab="Theta", ylab="Log-likelihood")
+theta.grid[which.max(loglik)]
+@
+\end{Answer}
+
+
+The function \texttt{abline(...)} adds a straight line to an existing
+plot. The parameters \texttt{a} and \texttt{b} are the intercept and the
+slope of the line, respectively. A line such that \texttt{a=0} goes
+through the origin.
+
+\begin{Exercise}[name=Question]
+Reproduce the plot of Question~\ref{plotfull}. Use the function
+\texttt{abline(...)} with \texttt{a=0} to add a straight line for the
+evolutionary rate of each data set. In each call to \texttt{abline(...)}
+set the parameter \texttt{b} to one of the maximum likelihood estimates of
+$\theta$. For which dataset does the straight line fit best?
+\end{Exercise}
+\begin{Answer}
+The best fit is for the cytochrome c data set. The molecular clock
+hypothesis is realistic in this case.
+<< fig=TRUE >>=
+plot(x=prot$time[1:10], y=prot$diff[1:10], xlab="Time (Myr)",
+  ylab="Differences", panel.first=grid(), pch=16, col=8, ylim=c(0,600))
+points(x=prot$time[11:16], y=prot$diff[11:16], pch=16, col=2)
+points(x=prot$time[17:22], y=prot$diff[17:22], pch=16, col=4)
+# We have to add x="topright" (other options are for esthetics).
+abline(a=0, b=0.0453, col=8)
+abline(a=0, b=0.3090, col=2)
+abline(a=0, b=7.4705, col=4)
+legend(legend=c("cytc", "glob", "fibr"), pch=16, col=c(8,2,4),
+  x="topright", inset=0.02, bg="white", box.col="white")
+@
+\end{Answer}
+
+
+\section{Bonus points: Fisher information}
+
+The summit of the log-likelihood curve gives the optimal value of the
+parameter, also known as the maximum likelihood estimate. The shape of the
+curve around the summit indicates the uncertainty about the estimate. If
+the curve is very flat, then there are many values with a high likelihood
+and none of them stands out as the clear winner. On the contrary, if the
+peak is sharp, then the value at the summit stands above the others and
+one can be certain that the true value of the parameter is not far off.
+
+\begin{Exercise}[name=Question]
+\label{itvl}
+Consider the log-likelihood curve of Questions~\ref{ll1}. By eye, estimate
+the length of the interval of all the values with a log-likelihood at most
+10 units below the maximum. Do the same for the log-likelihood curves of
+Questions~\ref{ll2} and \ref{ll3}. For which dataset is the interval the
+smallest?
+\end{Exercise}
+\begin{Answer}
+For the dataset \texttt{cytc}, the interval goes approximately from 0.030
+to 0.065 (length 0.035). For the dataset \texttt{glob}, the interval goes
+approximatelyfrom 0.24 to 0.38 (length 0.14). For the dataset
+\texttt{fibr}, the interval goes approximately from 7 to 8 (length 1).
+\end{Answer}
+
+
+This example illustrates that the uncertainty about parameters can differ,
+even though the log-likelihood curves always have the same general aspect.
+Ronald Fisher defined the information about a parameter as the curvature
+of the log-likelihood around the maximum, or more accurately as the
+negative of the second derivative (the first derivative of the
+log-likelihood at the top is always null and the second derivative is
+always negative, so the Fisher information is always positive).
+
+Every new data point makes the likelihood smaller because probabilities
+are lower than 1, but it also makes the peak narrower on average (we are
+not going to show this), so it adds to the information about the
+parameter.
+
+\begin{center}
+\includegraphics[width=71mm]{sample_size.pdf}
+\end{center}
+
+\begin{Exercise}[name=Question]
+For which of the dataset do we have the most information about the
+evolutionary rate?
+\end{Exercise}
+\begin{Answer}
+We have more information for the dataset \texttt{cytc}. The interval
+computed at Question~\ref{intvl} is smaller because the peak is sharper so
+the second derivative is larger (in absolute value).
+\end{Answer}
+
+
+It is not a coincidence that the dataset for which we have the most
+information about the parameter is also the dataset for which the fit with
+the model is the best. When a model fits the data poorly, the
+log-likelihood curve is broad because the model carries a lot of
+uncertainty about the parameters. In conclusion, the shape of the
+log-likelihood curve allows us to express our confidence in the model and
+in the estimates.
+
+
+\section{Conclusions}
+
+We explained the general methodology of maximum likelihood estimation. The
+key concept is that a probability model is a function of two variables:
+the observations and the parameters. As a function of the observation, the
+probability is called \emph{distribution}, and as a function of parameters
+it is called \emph{likelihood}. Once the observations are known, we can
+search the parameters that maximize the probability. They are by
+definition the maximum likelihood estimates.
+
+We have applied the maximum likelihood method to a type of regression
+problem where a variable (the number of sequence differences) depends on
+another (the time of divergence). Our final estimates are analogous to
+regression coefficients in the sense that they describe the relationship
+between the variables.
+
+Our target was to estimate the average number of changes per Myr, and
+perhaps the most important aspect of our strategy is that we never
+transformed the data into changes per Myr. We could not have done so,
+because changes per Myr has an unknown distribution (and it cannot be
+Poisson because the numbers are not integers). Instead, we multiplied the
+parameter $\theta$ by the divergence time in order to get an expected
+number of differences. Normalizing or scaling the data transforms the
+problem into one that we cannot solve, but normalizing or scaling the
+parameters still allows us to solve the problem.
+
+Finding the maximum likelihood estimate requires finding the value that
+maximizes the log-likelihood. This can be done graphically by plotting the
+curve, or by analytical methods that we will not go into. The vast
+repertoire of plotting techniques available in R can be very useful to
+solve such problems. More generally, the shape of the curve gives us some
+key information about the confidence we can have in the estimates.
+
+In this example we saw that three families of proteins have a clock-like
+evolution, in conformity with Kimura's theory of neutral
+evolution~\cite{kimura1983neutral}. It is important to highlight that the
+proteins have a different size, which accounts for some of the differences
+in number of changes (a larger protein has more changes in total). The
+original data is prorated to 100 residues and it still shows large
+differences between the families~\cite{robinson2016revisiting}, so the
+idea that each protein has its own evolutionary speed still holds.
+
+Finally, we see how the capacity to use a programming language such as R
+is at the core of our method. The capacity to simulate data, to compute
+their probability and to plot curves allows us to give quantitative and
+accurate answers to difficult questions.
 
 
 \bibliography{references}
+
 
 \cleardoublepage
 \shipoutAnswer

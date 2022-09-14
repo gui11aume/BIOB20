@@ -53,7 +53,7 @@ of formal Mendelian genetics to give an example of application.
 
 In 1913, an undergraduate student named Alfred H. Sturtevant published one
 of the most influential scientific discoveries in genetics
-\cite{sturtevant1913linear}. He was working on fruit fies in the
+\cite{sturtevant1913linear}. He was working on fruit flies in the
 laboratory of Thomas H. Morgan who had just figured out the rules of
 inheritance for genes on the X chromosome.
 
@@ -61,7 +61,7 @@ Back then, scientists knew that genes were on chromosomes, but they had no
 idea what they were made of --- the fact that it is DNA would come only in
 1944~\cite{avery1944studies}. Yet, Sturtevant found a way to map the genes
 relative to each other. It is astonishing that we knew the order of genes
-on the chromosomes way before we understood what they are.
+on the chromosomes way before we understood what they were.
 
 The development of statistics came substantially later, so Sturtevant did
 not perform tests or investigate the confidence levels of his estimations.
@@ -75,14 +75,15 @@ had access to mutants with a yellow body or with bright red ``vermilion''
 eyes. He knew that the mutated genes were on the X chromosome in both
 cases.
 
-We will denote the allele for a black body $b^0$ and that for a yellow
-body $b^1$. Likewise, we will denote the allele for red eyes $r^0$ and
-that for vermilion eyes $r^1$. In one of his experiments, Sturtevant
-crossed heterozygous females $b^0/b^1$ and looked at the phenotype of the
-males in the progeny. Males have only one X chromosome, which they do not
-pass to their sons (they pass their Y chromosome instead), so in this case
-the genotype of the father is irrelevant. The alleles on the X chromosome
-in the male progeny always come from the mother.
+We will denote the allele for a black body $b^0$, and the allele for a
+yellow body $b^1$. Likewise, we will denote the allele for red eyes $r^0$,
+and the allele for vermilion eyes $r^1$. In one of his experiments,
+Sturtevant crossed heterozygous females $b^0/b^1$ and looked at the
+phenotype of the males in the progeny. Males have only one X chromosome,
+which they do not pass to their sons (they pass their Y chromosome
+instead), so in this case the genotype of the father is irrelevant. The
+alleles on the X chromosome in the male progeny always come from the
+mother.
 
 \begin{center}
 \includegraphics[width=40mm]{first_cross.pdf}
@@ -97,32 +98,32 @@ variable.
 
 \begin{definition}[binomial distribution]
 A binary event has exactly two possible outcomes that are labelled 0 and
-1. The binomial distribution describes the total number of 1s in binary
-events that are independent and have the same proability. The binomial
-distribution is usually represented by the symbol $B(n,p)$, where $n$ is
-the number of events (sometimes referred to as the size) and $p$ is their
-probability.
+1. The binomial distribution describes the total number of 1s in a series
+of binary events that are independent and that have the same probability.
+The binomial distribution is usually represented by the symbol $B(n,p)$,
+where $n$ is the number of events (sometimes referred to as the size) and
+$p$ is their probability.
 \end{definition}
 
-We will not need this formula, but a variable $X$ follows the binomial
+We will not need the formula, but a variable $X$ follows the binomial
 distribution $B(n,p)$ if and only if the probability that $X$ takes the
 value $k$ is given by the expression
 \begin{equation}
 \label{formula}
-P(X = k) = \frac{n!}{k!(n-k)!}p^k(1-p)^{n-k}.
+P(X = k) = \frac{n!}{k!(n-k)!}p^k(1-p)^{n-k} \;\;\; (k=0,1,\ldots, n).
 \end{equation}
 
 We are thus interested in generating samples from the distribution
 $B(1084, 1/2)$ because there are 1084 events in total and the alleles
-$b^0$ and $b^1$ are assumed to have the same probablity 1/2.
+$b^0$ and $b^1$ are assumed to have the same probability 1/2.
 
 
 \begin{Exercise}[name=Question]
-Using the documentation if necessary, produce a one random number from
+Using the documentation if necessary, produce one random number from
 $B(1084, 1/2)$ using the function \texttt{rbinom(...)}.
 \par\noindent\textcolor{Blue}{\textbf{Note:} the $n$ in $B(n,p)$ is the
 parameter \texttt{size} of the \texttt{rbinom(...)} function.}
-\par\noindent\textcolor{BrickRed}{\textbf{Quercus:} use seed 123}
+\par\noindent\textcolor{BrickRed}{\textbf{Quercus:} use seed 123.}
 \end{Exercise}
 \begin{Answer}
 << >>=
@@ -135,7 +136,7 @@ rbinom(n=1, size=1084, prob=1/2)
 \begin{Exercise}[name=Question]
 Produce 1000 random numbers from $B(1084, 1/2)$ using the function
 \texttt{rbinom(...)} and compute the average.
-\par\noindent\textcolor{BrickRed}{\textbf{Quercus:} use seed 123}
+\par\noindent\textcolor{BrickRed}{\textbf{Quercus:} use seed 123.}
 \end{Exercise}
 \begin{Answer}
 << >>=
@@ -199,7 +200,7 @@ distribution of the statistic so that we can have clear expectations.
 Produce a random sample of size 1 from $B(1084, 1/2)$ using the function
 \texttt{rbinom(...)} and compute the value of the statistic on this sample
 using the function \texttt{abs(...)} to take the absolute value.
-\par\noindent\textcolor{BrickRed}{\textbf{Quercus:} use seed 123}
+\par\noindent\textcolor{BrickRed}{\textbf{Quercus:} use seed 123.}
 \end{Exercise}
 \begin{Answer}
 << >>=
@@ -214,7 +215,7 @@ Produce 1000 random values of the statistic under the null distribution.
 Store them in a variable called \texttt{nulld} (this stands for ``null
 distribution''). Use the function \texttt{mean(...)} to compute the
 approximate expected value of the statistic under the null hypothesis.
-\par\noindent\textcolor{BrickRed}{\textbf{Quercus:} use seed 123}
+\par\noindent\textcolor{BrickRed}{\textbf{Quercus:} use seed 123.}
 \end{Exercise}
 \begin{Answer}
 << >>=
@@ -321,7 +322,7 @@ hypothesis.
 
 \section{Analyses with two genes}
 
-Sturtevant actually recorded both characters simultaenously for every
+Sturtevant actually recorded both characters simultaneously for every
 male. Out of the 1084 males in the progeny of the cross above, 385 were
 black with red eyes ($b^0, r^0$), 186 were black with vermilion eyes
 ($b^0, r^1$), 189 were yellow with red eyes ($b^1, r^0$) and 324 were
@@ -335,9 +336,9 @@ Sturtevant knew that in the 1865 landmark work of Gregor Mendel, it was
 shown that characters are inherited
 independently~\cite{mendel1866versuche} (an English translation is
 available in reference~\cite{mendel1996experiments}). But Gregor Mendel
-did not know that genes are on chromosome and Sturtevant was interested in
-testing whether characters were inherted independently even when they are
-on the same chromsome.
+did not know that genes are on chromosomes and Sturtevant was interested
+in testing whether characters were inherted independently even when they
+are on the same chromsome.
 
 \begin{definition}[independence]
 In statistics, two events are independent if the probability that they
@@ -374,7 +375,7 @@ Produce 1000 random values of the statistic under the null distribution.
 Store them in a variable called \texttt{nulld}. Use the function
 \texttt{mean(...)} to compute the approximate expected value of the
 statistic under the null hypothesis.
-\par\noindent\textcolor{BrickRed}{\textbf{Quercus:} use seed 123}
+\par\noindent\textcolor{BrickRed}{\textbf{Quercus:} use seed 123.}
 \end{Exercise}
 \begin{Answer}
 << >>=
@@ -413,7 +414,7 @@ not inherited independently.
 
 \section{Estimating the linkage}
 
-Sturtevant went further than observing that that genes were not inherited
+Sturtevant went further than observing that genes were not inherited
 independently. He also used the probability of association between the
 alleles as a distance between the corresponding genes.
 
@@ -427,7 +428,7 @@ events are the most probable.
 \label{exnulld_pair}
 Produce 1000 random values from the distribution $B(1084, 1/4)$. How many
 times does the value 385 appear in the output?
-\par\noindent\textcolor{BrickRed}{\textbf{Quercus:} use seed 123}
+\par\noindent\textcolor{BrickRed}{\textbf{Quercus:} use seed 123.}
 \end{Exercise}
 \begin{Answer}
 << >>=
@@ -469,7 +470,7 @@ of $p$. How could we be more thorough?
 \begin{Exercise}[name=Question]
 The function \texttt{dbinom(...)} gives the probability of observing a
 result under a given binomial distribution. It is the numeric application
-of equation (\ref{formula}) (\textit{i.e.}, it is a deterministic function
+of equation~(\ref{formula}) (\textit{i.e.}, it is a deterministic function
 without random component). Using the documentation if necessary, compute
 the probability of observing 385 with the distribution $B(1084, 0.35)$
 \end{Exercise}
@@ -521,7 +522,7 @@ get the answer graphically. The R programming language makes it easy to
 create figures from which further insight can be gained. Run the following
 command to plot the likelihood against the value of $p$ in the
 distribution $B(1084, p)$.
-<< eval=FALSE, echo=TRUE>>=
+<< eval=FALSE, echo=TRUE >>=
 plot(x=p, y=likelihood, type="l")
 @
 
@@ -619,7 +620,7 @@ Along those lines, it is important to understand that the level is not the
 probability that the null hypothesis is true given that it was rejected.
 It is the probability that the null hypothesis is rejected given that it
 is true. So if an analyst working at level 1\% rejects a null hypothesis,
-one does not know the proability that it was a mistake. In short, the
+one does not know the probability that it was a mistake. In short, the
 level is only a way to control one type of error in statistical tests, but
 there are multiple ways to be wrong.
 
