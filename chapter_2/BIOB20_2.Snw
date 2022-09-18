@@ -234,7 +234,8 @@ when the score is too large to be explained by chance.
 
 \begin{Exercise}[name=Question]
 Plot the histogram of the vector \texttt{nulld} using the function
-\texttt{hist(...)}. What is the range of values with highest frequency?
+\texttt{hist(...)} with default parameters. What is the range of values
+with highest frequency?
 \end{Exercise}
 \begin{Answer}
 The values in 0-5 have highest frequency.
@@ -505,8 +506,8 @@ length(p)
 \begin{Exercise}[name=Question]
 Use the functions \texttt{dbinom(...)} and \texttt{seq(...)} as above to
 return the probability of obtaining 385 when $p = 0.300, 0.305, \ldots
-0.40$. Assign the results to a variable called \texttt{likelihood} What is
-the maximum value of the vector \texttt{likelihood}?
+0.40$. Assign the results to a variable called \texttt{likelihood}. What
+is the maximum value of the vector \texttt{likelihood}?
 \end{Exercise}
 \begin{Answer}
 << >>=
@@ -516,7 +517,7 @@ max(likelihood)
 \end{Answer}
 
 
-The heighest value of the likelihood is of little relevance. What matters
+The highest value of the likelihood is of little relevance. What matters
 is the value of $p$ for which the maximum is reached. It is interesting to
 get the answer graphically. The R programming language makes it easy to
 create figures from which further insight can be gained. Run the following
@@ -571,9 +572,10 @@ approach.
 
 \begin{Exercise}[name=Question]
 If we ran 1000 simulations for each value of $p$ in 0.300, 0.305, \ldots,
-0.40 instead of using \texttt{rbinom(...)}, how many times in total would we
-expect to observe 385 in the outcome?
-\par\noindent\textcolor{Blue}{\textbf{Note:} we do not need to run the
+0.40, what is the total number of times we should observe 385 in the
+outcome on average (\textit{i.e.}, what is the expected number of
+occurrences of 385 in the 21,000 simulations)?
+\par\noindent\textcolor{Blue}{\textbf{Note:} you should not run the
 simulations, only compute the expected numbers.}
 \end{Exercise}
 \begin{Answer}

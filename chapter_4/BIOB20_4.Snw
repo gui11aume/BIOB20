@@ -31,9 +31,9 @@ Answer of \ExerciseName\ \ExerciseHeaderNB}\par}
 % Options.
 \SweaveOpts{keep.source=TRUE}
 
-\title{Uniform variables / circadian clocks}
-\author{Guillaume Filion}
-\date{}
+\title{The uniform distribution / circadian clocks}
+\author{}
+\date{September 27, 2022}
 
 
 \begin{document}
@@ -41,6 +41,9 @@ Answer of \ExerciseName\ \ExerciseHeaderNB}\par}
 
 \section{Overview}
 
+In this chapter we introduce the notion of p-value and we describe the
+uniform distribution and its applications in the field of circadian
+biology.
 
 
 %% The problem %%
@@ -48,32 +51,36 @@ Answer of \ExerciseName\ \ExerciseHeaderNB}\par}
 
 In the late 1960s, Ronald Konopka and Seymour Benzer, two researchers at
 the California Institute of Technology were studying whether insects could
-keep track of time in the absence of external signals.
+keep track of time in the absence of external signals. There were prior
+indications that this was the case, but so far the underlying mechanisms
+had remained unknown.
+
+Konopka proposed that it could be a genetic mechanism and he set out to
+find a mutant of the fruit fly \textit{Drosophila melanogaster} that would
+not be able to keep track of time. He kept the larvae in light--dark
+cycles of 12 hours each, and then maintained the pupae (the equivalent of
+cocoons for flies) in complete darkness for 4 consecutive days and used an
+automated system to record when they hatched. With this automatic method
+he could screen a large collection of mutants. Konopka and Benzer
+published their results in a 1971 landmark
+article~\cite{konopka1971clock}.
 
 
 \section{The experiments of Konopka and Benzer}
 
-In their 1971 landmark article~\cite{konopka1971clock}, Konopka and Benzer
-studied hatching in fruit flies of the species \textit{Drosophila
-melanogaster}. They kept the larvae in light--dark cycles of 12 hours
-each, and then maintained the pupae (the equivalent of cocoons for flies)
-in complete darkness for 4 consecutive days and used an automated system
-to record when they hatched.
-
 The data of Konopka and Benzer were reproduced from \cite{konopka1971clock}
-with some edits to facilitate their representation. The function
-\texttt{scan(...)} can be used to read in data that consists of a single
-entry per line. Load the first data set in your R session with the command
+(with some edits for teaching purposes). The function \texttt{scan(...)}
+can be used to read in data that consists of a single entry per line. Load
+the data set for the wild type flies in your R session with the command
 below.
 << >>=
-url <- "https://raw.githubusercontent.com/gui11aume/BIOB20/main/chapter_2/KB71_wt.txt"
+url <- "https://raw.githubusercontent.com/gui11aume/BIOB20/main/chapter_4/KB71_wt.txt"
 KBwt <- scan(url)
 @
 
-Whenever you load external data in R, you should run some routine checks
+Whenever you import external data in R, you should run some routine checks
 to make sure that it was loaded properly. For instance, you should always
-check the size of the data set. For this, you can use the function
-\texttt{length(...)}, which returns the number of elements of a vector.
+check the size of the data set.
 
 \begin{Exercise}[name=Question]
 What is the number of elements in the vector \texttt{KBwt}?
@@ -85,31 +92,15 @@ length(KBwt)
 \end{Answer}
 
 
-It is also good practice to watch the first elements of the data set in
-order to understand what type of values it contains. For this, you can use
-the function \texttt{head(...)}, which returns the first 6 elements of a
-data structure.
-
-
-\begin{Exercise}[name=Question]
-Use the function \texttt{head(...)} to show the first 6 elements of the
-vector \texttt{KBwt}. What is the first value?
-\end{Exercise}
-\begin{Answer}
-<< >>=
-head(KBwt)
-@
-\end{Answer}
-
-
 Every entry in the vector \texttt{KBwt} corresponds to a fly that hatched
 within the 4 days of the experiment, and the value is the time it did,
-expressed in hours since the start. The values are sorted in increasing
-order.
+expressed in hours since the start of the experiment. The values are
+sorted in increasing order.
 
-Our first question is whether flies hatch at any time, or on the contrary
-whether they hatch at preferential hours of the day. For this we will need
-an elaborate way of representing the data.
+The first question is whether flies hatch at any time, or on the contrary
+whether they hatch at preferential hours of the day even when they are in
+complete darkness. For this we will need a relatively elaborate way of
+representing the data.
 
 
 \section{The \texttt{circular} package}
@@ -127,9 +118,9 @@ install.packages(circular)
 Depending on your machine and on how you installed R, you will eitehr have
 to click on the mirror you want to download the package from, or choose a
 number from the list. Your choice will not affect the result, but it makes
-sense to pick the mirror nearest to you (there is one in Toronto). Most
-likely, R will also install another package and will print the
-statement ``\texttt{also installing the dependency `mvtnorm'}''.
+sense to pick the mirror nearest to you (\textit{e.g.}, Canada). Most
+likely, R will also install another package and will print the statement
+``\texttt{also installing the dependency `mvtnorm'}''.
 
 When the package is installed, you have to activate it before using it
 with the command \texttt{library(circular)}. You need to run this command
@@ -140,7 +131,7 @@ package will be available.
 \begin{Exercise}[name=Question]
 \label{excirc}
 The code below activates the packages \texttt{circular} and plots the
-hatching data in a circular way, each dot representing a fly that hatched.
+hatching data in a circular way. Each dot representing a fly that hatched.
 Run the code in your R session. How many flies hatched in the interval
 2:00 to 3:00?
 << eval=FALSE, echo=TRUE >>=
@@ -158,24 +149,49 @@ plot(circular(KBwt, template="clock24", units="hours"), stack=TRUE)
 
 Maybe our eye perceives some imbalance in the distribution, but we do not
 have any expectation of what the plot should look like if flies were
-hatching at random times. This is where we should start.
+hatching at random times. So let us step back and start with this.
 
 
 \section{The uniform distribution}
 
+The uniform distribution holds a special status among random variables
+(more about this in section~\ref{bonus}) and random number generators
+essentially aim to reproduce it.
+
+\begin{definition}[uniform distribution]
+The uniform distribution describes variables that have the same
+probability of taking any value within a given range (with probability 0
+outside the range). The range of the standard uniform distribution is
+$[0,1]$.
+\end{definition}
+
+A uniform variable $X$ is continuous, so for any value $x$, $P(X = x) =
+0$. It thus makes more sense to define the distribution from the value of
+$P(X \leq x)$. A variable $X$ follows the standard uniform distribution if
+and only if
+\begin{equation}
+\label{formula}
+P(X \leq x) = x \;\;\; (x \in [0,1]).
+\end{equation}
+
 In R, the function \texttt{runif(...)} generates a random sample of
 numbers between 0 and 1. Numbers are drawn from the uniform distribution,
-meaning that every value between 0 and 1 is equally likely.
+meaning that every value between 0 and 1 is equally likely. We can check
+empirically formula~(\ref{formula}) using \texttt{runif(...)}.
 
-\begin{Exercise}[name=Question]
-Using the documentation if necessary, generate a single random number
-between 0 and 1 using the function \texttt{runif(...)}.
-\par\noindent\textcolor{BrickRed}{\textbf{Quercus:} use seed 123.}
+\begin{Exercise}
+Choose a number \texttt{x} between 0 and 1. Check that the command below
+has a result close to \texttt{x}.
+<< eval=FALSE, echo=TRUE >>=
+mean(runif(n=1000) <= x)
+@
+\par\noindent\textcolor{BrickRed}{\textbf{Quercus:} set \texttt{x} to 0.5
+and use seed 123.}
 \end{Exercise}
 \begin{Answer}
 << >>=
 set.seed(123)
-runif(n=1)
+mean(runif(n=1000) <= 0.5)
 @
 \end{Answer}
 
@@ -222,11 +238,9 @@ The plots of Question~\ref{excirc} and Question~\ref{exunif} have a
 different look and we are tempted to conclude that flies may have a
 mechanism to keep track of time in the absence of external cues. But how
 sure are we that the plot of Question~\ref{excirc} cannot be obtained by
-chance alone? If it were, we may be looking for mechanisms that do not
-actually exist.
+chance alone?
 
-To answer this question, we need to return to the framework of statistical
-testing. Namely, we need
+We have to return to the framework of statistical testing and define
 \begin{enumerate}
   \item
   A null hypothesis.
@@ -254,11 +268,10 @@ time of the day.
 The protocol to collect data was designed by Konopka and Benzer; it is
 detailed in reference~\cite{konopka1971clock}. The main difficulty is to
 monitor hatching in the dark without disturbing the pupae, which was done
-with a machine called a ``bang-box''. The data was somewhat modified so
-that it is easier to plot, but we will not go deeper into the data
+with a machine called a ``bang-box''. We will not go deeper into the data
 collection protocol here.
 
-Finding a good statistic is not straightforward. We will have to learn a
+Designing a good statistic is not straightforward. We will have to learn
 more about R in order to carry out the computations we need.
 
 
@@ -282,28 +295,13 @@ of the points. To take an extreme examples, if 4 points are dividing a
 circle of length 1 in equal parts, the sum of the squared distances is
 $0.25^2 + 0.25^2 + 0.25^2 + 0.25^2  = 0.25$. In comparison, if the points
 are exactly on top of each other, the score is $0^2 + 0^2 + 0^2 + 1^2 =
-1$, which is gerater. Our statistic will thus be the sum of the squared
+1$, which is larger. Our statistic will thus be the sum of the squared
 distances between the points.
 
 
 The first ingredient to compute our score is the function
-\texttt{sort(...)}.
-
-\begin{Exercise}[name=Question]
-Generate 5 numbers between 0 and 1 and sort them using the function
-\texttt{sort(...)} What is the smallest value?
-\par\noindent\textcolor{BrickRed}{\textbf{Quercus:} use seed 123.}
-\end{Exercise}
-\begin{Answer}
-<< >>=
-set.seed(123)
-sort(runif(n=5))
-@
-\end{Answer}
-
-
-Next we need the function \texttt{diff(...)} to compute the distance
-between consecutive points.
+\texttt{sort(...)} and the second one is the function \texttt{diff(...)}
+to compute the distance between consecutive points.
 
 \begin{Exercise}[name=Question]
 Generate 5 numbers between 0 and 1 and sort them using the function
@@ -379,44 +377,41 @@ sum(diff(sort(runif(n=length(KBwt), max=24)))^2)
 \label{exnulld}
 Using the function \texttt{replicate(...)}, produce 1000 random values of
 the statistic under the null hypothesis. Store them in a variable called
-\texttt{nulld} (this stands for ``null distribution''). Use the function
-\texttt{mean(...)} to compute the approximate expected value of the
-statistic under the null hypothesis.
+\texttt{nulld} for ``null distribution''. Plot the histogram of the null
+distribution with default parameters. What is the range of values with
+highest frequency?
 \par\noindent\textcolor{BrickRed}{\textbf{Quercus:} use seed 123.}
 \end{Exercise}
 \begin{Answer}
-<< >>=
+<< fig=TRUE >>=
 set.seed(123)
 nulld <- replicate(n=1000, sum(diff(sort(runif(n=length(KBwt), max=24)))^2))
-mean(nulld)
+# Values in the range 1.85-1.90 have highest frequency.
+hist(nulld)
 @
 \end{Answer}
 
 
-The average gives us an idea of the typical value of the score when the
-null hypothesis is true. But to make a decision rule we need to know which
-values are atypical, so that we can confidently reject the null hypothesis
-when the score is too large to be explained by chance. The simplest
-strategy is to take the maximum ever observed by chance.
+To create a decision rule we need to know which values are atypical, so that
+we can confidently reject the null hypothesis when the score is too large
+to be explained by chance. We will set the level to 1\%, meaning that we
+accept a 1\% chance of wrongly rejecting the null hypothesis when it is
+true.
 
 \begin{Exercise}[name=Question]
-Use the function \texttt{max(...)} to return the maximum value of
-\texttt{nulld}.
+Find the decision threshold at level 1\%.
 \end{Exercise}
 \begin{Answer}
 << >>=
-max(nulld)
+quantile(nulld, 0.99)
 @
 \end{Answer}
 
 
-It is unlikely that we would obtain a large value than this by chance,
-because out of 1000 random samples, we never observed them. Let us now
-return to the experimental data and conclude.
-
-The last difficulty is that the original numbers go from 0 to 4 $\times$
-24 = 96. We need to reset the count every 24 hours. We can do this with
-the operator ``modulo 24'', which is written \texttt{\%\% 24}.
+Let us now return to the experimental data and conclude. One last
+difficulty is that the original numbers go from 0 to 4 $\times$ 24 = 96
+(not 0 to 24). We need to reset the counts every 24 hours. We can do this
+with the operator ``modulo 24'', which is written \texttt{\%\% 24}.
 << >>=
 c(23.12, 24.67) %% 24
 @
@@ -429,18 +424,18 @@ conclude.
 << >>=
 sum(diff(sort(KBwt %% 24))^2)
 @
-The score is higher than the maximum ever observed by chance (4.346533 >
-2.183868). It is unlikely that the asymetries observed in the experimental
-sample are due to chance alone so we reject the null hypothesis and
-conclude that fruit flies have a way to keep track of time in the absence
-of external cues. Fruit flies of the species \it{Drosophila melanogaster}
-have a preference for hatching 5 to 12 hours after sunrise, even if they
-cannot see the sunlight.
+The score is higher than the threshold (4.346533 > 2.098126). It is
+unlikely that the asymetries observed in the experimental sample are due
+to chance alone so we reject the null hypothesis and conclude that fruit
+flies have a way to keep track of time in the absence of external cues.
+Fruit flies of the species \textit{Drosophila melanogaster} have a
+preference for hatching 5 to 12 hours after sunrise, even if they cannot
+see the sunlight.
 \end{Answer}
 
 
-Once a statistical analysis is finished, it is customary to deliver the
-conclusion with a so-called p-value.
+It is common to deliver the conclusion of a test in the form of a
+so-called p-value.
 
 \begin{definition}[p-value]
 The p-value of a statistical test is the probability that the null
@@ -448,21 +443,46 @@ distribution would produce a value that is greater than or equal to the
 observed statistic.
 \end{definition}
 
-We cannot estiamte the p-value in our case because the null distribution
-never produced a value that is close to the observed statistic. In such
-cases, we can only specify that the p-value is estimated to be lower than
-a certain value.
+Once the null distribution is available, computing the p-value is
+straightforward. In our case, the null distribution is in the form of a
+sample, so we need to count how many values in \texttt{nulld} are equal to
+or larger than the observed value of the statistic. 
 
 
 \begin{Exercise}[name=Question]
-What upper bound can we give for the p-value in the analysis above?
+Estimate the p-value of the test. Give an upper bound.
 \end{Exercise}
 \begin{Answer}
-The null distribution has never produced a value greater than or equal to
-4.346533 out of 1000 samplings. We conclude that the probability of
+<< >>=
+mean(nulld >= 4.346533)
+@
+Out of 1000 trials, the null distribution has never produced a value
+greater than or equal to 4.346533. We conclude that the probability of
 producing such a large value must be lower than 1/1000.
 \end{Answer}
 
+
+Note that the null hypothesis is rejected if and only if the p-value is
+lower than the level (\textit{i.e.}, if the p-value is less than 1\% in
+our case). This is best understood visually.
+
+\begin{center}
+\includegraphics[width=129mm]{p-value.pdf}
+\end{center}
+
+
+One can push this rationale even further and get to a surprising fact
+about p-values.
+
+\begin{Exercise}[name=Question]
+If the null hypothesis is true, what is the distribution of the p-value?
+\end{Exercise}
+\begin{Answer}
+If the null hypothesis is true, the p-value follows the standard uniform
+distribution. For any level $x$, the probability that the p-value is less
+than $x$ is $x$. This is the definition of the standard uniform
+distribution.
+\end{Answer}
 
 \section{The \textit{per} mutant}
 
@@ -472,27 +492,19 @@ capacity to keep track of time~\cite{konopka1971clock}. They recorded the
 same type of data on the mutant, which you can load into your R session
 with the command below.
 << >>=
-url <- "https://raw.githubusercontent.com/gui11aume/BIOB20/main/chapter_2/KB71_mut.txt"
+url <- "https://raw.githubusercontent.com/gui11aume/BIOB20/main/chapter_4/KB71_mut.txt"
 KBmut <- scan(url)
 @
 
+As always, perform the routine checks on external data you import into
+your R session.
+
 \begin{Exercise}[name=Question]
-As always, make the routine checks on external data you load into your R
-session. What is the length of the vector \texttt{KBmut}?
+What is the length of the vector \texttt{KBmut}?
 \end{Exercise}
 \begin{Answer}
 << >>=
 length(KBmut)
-@
-\end{Answer}
-
-
-\begin{Exercise}[name=Question]
-What is the first value of the vector \texttt{KBmut}?
-\end{Exercise}
-\begin{Answer}
-<< >>=
-head(KBmut)
 @
 \end{Answer}
 
@@ -540,15 +552,6 @@ sum(diff(sort(KBmut %% 24))^2)
 \end{Answer}
 
 
-In R, you can compute the number of elements that above or equal to a
-target value by combining the function \texttt{sum(...)} with the operator
-\texttt{>=} (a `greater than' sign follwed by an `equal' sign) in a
-similar way as it can be done for the operator \texttt{==}.
-<< >>=
-sum(c(1,2,3,4) == 3)
-sum(c(1,2,3,4) >= 3)
-@
-
 \begin{Exercise}[name=Question]
 Estimate the p-value that is associated with your previous conclusion.
 \end{Exercise}
@@ -561,18 +564,99 @@ greater than or equal to the observed statistic.
 \end{Answer}
 
 
-Observe that the p-value is small when the null hypothesis is rejected and
-the p-value is large when the null hypothesis is accepted. Intuitievly, if
-the null hypothesis is a poor explanation for the data, the observed
-statistic will lie far from the typical values of the null distribution
-and the probability of obtaining greater values is small. On the contrary,
-if the null hypothesis is a good explanation for the data, the observed
-statistic will be among the typical calues of the null distribution and
-the probability of obtaining greater values is high.
+\begin{Exercise}[name=Question]
+Plot the histogram of the null distribution with default parameters. Add a
+vertical red line for the threshold at level 1\%. Add a vertical blue line
+at the value of the observed statistic. Are the red line and the blue line
+within the same bar of the histogram?
+\end{Exercise}
+\begin{Answer}
+<< fig=TRUE >>=
+hist(nulld)
+# The blue line and the red line are in different bars.
+abline(v=quantile(nulld, 0.99), col="red")
+abline(v=sum(diff(sort(KBmut %% 24))^2), col="blue")
+@
+\end{Answer}
+
+
+The p-value is small when the null hypothesis is rejected and the p-value
+is large when the null hypothesis is accepted. Intuitievly, if the null
+hypothesis is a poor explanation for the data, the observed statistic will
+lie far from the typical values of the null distribution and the
+probability of obtaining greater values is small. On the contrary, if the
+null hypothesis is a good explanation for the data, the observed statistic
+will be among the typical values of the null distribution and the
+probability of obtaining greater values is high.
 
 These considerations explain why p-values are commonly used to quantify
 the confidence in accepting or rejecting the null hypothesis.
 
+
+\section{Bonus points: the exponential distribution}
+\label{bonus}
+
+The standard uniform distribution has a special status in computational
+statistics because it can be used to generate samples from every other
+distribution. This is why pseudo random number generators aim to replicate
+the standard uniform distribution. Sampling from the binomial, the Poisson
+and many other distributions is then achieved by first sampling from the
+standard uniform distribution and then transforming the result.
+
+This can be seen by defining the function $F(u) = P(X \leq u)$ for an
+arbitrary random variable $X$. Then $F(X)$ is a new random variable, where
+we first sample $X$ and then apply the function $F(\cdot)$ to the result.
+For any $x$ in $[0,1]$ we have
+\begin{equation}
+P(F(X) \leq x) = P(X \leq F^{-1}(x)) = F(F^{-1}(x)) = x.
+\end{equation}
+
+This means that $F(X)$ has a uniform distribution, as per
+formula~(\ref{formula}). So, instead of sampling from $X$, we can sample
+$u = F(X)$ from a standard uniform distribution, and then obtain $X$ by
+computing $F^{-1}(u)$.
+
+This is fairly abstract, so let us give an example showing how to sample
+from the exponential distribution.
+
+
+\begin{Exercise}[name=Question]
+Generate a standard uniform sample of size 10,000. Compute the logarithm
+of the values and invert the sign. Finally, plot the histogram of the
+sample with default parameters. What is the range of values with highest
+frequency?
+\par\noindent\textcolor{BrickRed}{\textbf{Quercus:} use seed 123.}
+\end{Exercise}
+\begin{Answer}
+<< fig=TRUE >>=
+set.seed(123)
+# Values in the range 0.0-0.5 have highest frequency.
+hist(-log(runif(n=10000)))
+@
+\end{Answer}
+
+
+We can compare this method to the standard implementation in R.
+
+\begin{Exercise}[name=Question]
+Using the documentation if necessary, generate a random sample of size
+10,000 from the exponential distribution with the function
+\texttt{rexp(...)}. Plot the histogram of the sample with default
+parameters. What is the range of values with highest frequency?
+\par\noindent\textcolor{BrickRed}{\textbf{Quercus:} use seed 123.}
+\end{Exercise}
+\begin{Answer}
+<< fig=TRUE >>=
+set.seed(123)
+# Values in the range 0.0-0.5 have highest frequency.
+hist(rexp(n=10000))
+@
+\end{Answer}
+
+
+Sampling from the exponential distribution is relatively simple. Deriving
+other distributions from the standard uniform distribution is often more
+tedious, but it is the usual approach to generating pseudo random samples.
 
 \section{Conclusions}
 
@@ -584,28 +668,32 @@ the so-called circadian clock in flies. Two other genes called
 later~\cite{hardcastle2021cracking}, together forming a clock that
 oscillates in every cell. This architecture with three core genes is
 conserved in plants, animals and fungi, so the discovery of Konopka and
-Benzer paved the way to understand a very general phenomenon associated
-with life on earth.
+Benzer was a major breakthrough.
 
 We have applied the basic steps of statistical analysis to the discovery
-of the first clock gene. The null hypothesis revolved around the uniform
+of the first clock gene. The null hypothesis relied on the uniform
 distribution, which can be simulated with the function
-\texttt{runif(...)}. The principal feature of the uniform distribution is
-that every value is equally probable as any other. This is the
-distribution that most people have in mind when they say ``at random''.
+\texttt{runif(...)}. The uniform distribution is continuous and its
+principal feature is that every value is equally probable as any other.
+This is the distribution that most people have in mind when they say ``at
+random''.
 
-The most challenging step in our approach was the design of a score that
-would discriminate the null from the alternative hypothesis, while being
-easy to compute. We came up with a pragmatic solution that did the job.
-There are better solutions to this problem~\cite{pycke2010some}, but they
-require that the distribution of the null distribution can be expressed as
-an analytical formula. Our empirical strategy using random generators is
-much more flexible (but the results are only approximate).
+The most challenging step in our approach was to design a score that would
+discriminate the null from the alternative hypothesis, while being easy to
+compute. We came up with a pragmatic solution that did the job. There are
+better solutions to this problem~\cite{pycke2010some}, but they require
+that the distribution of the null distribution can be expressed as an
+analytical formula. Our empirical strategy using random generators is much
+more flexible (but the results are only approximate).
 
 We have introduced the concept of p-value, which is used to measure the
-confidence in our final decision to accept or reject the null hypothesis.
-The lower the p-value, the more confident we are that the null hypothesis
-should be rejected.
+confidence in the final decision to accept or reject the null hypothesis.
+The lower the p-value, the more confident we can be that the null
+hypothesis should be rejected. Today, it is customary to report the
+p-value of a test without specifying the level. Strictly speaking, this
+changes the protocol of a statistical test, but it is considered better to
+let the audience choose their own level and decide whether to accept or
+reject the null hypothesis based on the p-value.
 
 
 \bibliography{references}

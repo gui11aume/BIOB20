@@ -32,7 +32,7 @@ Answer of \ExerciseName\ \ExerciseHeaderNB}\par}
 % Options.
 \SweaveOpts{keep.source=TRUE}
 
-\title{The Poisson distribution / Molecular evolution}
+\title{The Poisson distribution / molecular evolution}
 \author{}
 \date{September 20, 2022}
 
@@ -76,8 +76,8 @@ occasional gains or loss of functions~\cite{kimura1983neutral}.
 \section{The molecular clock in picture}
 
 We will work with a dataset that was published in
-2016~\cite{robinson2016revisiting} (note that some changes were applied to
-the data in order to suit the needs of this chapter).
+2016~\cite{robinson2016revisiting} (with some edits for teaching
+purpoess).
 
 
 \begin{Exercise}[name=Question]
