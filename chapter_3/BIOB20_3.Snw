@@ -77,7 +77,7 @@ occasional gains or loss of functions~\cite{kimura1983neutral}.
 
 We will work with a dataset that was published in
 2016~\cite{robinson2016revisiting} (with some edits for teaching
-purpoess).
+purposes).
 
 
 \begin{Exercise}[name=Question]
@@ -221,9 +221,8 @@ Draw the plot of Question~\ref{plot3}, but this time use the argument
 graduation appearing on the y-axis?
 \end{Exercise}
 \begin{Answer}
-Some points are missing because the y-axis is limited to 50.
 << >>=
-# The highest graduation is 100.
+# The highest graduation is 600.
 plot(x=prot$time[1:10], y=prot$diff[1:10], xlab="Time (Myr)",
   ylab="Differences", panel.first=grid(), pch=16, col=8, ylim=c(0,600))
 points(x=prot$time[11:16], y=prot$diff[11:16], pch=16, col=2)
@@ -278,8 +277,8 @@ ballpark estimate for $\theta$? Call this value $\theta_0$ and store it
 into a variable called \texttt{theta0}.
 \end{Exercise}
 \begin{Answer}
-There are approximately 50 differences in approximately 1400 million years
-of evolution so $\theta_0 \approx 1400 / 50 \approx 0.036$.
+There are approximately 50 differences in approximately 1500 million years
+of evolution so $\theta_0 \approx 50 / 1500 \approx 0.033$.
 << >>=
 theta0 <- 50 / 1500
 @

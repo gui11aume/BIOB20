@@ -115,7 +115,7 @@ run the code below:
 install.packages(circular)
 @
 
-Depending on your machine and on how you installed R, you will eitehr have
+Depending on your machine and on how you installed R, you will either have
 to click on the mirror you want to download the package from, or choose a
 number from the list. Your choice will not affect the result, but it makes
 sense to pick the mirror nearest to you (\textit{e.g.}, Canada). Most
@@ -131,7 +131,7 @@ package will be available.
 \begin{Exercise}[name=Question]
 \label{excirc}
 The code below activates the packages \texttt{circular} and plots the
-hatching data in a circular way. Each dot representing a fly that hatched.
+hatching data in a circular way. Each dot represents a fly that hatched.
 Run the code in your R session. How many flies hatched in the interval
 2:00 to 3:00?
 << eval=FALSE, echo=TRUE >>=
@@ -179,7 +179,7 @@ numbers between 0 and 1. Numbers are drawn from the uniform distribution,
 meaning that every value between 0 and 1 is equally likely. We can check
 empirically formula~(\ref{formula}) using \texttt{runif(...)}.
 
-\begin{Exercise}
+\begin{Exercise}[name=Question]
 Choose a number \texttt{x} between 0 and 1. Check that the command below
 has a result close to \texttt{x}.
 << eval=FALSE, echo=TRUE >>=
@@ -310,6 +310,7 @@ the function \texttt{diff(...)}. What is the smallest distance?
 \par\noindent\textcolor{BrickRed}{\textbf{Quercus:} use seed 123.}
 \end{Exercise}
 \begin{Answer}
+The minimum is 0.05745.
 << >>=
 set.seed(123)
 diff(sort(runif(n=5)))

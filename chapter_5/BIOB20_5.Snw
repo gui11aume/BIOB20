@@ -1,0 +1,820 @@
+\documentclass[a4paper]{article}
+
+% Packages.
+\usepackage{amsthm}
+\usepackage[answerdelayed]{exercise}
+\usepackage[usenames,dvipsnames]{color}
+\usepackage{mhchem}
+
+% Bibliography.
+\bibliographystyle{abbrv}
+
+% Definitions.
+\theoremstyle{definition}
+\newtheorem{definition}{Definition}
+
+% Exercise layout.
+\renewcommand{\ExerciseHeader}{\par\noindent\textbf{\large
+\ExerciseName\ \ExerciseHeaderNB\ExerciseHeaderTitle
+\ExerciseHeaderOrigin}\par}
+
+\renewcommand{\AnswerHeader}{\par\noindent\textbf{
+Answer of \ExerciseName\ \ExerciseHeaderNB}\par}
+
+\setlength{\ExerciseSkipAfter}{3mm}
+
+% Document layout.
+\setlength{\oddsidemargin}{18pt}
+\setlength{\textwidth}{420pt}
+\setlength{\marginparwidth}{0pt}
+\setlength{\marginparsep}{0pt}
+
+% Options.
+\SweaveOpts{keep.source=TRUE}
+
+\title{The normal distribution / proton gradients}
+\author{}
+\date{October 4, 2022}
+
+
+\begin{document}
+\maketitle
+
+\section{Overview}
+
+In this chapter we introduce the normal distribution and the notion of
+nuisance parameter. We showcase some applications in the field of
+proton gradients.
+
+
+%% The problem %%
+\section{The problem}
+
+In 1951, Efraim Racker, a researcher at New York University, discovered
+that the energy currency of the cell, ATP, could be generated through the
+chemical reactions of glycolysis, whereby phosphate groups were
+transferred directly from sugars to ADP~\cite{racker1951mechanism}.
+
+But the majority of ATP is produced through another route called oxidative
+phosphorylation (colloquially known as ``breathing''). Researchers set out
+to find the chemical reactions that produce ATP during oxidative
+phosphorylation but in 1961, Peter Mitchell, a researcher at the
+University of Edinburgh suggested that such reactions would never be
+found~\cite{mitchell1961coupling}. Instead, he suggested that ATP was
+produced by the difference of pH between the mitochondria and the
+cytoplasm, assuming that the proton gradient was the fuel for the
+reaction.
+
+
+\section{A question of stoichiometry}
+
+If ATP is produced by a chemical reaction, then it has to respect a
+particular stoichiometry. The global equation of oxidative phosphorylation
+is \ce{ 6 O2 + C6H12O6 -> 6 CO2 + 6 H2O }, which would have to produce a
+fixed amount of ATP molecules. In other words, for every atom of oxygen
+(O) that is consumed, a certain amount of phosphorus (P) has to be
+incorporated into ATP. Therefore the P/O ratio of the reaction is a
+constant.
+
+However, Mitchell observed that the P/O ratio sometimes changed, speaking
+against a fixed stoichiometry. The proton gradient hypothesis does not
+require any stoichiometry, so it became important to measure P/O ratios as
+precisely as possible. It was observed that malonate may modify the P/O
+ratio, but the effect was quite small~\cite{hinkle1991mechanistic}, so it
+became important to know whether the inhibition was real or not.
+
+Import the data into your R session. It consists of independent
+measurements of P/O ratios in the presence of
+malonate~\cite{hinkle1991mechanistic}. The P/O ratio without malonate was
+previously measured at 1.48.
+
+<< >>=
+url <- "https://raw.githubusercontent.com/gui11aume/BIOB20/main/chapter_5/PO.txt"
+PO <- scan(url)
+@
+
+\begin{Exercise}[name=Question]
+Run the usual checks for imported data. Plot the histogram of \texttt{PO}
+with default parameters and add a vertical red line at position 1.48.
+What range of values is the red line in?
+\end{Exercise}
+\begin{Answer}
+<< fig=TRUE >>=
+length(PO)
+# The dataset is small, show everything.
+PO
+hist(PO)
+# The red line is in range 1.4-1.5.
+abline(v=1.48, col=2)
+@
+\end{Answer}
+
+
+It is difficult to judge whether malonate really modifies the P/O ratio.
+We need a model for randomness so that we can build an expectation of the
+random spread. The normal distribution is well adapted to model
+measurement errors.
+
+\begin{definition}[normal distribution]
+The normal or Gaussian distribution describes continuous variables that
+are the sum of many small effects. The normal distribution is usually
+represented by the symbol $N(\mu, \sigma)$, where $\mu$ is the expected
+value and $\sigma$ is the standard deviation. The standard normal
+distribution is $N(0,1)$, with mean 0 and standard deviation 1.
+\end{definition}
+
+We will not need the formula, but a variable $X$ follows the normal
+distribution $N(\mu, \sigma)$ if and only if
+\begin{equation}
+\label{formula}
+P(X \leq x) = \int_{-\infty}^x \frac{1}{\sigma \sqrt{2\pi}}
+\exp \left\{ -\frac{(z-\mu)^2}{2\sigma^2} \right\} dz.
+\end{equation}
+
+
+\begin{Exercise}[name=Question]
+Use the function \texttt{rnorm(...)} with default parameters to generate a
+random sample of size 100,000 from the normal distribution. Plot the
+histogram using the function \texttt{hist(...)} with option
+\texttt{breaks=80} to make it smoother. What is the highest graduation on
+the x-axis?
+\par\noindent\textcolor{BrickRed}{\textbf{Quercus:} use seed 123.}
+\end{Exercise}
+\begin{Answer}
+The normal distribution is also referred to as the ``bell curve'' because
+of the shape of its histogram.
+<< fig=TRUE >>=
+set.seed(123)
+# The highest graduation on the x-axis is 4.
+hist(rnorm(n=100000), breaks=80)
+@
+\end{Answer}
+
+
+The function \texttt{rnorm(...)} with default parameters samples from the
+standard normal distribution $N(0,1)$. To draw from other normal
+distributions, one can use the parameters \texttt{mean} and \texttt{sd} to
+set $\mu$ and $\sigma$.
+
+\begin{Exercise}[name=Question]
+\label{std}
+Set the variable \texttt{mu} to any value except \texttt{0} and the
+variable \texttt{sigma} to any value exccept \texttt{1}. Then run the code
+below.
+<< eval=FALSE, echo=TRUE >>=
+set.seed(123)
+rnorm(n=5, mean=mu, sd=sigma)
+set.seed(123)
+mu + sigma * rnorm(n=5)
+@
+What do you observe? What does it mean?
+\end{Exercise}
+\begin{Answer}
+Let us choose $\mu = 18.27$ and $\sigma = 1.827$.
+<< >>=
+mu <- 18.27
+sigma <- 1.827
+set.seed(123)
+rnorm(n=5, mean=mu, sd=sigma)
+set.seed(123)
+mu + sigma * rnorm(n=5)
+@
+The numbers are exactly identical. This means that the distribution
+$N(\mu, \sigma)$ can be obtained from the distribution $N(0,1)$ by
+multiplying with $\theta$ and adding $\mu$.
+\end{Answer}
+
+
+Question~\ref{std} $X$ has a $N(\mu, \sigma)$ distribution, then $(X -
+\mu) / \sigma$ has a $N(0,1)$ distribution (\textit{i.e.} a standard
+normal distribution).
+
+We can decide whether malonate changes the P/O ratio with a a
+statistical test. To this end, we need
+
+\begin{enumerate}
+\item
+A null hypothesis.
+\item
+An alternative  hypothesis.
+\item
+A protocol to collect data.
+\item
+A test statistic.
+\item
+A decision rule.
+\end{enumerate}
+
+\begin{Exercise}[name=Question]
+What are the null and the altnerative hypotheses?
+\end{Exercise}
+\begin{Answer}
+The null hypothesis is that the measurements of the P/O ratio with
+malonate are distributed as $N(\mu, \sigma)$ with $\mu = 1.48$. The
+alternative hypothesis is that the distribution is $N(\mu, \sigma)$ with
+$\mu \neq 1.48$.
+\end{Answer}
+
+
+The protocol to collect data is very important here because there was a
+long controversy as to whether the measurements were accurate. We will
+leave this discussion to experts of biochemistry and focus on the
+statistic. The mean seems like an obvious choice, so let's use it.
+
+\begin{Exercise}[name=Question]
+Why is it not possible to derive the null distribution if the statistic is
+the sample mean?
+\end{Exercise}
+\begin{Answer}
+To generate random samples we would need to use the function
+\texttt{rnorm(...)} without a proper value of $\sigma$, like
+\texttt{rnorm(n=1000, mu=1.48, sigma=??)}
+\end{Answer}
+
+
+\section{The nuisance parameter}
+
+In the present context, $\sigma$ is called a nuisance parameter. We have
+no interest for $\sigma$, but the fact that we do not know its value
+prevents us from learning what we want about $\mu$.
+
+There are multiple strategies to deal with nuisance parameters. One method
+is to find a statistic with a distribution that does not depend on them.
+
+\begin{Exercise}[name=Question]
+Set the variable \texttt{sigma} to any value except 1. Draw a random
+sample \texttt{x} and compute its standard deviation with the command
+\texttt{x <- rnorm(n=11, sd=sigma)}. Is the standard deviation of the
+sample \texttt{x} equal to \texttt{sigma}? Divide every value in
+\texttt{x} by the standard deviation of the sample. What is the 
+standard deviation of the transformed sample?
+\end{Exercise}
+\begin{Answer}
+<< >>=
+sigma <- 1.827
+set.seed(123)
+x <- rnorm(n=12, sd=sigma)
+sd(x) # Not equal to sigma because of random sampling.
+sd(x / sd(x)) # Always equal to 1.
+@
+\end{Answer}
+
+
+Dividing a sample by its own standard deviation may be a way to remove the
+dependence on the nuisance parameter $\sigma$. To obtain a statistic, we
+still need to take the average after this operation.
+
+\begin{Exercise}[name=Question]
+Generate a random sample using \texttt{rnorm(n=11, sd=sigma)}, divide it
+by its own standard deviation and compute the mean. Can you use the
+function \texttt{replicate(...)} to generate 1000 random means using the
+same process?
+\end{Exercise}
+\begin{Answer}
+<< >>=
+sigma <- 1.827
+set.seed(123)
+x <- rnorm(n=11, sd=sigma)
+mean(x / sd(x))
+@
+The difficulty is that we have to apply the functions \texttt{mean(...)}
+and \texttt{sd(...)} to the same sample. The command
+\texttt{mean(rnorm(n=11, sd=sigma)) / sd(rnorm(n=11, sd=sigma))} generates
+two independent samples so it is not clear how to write a statement with
+\texttt{replicate(...)} that would have the desired effect.
+\end{Answer}
+
+
+The R programming language allows us to create our own functions, which is
+very useful for such cases (and more generally to use the same code
+multiple times). The following example shows the syntax to compute the
+square of its input by defining the function \texttt{square(...)}.
+<< >>=
+square <- function(x) { x^2 }
+square(1:4)
+@
+
+\begin{Exercise}[name=Question]
+\label{stat}
+Define a function \texttt{statistic(...)} that subtacts 1.48 to all the
+values of its input, then divide them by their own standard deviation and
+finally computes the mean.
+\end{Exercise}
+\begin{Answer}
+<< >>=
+statistic <- function(x) { mean((x - 1.48) / sd(x)) }
+@
+\end{Answer}
+
+
+\begin{Exercise}[name=Question]
+Use the functions \texttt{statistic(...)} from Question~\ref{stat} and
+\texttt{replicate(...)} to generate 10,000 samples from
+\texttt{rnorm(n=11, sd=sigma)}, subtract 1.48, divide them by their own
+standard deviations and compute the means. Change the value of
+\texttt{sigma} by several order of magnitude and plot the histogram every
+time (I recommend restricting the x-axis to the interval $(-2,2)$ and
+using \texttt{breaks=80} for esthetics). Does the value of \texttt{sigma}
+impact the distribution?
+\end{Exercise}
+\begin{Answer}
+Changing \texttt{sigma} does not change the distribution.
+<< fig=TRUE >>=
+set.seed(123)
+sigma <- 1.827
+hist(replicate(n=10000, expr=statistic(rnorm(n=11, mean=1.48, sd=sigma))),
+   breaks=40, main="", xlab="Statistic (sigma=1.827)", xlim=c(-2,2))
+@
+<< fig=TRUE >>=
+set.seed(123)
+sigma <- 1827
+hist(replicate(n=10000, expr=statistic(rnorm(n=11, mean=1.48, sd=sigma))),
+   breaks=40, main="", xlab="Statistic (sigma=1827)", xlim=c(-2,2))
+@
+\end{Answer}
+
+
+\section{Heavy tails}
+
+The statistic we came up with in the previous section is called the
+``effect size''. The distribution of the effect size looks Gaussian but it
+is not.
+
+\begin{Exercise}[name=Question]
+\label{student}
+Generate a random sample of size 100,000 from the null distribution and
+use it to estimate the probability that the statistic is lower than -1 or
+greater than 1 (\textit{i.e.}, the probability that it is greater than 1
+in absolute value).
+\par\noindent\textcolor{BrickRed}{\textbf{Quercus:} use seed 123.}
+\end{Exercise}
+\begin{Answer}
+<< >>=
+set.seed(123)
+sigma <- 1.827
+x <- replicate(n=100000, expr=statistic(rnorm(n=11, mean=1.48, sd=sigma)))
+mean(abs(x) > 1)
+@
+\end{Answer}
+
+
+For comparison, consider what would happen if $\sigma$ were known so that
+we could divide by \texttt{sigma} instead of \texttt{sd(x)} in the
+computation of the statistic.
+
+\begin{Exercise}[name=Question]
+\label{gauss}
+Generate a random sample of size 100,000 in the conditions of
+Question~\ref{student} where \texttt{sd(x)} is replaced by \texttt{sigma}
+in the calculation of the statistic. Use the sample to estimate the
+probability that the statistic is lower than -1 or greater than 1
+(\textit{i.e.}, the probability that it is greater than 1 in absolute
+value).
+\par\noindent\textcolor{BrickRed}{\textbf{Quercus:} use seed 123.}
+\end{Exercise}
+\begin{Answer}
+When $\sigma$ is known, the probability that the statistic is greater than
+1 is about 10 times smaller.
+<< >>=
+set.seed(123)
+sigma <- 1.827
+y <- replicate(n=100000, expr=mean(rnorm(n=11, mean=1.48, sd=sigma) / sigma))
+mean(abs(y) > 1)
+@
+\end{Answer}
+
+
+\begin{definition}[tails of a distribution]
+The tails of a distribution are the probabilities of the inifinite
+intervals of the form $(-\infty,x)$ for the left tail, and $(x,+\infty)$
+for the right tail.
+\end{definition}
+
+At that point, it is important to highlight that the empirical standard
+deviation as computed with the function \texttt{sd(...)} is not a very
+good estimator.
+
+
+\begin{Exercise}[name=Question]
+\label{ssd}
+Set the variable \texttt{sigma} to any value except \texttt{1}. Generate
+100,000 random samples from \texttt{rnorm(n=11, sd=sigma)} using
+\texttt{replicate(...)}, compute their standard deviations and store them
+in a variable called \texttt{ssd}. What is the mean of \texttt{ssd}? Rerun
+the simulation a few times to see how long it takes to obtain an average
+above \texttt{sigma}.
+\end{Exercise}
+\begin{Answer}
+<< >>=
+sigma <- 1.827
+ssd <- replicate(n=100000, expr=sd(rnorm(n=11, sd=sigma)))
+mean(ssd)
+# This can go on for ever...
+mean(replicate(n=100000, expr=sd(rnorm(n=11, sd=sigma))))
+mean(replicate(n=100000, expr=sd(rnorm(n=11, sd=sigma))))
+@
+It is extremely unlikely to obtain an average above \texttt{sigma} for
+100,000 replicates.
+\end{Answer}
+
+
+As the number of replicates \texttt{n} increases, the average of the
+estimate given by \texttt{sd(...)} does not converge to \texttt{sigma}.
+This is an example of biased estimator.
+
+\begin{definition}[bias]
+The bias of an estimator is the difference between its expected value and
+the real value of the parameter. An estimator is unbiased if its bias is
+0.
+\end{definition}
+
+For our statistic, the bias of the function \texttt{sd(...)} is not
+relevant because we incorporate it in our sampling of the null
+distribution, but in general it is important to bear in mind that the
+standard deviation needs to be corrected if one wants an unbiased
+estimator.
+
+Bias is a form of inaccuracy that remains even if the sample becomes
+infinitely large. But this is not the only form of inaccuracy, and often
+it is not the major issue, as fluctuations in small samples can be the
+major source of error.
+
+\begin{Exercise}[name=Question]
+Using the sample \texttt{ssd} from Question~\ref{ssd}, give the
+approximate probability that the estimate of $\sigma$ is $\sigma/2$ or
+lower.
+\end{Exercise}
+\begin{Answer}
+<< >>=
+mean(ssd < sigma / 2)
+@
+\end{Answer}
+
+
+The probability may appear to be small, but occasionally, the estimator
+underestimates the target value by an order of magnitude (when the points
+in the sample randomly happen to be very close to each other). In this
+case, the expression \texttt{mean(x / sd(x))} will tend to blow up because
+it is divided by a small number, and the statistic will be very large
+(positive or negative).
+
+The division by \texttt{sd(x)} is responsible for the heavy tails of the
+distribution. The mean has a normal distribution, but dividing it by
+\texttt{sd(x)} transforms it into a Student's $t$ variable. The Student
+distribution has a bell shape but unlike the normal distribution, it has
+heavy tails.
+
+Defining the threshold or the p-value is usually based on the tails the
+null distribution, so it is important to have the right model, otherwise
+the thresohld can be misplaced.
+
+
+\begin{Exercise}[name=Question]
+Using the samples created at Questions~\ref{student} and \ref{gauss},
+find the thresholds at 1\% (for the absolute value of the statistic).
+What is their absolute difference? 
+\end{Exercise}
+\begin{Answer}
+<< >>=
+tx <- quantile(abs(x), 0.99) # 0.957
+ty <- quantile(abs(y), 0.99) # 0.772
+# Use 'as.vector' to suppress verbosity in the output.
+as.vector(tx-ty)
+@
+We can also see how often we would reject the null hypothesis by wrongly
+setting the threshold at 0.772 when the statistic has a student
+distribution.
+<< >>=
+mean(abs(x) > .772)
+@
+The risk of falsely rejecting the null would be approximately 2.8 times
+larger than the analyst realizes (the value 2.8 is not univeral, it is
+linked to this specific case and is just meant as an example).
+\end{Answer}
+
+We successfully eliminated the nuisance parameter $\sigma$ by desiging a
+statistic with a distribution that depends on $\mu$ but not on $\sigma$.
+The cost is that the distribution has heavy tails, meaning that it
+occasionally produces very large values (positive or negative). We are
+almost ready to conclude, but we still need to address the question of the
+decision rule.
+
+Here we need to revisit the alternative hypothesis and be sure of what we
+want. Any departure from $\mu = 1.48$ is sufficient to reject the null
+hypothesis and to conclude that the P/O ratio is not fixed by
+stoichiometry. So there are two ways for the null hypothesis to fail:
+either because the observed statistic is ``too high'' or because it is
+``too low''.
+
+The simplest way to achieve this is to take the absolute value of the
+statistic, rejecting the null hypothesis when the obtained value is large.
+For a statistic $T$, rejecting the null hypothesis when $T < -t$ or when
+$T > t$ is equivalent to rejecting the null hypothesis when $|T| > t$.
+
+\begin{Exercise}[name=Question]
+\label{fini}
+Finish the statistical test and conclude. For this, generate a sample of
+size 1000 from the distribution of the absolute statistic (\textit{i.e.},
+compute the distribution of its absolute value), plot the histogram with
+default parameters, indicate the threshold at level 1\% and the value of
+the observed statistic with vertical lines, compute the p-value of the
+test.
+\par\noindent\textcolor{BrickRed}{\textbf{Quercus:} use seed 123 and input
+the p-value.}
+\end{Exercise}
+\begin{Answer}
+<< fig=TRUE >>=
+set.seed(123)
+# Keep default sd=1 as sigma does not matter.
+nulld <- replicate(n=1000, expr=abs(statistic(rnorm(n=11, mean=1.48))))
+hist(nulld)
+# Threshold with a red line.
+abline(v=quantile(nulld, .99), col=2)
+obs <- abs(statistic(PO - 1.48))
+# Observed statistic with a blue line.
+abline(v=obs, col=4)
+# Empirical p-value
+mean(nulld >= obs)
+@
+
+The observed statistic is above the threshold and (equivalently) the
+p-value is below 1\% so we reject the null hypothesis.
+\end{Answer}
+
+
+\section{Type II errors}
+
+There are two ways to be wrong when performing a statistical test. The
+first is to reject the null hypothesis when it is true, and the second is
+to accept it when it is false. Those are called type I and type II errors,
+respectively. The level of a test is the probability of a type I error.
+What is the probability of a type II error?
+
+There is no single answer to this question because there are multiple ways
+for the null hypothesis to be false. In our case, we are interested in
+whether $\mu = 1.48$ and the probability of a type II error depends on the
+value of $\mu \neq 1.48$.
+
+\begin{Exercise}[name=Question]
+Assume $\mu = 1.48 + \sigma$ and therefore that the null hypothesis is
+false. Set the variable \texttt{sigma} to any value except \texttt{1} and
+draw a random sample of the statistic (from a population of 11
+measurements) with this assumption. Change the value of \texttt{sigma} and
+reset the random seed. Does the value of \texttt{sigma} have any
+influence?
+\end{Exercise}
+\begin{Answer}
+The value of  \texttt{sigma} has no influence.
+<< >>=
+sigma <- 1.827
+mu <- 1.48 + sigma
+set.seed(123)
+statistic(rnorm(n=11, mean=mu, sd=sigma))
+sigma <- 182.7
+mu <- 1.48 + sigma
+set.seed(123)
+statistic(rnorm(n=11, mean=mu, sd=sigma))
+@
+\end{Answer}
+
+
+\begin{Exercise}[name=Question]
+Using \texttt{replicate(...)}, generate 1000 random values of the
+statistic when $\mu = 1.48 + \sigma$. Symmetrize the statistic by taking
+the absolute value and plot the histogram using default parameters.
+Compare this histogram to that of the null distribution. What range of
+values has highest frequency?
+\par\noindent\textcolor{BrickRed}{\textbf{Quercus:} use seed 123.}
+\end{Exercise}
+\begin{Answer}
+<< fig=TRUE >>=
+sigma <- 1.827
+mu <- 1.48 + sigma
+set.seed(123)
+altd <- replicate(n=1000, expr=abs(statistic(rnorm(n=11, mean=mu, sd=sigma))))
+# Values in range 1.0-1.5 have highest frequency.
+hist(altd)
+@
+
+This histogram is different (this one is skewed to the right in comparison
+to the null distribution).
+\end{Answer}
+
+
+\begin{Exercise}[name=Question]
+\label{t}
+Call $t$ the threshold at level 1\% taken from the null distribution at
+Question~\ref{fini}. What is the probability that the statistic is greater
+than or equal to $t$ when $\mu = 1.48 + \sigma$? Is this probability
+greater or smaller than when $\mu = 1.48$ (\textit{i.e.}, when the null
+hypothesis is true)?
+\end{Exercise}
+\begin{Answer}
+<< >>=
+t <- quantile(nulld, .99)
+mean(altd >= t)
+@
+When the null hypothesis is true, the probability that the statistic is
+greater than $t$ is 0.01 by definition of $t$. Here the probability of
+rejecting the null hypothesis is greater than 1\%.
+\end{Answer}
+
+
+\begin{Exercise}[name=Question]
+Based on your answer at Question~\ref{t}, give an estimation of the
+probability of a type II error when $\mu = 1.48 + \sigma$.
+\end{Exercise}
+\begin{Answer}
+The probability of rejecting the null hypothesis is approximately 0.591
+when $\mu = 1.48 + \sigma$, therefore the probability of failing to reject
+it is $1 - 0.591 = 0.409$ (remember that the null hypothesis is false and
+we should reject it).
+\end{Answer}
+
+
+It is interesting to know the values of $\mu$ for which we are almost
+guaranteed to reject the null hypothesis. This gives some idea of the
+sensitivity of the statistical test.
+
+\begin{Exercise}[name=Question]
+Set $\mu$ to $1.48 + 2\sigma, 1.48 + 3\sigma, \ldots$ and keep computing
+the probability of rejecting the null hypothesis. What is the smallest
+value for which this probability is 99\% or greater? Call it $1.48 +
+k\sigma$. Estimate $\sigma$ as \texttt{sd(PO)} and give the value of
+the relative variation $k\sigma / 1.48$.
+\par\noindent\textcolor{BrickRed}{\textbf{Quercus:} use seed 123.}
+\end{Exercise}
+\begin{Answer}
+For $\mu = 1.48 + 2\sigma$ the probability of rejecting the null
+hypothesis is already higher than 99\%.
+<< >>=
+sigma <- 1.827
+mu <- 1.48 + 2*sigma
+set.seed(123)
+altd <- replicate(n=1000, expr=abs(statistic(rnorm(n=11, mean=mu, sd=sigma))))
+mean(altd >= t)
+2*sd(PO) / 1.48
+@
+We are almost certain to reject the null hypothesis if $\mu$ is $\approx
+13\%$ larger or smaller than the target value 1.48.
+\end{Answer}
+
+
+This example shows that computing the probability of a type II error is
+more difficult than computing the probability of a type I error. Also, the
+level or risk of type I error is chosen by the analyst, but not the risk
+of a type II error. Some statistical tests are better than others in the
+sense that they provide a smaller risk of type II error for the same risk
+of type I error. This depends on the choice of the statistic, which is why
+this step is critical for the design of a test.
+
+
+\section{Bonus points: one-sided vs two-sided tests}
+
+Here we have performed a two-sided test because the alternative hypothesis
+specifies that $\mu$ can be higher or lower than the target value 1.48.
+
+\begin{definition}[two-sided and one-sided tests]
+A two-sided test is a statistical test whereby the rejection region is split
+into two separate intervals. In other words, if $T$ is the statistic of
+the test, the null distribution is rejected if $T < t_L$ or if $T > t_R$,
+where $t_L$ and $t_R$ are threshold values. If the rejection region is of
+the form $T < t_L$ or is of the form $T > t_R$, then the test is
+one-sided.
+\end{definition}
+
+It is interesting to represent the distribution of the original statistic
+without taking the absolute value. In this case, the rejection region is
+split in two halves on both tails of the distribution. It is customary to
+choose the regions such that they each contribute half of the risk of type
+I error (\textit{i.e.}, the probability of each region is half of the
+level).
+
+\begin{Exercise}[name=Question]
+Generate a sample of size 1000 from the null distribution without taking
+the absolute value, plot the histogram with default parameters, indicate
+the thresholds at (total) level 1\% and the value of the observed
+statistic with vertical lines. What is the length of the acceptance
+region?
+\par\noindent\textcolor{BrickRed}{\textbf{Quercus:} use seed 123 and input
+the p-value.}
+\end{Exercise}
+\begin{Answer}
+<< fig=TRUE >>=
+set.seed(123)
+nulld <- replicate(n=1000, expr=statistic(rnorm(n=11, mean=1.48)))
+hist(nulld)
+left_threshold <- quantile(nulld, .005)
+right_threshold <- quantile(nulld, .995)
+# Thresholds with a red line.
+abline(v=left_threshold, col=2)
+abline(v=right_threshold, col=2)
+obs <- statistic(PO)
+# Observed statistic with a blue line.
+abline(v=obs, col=4)
+# Length of the acceptance region.
+as.vector(right_threshold - left_threshold)
+@
+\end{Answer}
+
+
+There are cases that the null distribution should be accepted even if the
+observed statistic is far from the expected value, provided it is on the
+``good'' side, as defined by the analyst. Such cases are exceedingly rare
+in natural sciences (and I am often suspicious of their use in this
+context), but they are not uncommon in medicine or in business.
+
+Remember that a statistical test is to make a decision, not to know the
+value of a parameter (this is estimation). There are many cases where the
+value of a parameter is good for the decision maker if it is low and bad
+if it is high. In such cases, the rejection region should be on one side
+only (the one that minimizes the risk from the point of view of the
+decision maker).
+
+\begin{Exercise}[name=Question]
+A physician has to decide whether or not to give a cancer patient a
+certain treatment. The treatment will succeed only if enzyme X is
+sufficiently abundant in the tumor to metabolize the active compound,
+otherwise, the treatment will only shorten the life of the patient. Given
+the importance of the decision, the biopsy is sent to three independent
+laboratories returning dosages of 1.75, 1.82 and 1.46 units. It has been
+established that the treatment works only if the concentration of enzyme X
+in the tumor is above 1.48. Perform a statistical test at level 1\% to
+make the decision.
+\par\noindent\textcolor{BrickRed}{\textbf{Quercus:} use seed 123, generate
+a sample of size 1000 from the null distribution and input the p-value.}
+\end{Exercise}
+\begin{Answer}
+Call $\mu$ the concentration of enzyme X in the tumor of the patient. We
+can use the limit case $\mu = 1.48$ as a null hypothesis, reject it if we
+find out that $\mu > 1.48$ but accept it in case $\mu < 1.48$. This is in
+effect equivalent to testing $\mu \leq 1.48$ versus $\mu > 1.48$.
+
+If the observed statistic is far from the expected value but on the
+\emph{left} side, then we accept the null hypothesis. If the observed
+statistic is on the right side, we reject the null hypothesis. Since we
+must reject the null hypothesis 1\% of the time when it is true
+(\textit{i.e.}, when $\mu = 1.48$), then the threshold must be the
+quantile 0.99, even if we do not take the absolute value.
+<< fig=TRUE >>=
+set.seed(123)
+nulld <- replicate(n=1000, expr=statistic(rnorm(n=3, mean=1.48)))
+hist(nulld, breaks=50)
+threshold <- quantile(nulld, .99)
+# Thresholds with a red line.
+abline(v=threshold, col=2)
+obs <- statistic(c(1.75, 1.82, 1.53))
+# Observed statistic with a blue line.
+abline(v=obs, col=4)
+# And the p-value.
+mean(nulld >= obs)
+@
+\end{Answer}
+
+
+\section{Conclusions}
+
+Peter Mitchell is considered one of the most visionary biochemists of the
+twentieth century. His theory that ATP is created by a proton gradient
+through the membrane of the mitochondrion is now fully accepted, even
+though there was initially little experimental support for
+it~\ref{mitchell1961coupling}.
+
+We have covered the most important ideas of Students's t test, whereby we
+get rid of the nuisance parameter $\sigma$ by using another statistic than
+the average. Without this, it would be impossible to learn anything
+useful about the parameter of interest $\mu$ because we would not be able
+to generate random samples.
+
+This statistic is called the effect size and consists in
+dividing the average by the standard deviation. This gives a number
+without unit expressing how large the average is relative to the standard
+deviation, or how large the difference between the average and a certain
+value is relative to the standard deviation.
+
+The distribution of the effect size is bell-shaped but it is not Gaussian.
+This distribution is the Student's t distribution, characterized by its
+heavy tails that tend to produce occasional outliers. The smaller the
+sample size over which the mean is computed, the heavier the tails and the
+more likely outliers are.
+
+We have introduced the notion of type II error, whereby the analyst
+accepts the null hypothesis when it is false. There are many ways for the
+null hypothesis to be false, so the risk of type II error is a function
+and not a fixed number, which makes it hard to compute. The risk of type
+II errors is what characterizes a test and allows a statistician to choose
+a test over another one. The risk of type II errors is determined by the
+level (the risk of type I error) and by the statistic of the test.
+
+Like the mean, the effect size can be positive or negative, which raises
+the question whether the test should be one-sided or two-sided. In
+general, the test should be two-sided except when the risk for the analyst
+lies only on one side of the distribution. In those cases, the null
+hypothesis should be thought of as a range of accepted values instead of a
+single (\textit{e.g.}, $\mu < 1.48$).
+
+\bibliography{references}
+
+\cleardoublepage
+\shipoutAnswer
+\end{document}
