@@ -181,13 +181,13 @@ mu + sigma * rnorm(n=5)
 @
 The numbers are exactly identical. This means that the distribution
 $N(\mu, \sigma)$ can be obtained from the distribution $N(0,1)$ by
-multiplying with $\theta$ and adding $\mu$.
+multiplying with $\sigma$ and adding $\mu$.
 \end{Answer}
 
 
-Question~\ref{std} $X$ has a $N(\mu, \sigma)$ distribution, then $(X -
-\mu) / \sigma$ has a $N(0,1)$ distribution (\textit{i.e.} a standard
-normal distribution).
+A corollary of question~\ref{ssd} is that if $X$ has a $N(\mu, \sigma)$
+distribution, then $(X - \mu) / \sigma$ has a $N(0,1)$ distribution
+(\textit{i.e.} a standard normal distribution).
 
 We can decide whether malonate changes the P/O ratio with a a
 statistical test. To this end, we need
@@ -206,7 +206,7 @@ A decision rule.
 \end{enumerate}
 
 \begin{Exercise}[name=Question]
-What are the null and the altnerative hypotheses?
+What are the null and the alternative hypotheses?
 \end{Exercise}
 \begin{Answer}
 The null hypothesis is that the measurements of the P/O ratio with
@@ -219,16 +219,24 @@ $\mu \neq 1.48$.
 The protocol to collect data is very important here because there was a
 long controversy as to whether the measurements were accurate. We will
 leave this discussion to experts of biochemistry and focus on the
-statistic. The mean seems like an obvious choice, so let's use it.
+statistic. The mean seems like an obvious choice, so let's try it.
+
+A common approach is to design a statistic that measures the distance to
+the target. We therefore need to subtract 1.48 from the mean so that the
+statistic is close to 0 if the null hypothesis is true (instead of being
+close to 1.48). This practice is even the source of the term ``null''
+hypothesis because it has the form ``something is equal to zero'', as in
+$\mu - 1.48 = 0$.
 
 \begin{Exercise}[name=Question]
-Why is it not possible to derive the null distribution if the statistic is
-the sample mean?
+It is easy to compute the value of the mean of the sample from which we
+subtract 1.48. But why is it not possible to derive the distribution of
+this statistic?
 \end{Exercise}
 \begin{Answer}
 To generate random samples we would need to use the function
-\texttt{rnorm(...)} without a proper value of $\sigma$, like
-\texttt{rnorm(n=1000, mu=1.48, sigma=??)}
+\texttt{rnorm(...)} without a known value of $\sigma$, like
+\texttt{rnorm(n=1000, mu=1.48, sigma=??) - 1.48}
 \end{Answer}
 
 
@@ -243,10 +251,10 @@ is to find a statistic with a distribution that does not depend on them.
 
 \begin{Exercise}[name=Question]
 Set the variable \texttt{sigma} to any value except 1. Draw a random
-sample \texttt{x} and compute its standard deviation with the command
-\texttt{x <- rnorm(n=11, sd=sigma)}. Is the standard deviation of the
-sample \texttt{x} equal to \texttt{sigma}? Divide every value in
-\texttt{x} by the standard deviation of the sample. What is the 
+sample \texttt{x} with the command \texttt{x <- rnorm(n=11, sd=sigma)}
+and compute its standard deviation with \texttt{sd(x)}. Is the standard
+deviation of the sample \texttt{x} equal to \texttt{sigma}? Divide every
+value in \texttt{x} by the standard deviation of the sample. What is the
 standard deviation of the transformed sample?
 \end{Exercise}
 \begin{Answer}
@@ -265,10 +273,10 @@ dependence on the nuisance parameter $\sigma$. To obtain a statistic, we
 still need to take the average after this operation.
 
 \begin{Exercise}[name=Question]
-Generate a random sample using \texttt{rnorm(n=11, sd=sigma)}, divide it
-by its own standard deviation and compute the mean. Can you use the
-function \texttt{replicate(...)} to generate 1000 random means using the
-same process?
+Generate a random sample using \texttt{rnorm(n=11, mean=1.48, sd=sigma)},
+divide it by its own standard deviation and compute the mean. Can you use
+the function \texttt{replicate(...)} to generate 1000 random means using
+the same process?
 \end{Exercise}
 \begin{Answer}
 << >>=
@@ -296,7 +304,7 @@ square(1:4)
 
 \begin{Exercise}[name=Question]
 \label{stat}
-Define a function \texttt{statistic(...)} that subtacts 1.48 to all the
+Define a function \texttt{statistic(...)} that subtracts 1.48 to all the
 values of its input, then divide them by their own standard deviation and
 finally computes the mean.
 \end{Exercise}
@@ -310,8 +318,8 @@ statistic <- function(x) { mean((x - 1.48) / sd(x)) }
 \begin{Exercise}[name=Question]
 Use the functions \texttt{statistic(...)} from Question~\ref{stat} and
 \texttt{replicate(...)} to generate 10,000 samples from
-\texttt{rnorm(n=11, sd=sigma)}, subtract 1.48, divide them by their own
-standard deviations and compute the means. Change the value of
+\texttt{rnorm(n=11, mean=1.48, sd=sigma)}, subtract 1.48, divide them by
+their own standard deviations and compute the means. Change the value of
 \texttt{sigma} by several order of magnitude and plot the histogram every
 time (I recommend restricting the x-axis to the interval $(-2,2)$ and
 using \texttt{breaks=80} for esthetics). Does the value of \texttt{sigma}
@@ -378,7 +386,7 @@ When $\sigma$ is known, the probability that the statistic is greater than
 << >>=
 set.seed(123)
 sigma <- 1.827
-y <- replicate(n=100000, expr=mean(rnorm(n=11, mean=1.48, sd=sigma) / sigma))
+y <- replicate(n=100000, expr=mean((rnorm(n=11, mean=1.48, sd=sigma)-1.48) / sigma))
 mean(abs(y) > 1)
 @
 \end{Answer}
@@ -397,12 +405,13 @@ good estimator.
 
 \begin{Exercise}[name=Question]
 \label{ssd}
-Set the variable \texttt{sigma} to any value except \texttt{1}. Generate
-100,000 random samples from \texttt{rnorm(n=11, sd=sigma)} using
-\texttt{replicate(...)}, compute their standard deviations and store them
-in a variable called \texttt{ssd}. What is the mean of \texttt{ssd}? Rerun
-the simulation a few times to see how long it takes to obtain an average
-above \texttt{sigma}.
+Set the variable \texttt{sigma} to any value except \texttt{1}. Use seed
+123 to generate 100,000 random samples from \texttt{rnorm(n=11,
+sd=sigma)}, using \texttt{replicate(...)} compute their standard
+deviations and store them in a variable called \texttt{ssd}. What is the
+mean of \texttt{ssd}? Rerun the simulation a few times (without resetting
+the seed) to see how long it takes to obtain an average above
+\texttt{sigma}.
 \end{Exercise}
 \begin{Answer}
 << >>=
@@ -464,14 +473,18 @@ distribution. The mean has a normal distribution, but dividing it by
 distribution has a bell shape but unlike the normal distribution, it has
 heavy tails.
 
+\begin{center}
+\includegraphics[width=63mm]{heavy_tails.pdf}
+\end{center}
+
 Defining the threshold or the p-value is usually based on the tails the
 null distribution, so it is important to have the right model, otherwise
 the thresohld can be misplaced.
 
 
 \begin{Exercise}[name=Question]
-Using the samples created at Questions~\ref{student} and \ref{gauss},
-find the thresholds at 1\% (for the absolute value of the statistic).
+Using the samples created at Questions~\ref{student} and \ref{gauss}, find
+the thresholds at level 1\% (for the absolute value of the statistic).
 What is their absolute difference? 
 \end{Exercise}
 \begin{Answer}
@@ -530,7 +543,7 @@ nulld <- replicate(n=1000, expr=abs(statistic(rnorm(n=11, mean=1.48))))
 hist(nulld)
 # Threshold with a red line.
 abline(v=quantile(nulld, .99), col=2)
-obs <- abs(statistic(PO - 1.48))
+obs <- abs(statistic(PO))
 # Observed statistic with a blue line.
 abline(v=obs, col=4)
 # Empirical p-value
@@ -640,8 +653,7 @@ sensitivity of the statistical test.
 Set $\mu$ to $1.48 + 2\sigma, 1.48 + 3\sigma, \ldots$ and keep computing
 the probability of rejecting the null hypothesis. What is the smallest
 value for which this probability is 99\% or greater? Call it $1.48 +
-k\sigma$. Estimate $\sigma$ as \texttt{sd(PO)} and give the value of
-the relative variation $k\sigma / 1.48$.
+k\sigma$. Estimate the relative variation \texttt{k * sd(PO) / 1.48}.
 \par\noindent\textcolor{BrickRed}{\textbf{Quercus:} use seed 123.}
 \end{Exercise}
 \begin{Answer}
@@ -683,6 +695,10 @@ the form $T < t_L$ or is of the form $T > t_R$, then the test is
 one-sided.
 \end{definition}
 
+\begin{center}
+\includegraphics[width=133mm]{two_tails.pdf}
+\end{center}
+
 It is interesting to represent the distribution of the original statistic
 without taking the absolute value. In this case, the rejection region is
 split in two halves on both tails of the distribution. It is customary to
@@ -696,8 +712,7 @@ the absolute value, plot the histogram with default parameters, indicate
 the thresholds at (total) level 1\% and the value of the observed
 statistic with vertical lines. What is the length of the acceptance
 region?
-\par\noindent\textcolor{BrickRed}{\textbf{Quercus:} use seed 123 and input
-the p-value.}
+\par\noindent\textcolor{BrickRed}{\textbf{Quercus:} use seed 123.}
 \end{Exercise}
 \begin{Answer}
 << fig=TRUE >>=
@@ -739,8 +754,8 @@ otherwise, the treatment will only shorten the life of the patient. Given
 the importance of the decision, the biopsy is sent to three independent
 laboratories returning dosages of 1.75, 1.82 and 1.46 units. It has been
 established that the treatment works only if the concentration of enzyme X
-in the tumor is above 1.48. Perform a statistical test at level 1\% to
-make the decision.
+in the tumor is above 1.48. Perform a statistical test at level 1\% using
+the mean-over-standard-deviation statistic to make the decision.
 \par\noindent\textcolor{BrickRed}{\textbf{Quercus:} use seed 123, generate
 a sample of size 1000 from the null distribution and input the p-value.}
 \end{Exercise}

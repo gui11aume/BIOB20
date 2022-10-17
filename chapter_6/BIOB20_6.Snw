@@ -1,0 +1,541 @@
+\documentclass[a4paper]{article}
+
+% Packages.
+\usepackage{amsthm}
+\usepackage[answerdelayed]{exercise}
+\usepackage[usenames,dvipsnames]{color}
+\usepackage{mhchem}
+
+% Bibliography.
+\bibliographystyle{abbrv}
+
+% Definitions.
+\theoremstyle{definition}
+\newtheorem{definition}{Definition}
+
+% Exercise layout.
+\renewcommand{\ExerciseHeader}{\par\noindent\textbf{\large
+\ExerciseName\ \ExerciseHeaderNB\ExerciseHeaderTitle
+\ExerciseHeaderOrigin}\par}
+
+\renewcommand{\AnswerHeader}{\par\noindent\textbf{
+Answer of \ExerciseName\ \ExerciseHeaderNB}\par}
+
+\setlength{\ExerciseSkipAfter}{3mm}
+
+% Document layout.
+\setlength{\oddsidemargin}{18pt}
+\setlength{\textwidth}{420pt}
+\setlength{\marginparwidth}{0pt}
+\setlength{\marginparsep}{0pt}
+
+% Options.
+\SweaveOpts{keep.source=TRUE}
+
+\title{The gamma distribution / mutations in cancer }
+\author{}
+\date{October 18, 2022}
+
+
+\begin{document}
+\maketitle
+
+\section{Overview}
+
+In this chapter we introduce the gamma distribution. We showcase some
+applications in the field of cancer mutation, with particular focus on
+Knudson's two-hit hypothesis.
+
+
+%% The problem %%
+\section{The problem}
+
+In 1971, Alfred Knudson, a medical doctor at the University of Texas
+Health Science Center at Houston published a landmark epidemiological
+study of retinoblastoma~\cite{knudson1971mutation}. Retinoblastoma is a
+rare form of cancer that affects only young children because the tumors
+emerge during the development of the eye.
+
+Knudson distinguished a familial form of retinoblastoma, where some
+mutation favors the appearance of multiple tumors in both eyes, and a
+sporadic form with a single tumor in one eye. It had been proposed that
+cancer was a multi-step process involving the occurrence of several
+somatic mutations. Knudson hypothesized that in the familial form, one of
+these mutations was already present in the germline.
+
+Knudson set out to use the kinetics of the two forms of retinoblastoma to
+count the number of mutations that are necessary for the initiation of
+cancer.
+
+
+\section{The familial form of retinoblastoma}
+
+The familial form of retinoblastoma is typically bilateral, with multiple
+tumors on each eye. We will consider that all the bilateral cases of
+retinoblastoma are due to the familial form.
+
+Download the data containing the age of patients in months at the time of
+diagnosis for bilateral retinoblastoma.
+
+<< >>=
+url <- "https://raw.githubusercontent.com/gui11aume/BIOB20/main/chapter_6/bil.txt"
+@
+
+\begin{Exercise}[name=Question]
+Run the usual checks for imported data. What is the length of the data
+set?
+\end{Exercise}
+\begin{Answer}
+<< >>=
+length(bil)
+@
+\end{Answer}
+
+
+To analyze the kinetics of cancer formation, we need a distribution to
+model random times.
+
+\begin{definition}[gamma distribution]
+The gamma distribution is a continuous distribution that models waiting
+times of consecutive events. The gamma distribution is defined over
+nonnegative numbers and has two parameters, known as \emph{shape} and
+\emph{scale}, both positive. The shape parameter is the number of
+consecutive events to wait for and the scale parameter is the expected
+time before an event happens.
+\end{definition}
+
+We will not need the formula, but a variable $X$ follows the gamma
+distribution $\Gamma(\alpha, \beta)$ if and only if
+\begin{equation}
+\label{formula}
+P(X \leq x) = \frac{1}{\Gamma(\alpha)\beta^\alpha} \int_0^x
+t^{\alpha-1} e^{-t/\beta} dt,
+\end{equation}
+where $\Gamma(\alpha)$ is Euler's gamma function defined as
+\begin{equation*}
+\Gamma(\alpha) = \int_0^{+\infty} t^{\alpha-1} e^{-t} dt.
+\end{equation*}
+
+Knudson suggested that a single event was necessary for cancer to appear
+in the familial form of retinoblastoma. We thus need to test whether the
+data has a gamma distribution with shape parameter equal to 1.
+
+\begin{Exercise}[name=Question]
+When the shape parameter is equal to 1, the gamma distribution is the same
+as the exponential distribution. Suggest a method to check this fact
+empirically.
+\par\noindent\textcolor{Blue}{\textbf{Hint:} use the functions
+\texttt{dexp(...)} and \texttt{dgamma(shape=1, ...)}.}
+\end{Exercise}
+\begin{Answer}
+We can generate an arbitrary sample and verify that the probabilities of
+observing the values are the same for the exponential distribution and the
+gamma distribution with shape parameter equal to 1.
+<< >>=
+set.seed(123)
+arbitrary <- rexp(n=5)
+dexp(x=arbitrary)
+dgamma(x=arbitrary, shape=1)
+@
+\end{Answer}
+
+
+In other words, Knudson claimed that the waiting time for bilateral
+retinoblastoma has an exponential distribution. For a graphical check, we
+can sort the values $x_1, \ldots, x_n$ in increasing order and plot them
+against the series $\log(\frac{n}{n+1}), \log(\frac{n-1}{n+1}), \ldots,
+\log(\frac{1}{n+1})$. The points should be aligned if the sample is drawn
+from an exponential distribution.
+
+\begin{Exercise}[name=Question]
+\label{scatter}
+Load the library \texttt{ggplot2}. Use it to draw a scatter plot to
+visualize whether the values of the sample \texttt{bil} are drawn from an
+exponential distribution and conclude.
+\par\noindent\textcolor{BrickRed}{\textbf{Quercus:} What is the lowest
+graduation on the y-axis?}
+\end{Exercise}
+\begin{Answer}
+<< fig=TRUE >>=
+library(ggplot2)
+dat <- data.frame(sorted_bil=sort(bil), log_n=log(23:1 / 24))
+ggplot(dat, aes(x=sorted_bil, y=log_n)) + geom_point() + theme_classic() +
+  labs(x="Time to diagnosis (months)", y="Fraction undiagnosed cases (log)") +
+  theme(panel.grid.major=element_line(size=.3, linetype="solid", colour="grey"),
+        panel.grid.minor=element_line(size=.3, linetype="solid", colour="grey"))
+@
+
+The points are more or less on a stright line and it is plausible that the
+values of the sample \texttt{bil} were drawn from an exponential
+distribution.
+\end{Answer}
+
+
+Knudson's argument suggests that \texttt{shape=1}, but we still need to
+estimate the \texttt{scale} parameter of the distribution. We will do this
+with the maximum likelihood method.
+
+\begin{Exercise}[name=Question]
+\label{guess}
+The parameter \texttt{scale} of the gamma distribution is the average time
+for one event to occur. Based on this information, what is a good guess
+for the maximum likelihood estimate of \texttt{scale} when
+\texttt{shape=1}?
+\end{Exercise}
+\begin{Answer}
+Shen \texttt{shape=1} there is only one event to wait for. The sample
+average is the average time for one event to occur, which is the
+definition of \texttt{scale}. We can thus use the sample mean as a good
+guess for the maximum likelihood estimate of \texttt{scale}.
+\end{Answer}
+
+
+\begin{Exercise}[name=Question]
+\label{maxlik}
+Using the maximum likelihood method, show that the guess of
+Question~\ref{guess} is actually the maximum likelihood estimate of
+\texttt{scale}.
+\par\noindent\textcolor{BrickRed}{\textbf{Quercus:} What is the
+log-likelihood of the guess?}
+\end{Exercise}
+\begin{Answer}
+<< >>=
+guess <- mean(bil)
+sum(dgamma(x=bil, shape=1, scale=guess, log=TRUE))
+sum(dgamma(x=bil, shape=1, scale=guess-0.1, log=TRUE))
+sum(dgamma(x=bil, shape=1, scale=guess+0.1, log=TRUE))
+@
+Changing \texttt{guess} by as little as 0.1 decreases the likelihood. The
+maximum is reached for \texttt{guess}, making it the maximum likelihood
+estimate.
+\end{Answer}
+
+
+\begin{Exercise}[name=Question]
+Using the library \texttt{ggplot2}, add to the scatter plot of
+Question~\ref{scatter} a line with slope $-1/s$, where $s$ is the maximum
+likelihood estimate of the \texttt{scale} parameter.
+\par\noindent\textcolor{BrickRed}{\textbf{Quercus:} Does the line cross
+the x-axis on the left of graduation 50?}
+\end{Exercise}
+\begin{Answer}
+<< fig=TRUE >>=
+ggplot(dat, aes(x=sorted_bil, y=log_n)) + geom_point() + theme_classic() +
+  geom_abline(intercept=0, slope=-1/guess) +
+  labs(x="Time to diagnosis (months)", y="Fraction undiagnosed cases (log)") +
+  theme(panel.grid.major=element_line(size=.3, linetype="solid", colour="grey"),
+        panel.grid.minor=element_line(size=.3, linetype="solid", colour="grey"))
+@
+\end{Answer}
+
+
+Let us now investigate how solid Knudson's assumption was. We will examine
+how \texttt{shape=1} compares with other values.
+
+\begin{Exercise}[name=Question]
+Set \texttt{shape=2} and use the logic of questions~\ref{guess} and
+\ref{maxlik} to find the maximum likelihood estimate of \texttt{scale}.
+\end{Exercise}
+\begin{Answer}
+When \texttt{shape=2}, one has to wait for two consecutive events. The
+average waiting time is thus two times the average time of an event. In
+other words, \texttt{scale}, the average time of an event, should be half
+of the sample average.
+
+<< >>=
+guess <- mean(bil)/2
+sum(dgamma(x=bil, shape=2, scale=guess, log=TRUE))
+sum(dgamma(x=bil, shape=2, scale=guess-0.1, log=TRUE))
+sum(dgamma(x=bil, shape=2, scale=guess+0.1, log=TRUE))
+@
+\end{Answer}
+
+
+\begin{Exercise}[name=Question]
+Compare the maximum likelihood at \texttt{shape=1} and \texttt{shape=2}.
+Which value is more plausible?
+\end{Exercise}
+\begin{Answer}
+<< >>=
+sum(dgamma(x=bil, shape=1, scale=mean(bil), log=TRUE))
+sum(dgamma(x=bil, shape=2, scale=mean(bil)/2, log=TRUE))
+@
+
+The likelihood is higher for \texttt{shape=1} so this value is more
+plausible, supporting Knudson's conclusion that a single event is required
+for bilateral retinoblastoma.
+\end{Answer}
+
+
+\section{The sporadic form of retinoblastoma}
+
+The sporadic form of retinoblastoma is exclusively unilateral, with a
+tumor in only one eye. We will consider that all the unilateral cases of
+retinoblastoma are due to the sporadic form (even though this is not
+entirely accurate).
+
+Download the data containing the age of patients in months at the time of
+diagnosis for unilateral retinoblastoma.
+
+<< >>=
+url <- "https://raw.githubusercontent.com/gui11aume/BIOB20/main/chapter_5/unil.txt"
+@
+
+\begin{Exercise}[name=Question]
+Run the usual checks for imported data. What is the length of the data
+set?
+\end{Exercise}
+\begin{Answer}
+<< >>=
+length(unil)
+@
+\end{Answer}
+@
+
+
+Knudson observed that unilateral retinoblastoma occurred somewhat later
+than the bilateral form, in line with his hypothesis that one of the
+mutations of the sporadic form is already present in the germline for the
+familial form.
+
+\begin{Exercise}[name=Question]
+Use the strategy of Question~\ref{scatter} to visualize whether the values
+of the sample \texttt{unil} are drawn from an exponential distribution and
+conclude.
+\par\noindent\textcolor{BrickRed}{\textbf{Quercus:} What is the lowest
+graduation on the y-axis?}
+\end{Exercise}
+\begin{Answer}
+<< fig=TRUE >>=
+library(ggplot2)
+dat <- data.frame(sorted_unil=sort(unil), log_n=log(25:1 / 26))
+ggplot(dat, aes(x=sorted_unil, y=log_n)) + geom_point() + theme_classic() +
+  labs(x="Time to diagnosis (months)", y="Fraction undiagnosed cases (log)") +
+  theme(panel.grid.major=element_line(size=.3, linetype="solid", colour="grey"),
+        panel.grid.minor=element_line(size=.3, linetype="solid", colour="grey"))
+@
+
+The points are clearly not on a straight line so the sample was not drawn
+from an exponential disttribution. In other words, the value
+\texttt{shape=1} is not plausible.
+\end{Answer}
+
+
+\begin{Exercise}[name=Question]
+Set \texttt{shape=2} and find the maximum likelihood estimate of the
+parameter \texttt{scale} for the sample \texttt{unil}.
+\end{Exercise}
+\begin{Answer}
+<< >>=
+guess <- mean(unil)/2
+sum(dgamma(x=unil, shape=2, scale=guess, log=TRUE))
+sum(dgamma(x=unil, shape=2, scale=guess-0.1, log=TRUE))
+sum(dgamma(x=unil, shape=2, scale=guess+0.1, log=TRUE))
+@
+\end{Answer}
+
+
+Knudson argued that the kinetics of unilateral retinoblastoma were
+compatible with two events, meaning that tumors would start growing after
+two mutations~\cite{knudson1971mutation,burch1965natural}. We will test
+how robust this view is.
+
+\begin{Exercise}[name=Question]
+Increase the value of \texttt{shape}, find the maximum likelihood estimate
+of the parameter \texttt{scale} for every value and store the
+log-likelihood. Which value of \texttt{shape} has the highest
+log-likelihood overall?
+\end{Exercise}
+\begin{Answer}
+<< >>=
+sum(dgamma(x=unil, shape=2, scale=mean(unil)/2, log=TRUE))
+sum(dgamma(x=unil, shape=3, scale=mean(unil)/3, log=TRUE))
+sum(dgamma(x=unil, shape=4, scale=mean(unil)/4, log=TRUE))
+sum(dgamma(x=unil, shape=5, scale=mean(unil)/5, log=TRUE))
+@
+
+The value with highest likelihood is \texttt{shape=4}. This is at odds
+against Knudson's interpretation of the data.
+\end{Answer}
+
+
+An outlier is present in this sample. The highest value is 40\% higher
+than the second highest. This point does not appear on the figures of
+Knudson in reference~\cite{knudson1971mutation} so it is unclear if it was
+taken into account. It would be interesting to see how influential that
+single number was for our conclusion.
+
+\begin{Exercise}[name=Question]
+Create a sample \texttt{unil\_} where the outlier is removed. What is the
+average of \texttt{unil\_}?
+\end{Exercise}
+\begin{Answer}
+<< >>=
+unil_ <- unil[-which.max(unil)]
+mean(unil_)
+@
+\end{Answer}
+
+
+\begin{Exercise}[name=Question]
+Find the value of \texttt{shape} with maximum log-likelihood on the sample
+\texttt{unil\_}.
+\end{Exercise}
+\begin{Answer}
+<< >>=
+sum(dgamma(x=unil, shape=2, scale=mean(unil_)/2, log=TRUE))
+sum(dgamma(x=unil, shape=2, scale=mean(unil_)/2, log=TRUE))
+sum(dgamma(x=unil, shape=3, scale=mean(unil_)/3, log=TRUE))
+sum(dgamma(x=unil, shape=4, scale=mean(unil_)/4, log=TRUE))
+sum(dgamma(x=unil, shape=5, scale=mean(unil_)/5, log=TRUE))
+@
+
+The value with highest likelihood is \texttt{shape=4}. The outlier has no
+influence on the conclusion. This cannot explain the difference between
+Knudson's and our conclusions.
+\end{Answer}
+
+
+\begin{Exercise}[name=Question]
+Return to the complete sample \texttt{unil}. Use the library
+\texttt{ggplot2} to create a line plot showing the log-likelihood curve of
+the parameter \texttt{scale} for \texttt{shape=2} and for
+\texttt{shape=4}. Plot the values of \texttt{scale} in the range 5--20 and
+use different colors for the lines.
+\par\noindent\textcolor{BrickRed}{\textbf{Quercus:} which curve has
+highest peak log-likelihood?}
+\end{Exercise}
+\begin{Answer}
+<< fig=TRUE >>=
+scale.grid <- replicate(n=length(unil), 5:20)
+l2 <- rowSums(dgamma(x=unil, shape=2, scale=scale.grid, log=TRUE))
+l4 <- rowSums(dgamma(x=unil, shape=4, scale=scale.grid, log=TRUE))
+dat <- data.frame(x=5:20, l2=l2, l4=l4)
+colors <- c("shape=2" = "dodgerblue2", "shape=4" = "darkred")
+ggplot(dat, aes(x=x)) + theme_classic() +
+  geom_line(aes(y=l2, color="shape=2")) +
+  geom_line(aes(y=l4, color="shape=4")) + 
+  labs(x="Parameter scale (months)",
+       y="log-likelihood (no unit)" ,
+       color="Legend") +
+  scale_color_manual(values = colors) +
+  theme(panel.grid.major=element_line(size=.3, linetype="solid", colour="grey"))
+@
+
+Without surprise, the curve with highest peak log-likelihood is that for
+\texttt{shape=4}, as we have already shown that this is the most plausible
+value.
+\end{Answer}
+
+
+\section{An alternative model}
+
+The gamma distribution assumes that events are consecutive but this is not
+necessarily the case for retinoblastoma. If mutations can happen
+simultaneously and in any order (as is thought to be the case for cancer),
+then the gamma distribution is not an appropriate model for the kinetics
+of retinoblastoma.
+
+If events occur concomitantly, the distribution of the waiting time until
+a set of $k$ events all happen is given by the formula
+\begin{equation}
+\label{cumulative}
+P(X \leq x) = \left(1 - e^{-x/s} \right)^k,
+\end{equation}
+where $k$ is the shape parameter (the number of events that must occur)
+and $s$ is the scale parameter (the average time for an event to occur).
+Expression~(\ref{cumulative}) can be differentiated to give the
+probability density function $\xi$ below
+\begin{equation}
+\label{xi}
+\xi(x; k, s) = \frac{k}{s} \cdot e^{-x/s} \cdot (1-e^{-x/s})^{k-1}.
+\end{equation}
+The function $\xi$ can be used to compute the likelihood of the parameters
+in the new model. The formula below can be used to compute the
+log-likelihood
+\begin{equation}
+\label{logxi}
+\log \xi(x; k, s) = \log(k/s) -x/s + (k-1) \log(1-e^{-x/s}).
+\end{equation}
+
+
+\begin{Exercise}[name=Question]
+Create a function \texttt{dxi} from expression~(\ref{logxi}). Use it to
+plot log-likelihood curves for \texttt{shape} values of 2, 3, 4 and 5 for
+\texttt{scale} in the range 5--40. Which value of \texttt{shape} is the
+most likely?
+\end{Exercise}
+\begin{Answer}
+<< fig=TRUE >>=
+dxi <- function(x, k, s) { log(k/s) -x/s + (k-1) * log(1-exp(-x/s)) }
+scale.grid <- replicate(n=length(unil), 5:40)
+l2 <- rowSums(dxi(x=unil, k=2, s=scale.grid))
+l3 <- rowSums(dxi(x=unil, k=3, s=scale.grid))
+l4 <- rowSums(dxi(x=unil, k=4, s=scale.grid))
+l5 <- rowSums(dxi(x=unil, k=5, s=scale.grid))
+dat <- data.frame(x=5:40, l2=l2, l3=l3, l4=l4, l5=l5)
+colors <- c("shape=2" = "dodgerblue2", "shape=3" = "gold2", "shape=4" =
+            "darkred", "shape=5" = "seagreen3")
+ggplot(dat, aes(x=x)) + theme_classic() +
+  geom_line(aes(y=l2, color="shape=2")) +
+  geom_line(aes(y=l3, color="shape=3")) +
+  geom_line(aes(y=l4, color="shape=4")) + 
+  geom_line(aes(y=l5, color="shape=5")) +
+  labs(x="Parameter scale (months)",
+       y="log-likelihood (no unit)" ,
+       color="Legend") +
+  scale_color_manual(values = colors) +
+  theme(panel.grid.major=element_line(size=.3, linetype="solid", colour="grey"))
+@
+
+The most likely value of \texttt{shape} is 5, with a maximum
+log-likelihood slightlyg above that of \texttt{shape=4}. Once again in
+this model, the view that two events are necessary is not supported.
+\end{Answer}
+
+
+\section{Conclusions}
+
+Alfred Knudson's work came to be known as the ``two hit model''. It is now
+regarded as well established and is a textbook standard to explain the
+mechanisms of mutations in cancer. It is thus surprising that the data
+do not really support a two-mutation model for retinoblastoma
+progression. Knudson used a non-standard statistical
+model~\cite{burch1965natural} and he did not test how values other than
+\texttt{shape=2} would fit the kinetics of unilateral retinoblastoma.
+Those are important methodological issues with his work.
+
+On the other hand, there is good support for the fact that the familial
+form of retinoblastoma requires a single mutation. If this form just
+provides one extra mutation from the germline, then it stands to reason
+that the sporadic form should require two mutations. The question is
+whether the familial form is really caused by a single mutation.
+
+What are the two genes that are mutated in retinoblastoma? The modern take
+of the two-hit model is that those are the two alleles of the \textit{Rb}
+gene, a powerful tumor-suppressor gene. This is the modern interpretation
+of the two-hit model: cancers require the inactivation of both alleles of
+any gene that protects against cancer. However, it is clear that Knudson
+had another interpretation in mind at the time he published his work. He
+claims that the familial form is due to a dominant mutation (it is not) so
+he envisaged that the two hits were in different genes.
+
+We have seen how the gamma distribution can be used to model waiting times
+and that waiting times in turn inform us about biological mechanisms. The
+gamma distribution is related to the Poisson in the sense that the
+assumptions are the same: events are independent and their rate of
+occurrence is constant through time. Before using the gamma distribution,
+it is important to check that these assumptions hold.
+
+Finally, we have used the plotting library \texttt{ggplot2}, which has
+become the standard for graphical representations in R. This library comes
+with better esthetics than the standard plotting library of R, and many
+more analyses that are ready to use. It usually provides better quality of
+graphics and easier coding.
+
+
+\bibliography{references}
+
+\cleardoublepage
+\shipoutAnswer
+\end{document}

@@ -297,11 +297,11 @@ receive the treatment, while others receive a placebo. A placebo is a
 neutral molecule (usually water) that is packaged like the treatment so
 that the patients believe that they receive the treatment.
 
-A clinical trial is \textit{randomized} if the decision to give the
+A clinical trial is \emph{randomized} if the decision to give the
 treatment or the placebo is random. This is considered best practice to
 avoid treatment biases (\textit{e.g.}, when physicians decide to give
 an aggressive treatment to the patients who are most likely to tolerate
-it). The clinical trial is \textit{blinded} if the physicians do not know
+it). The clinical trial is \emph{blinded} if the physicians do not know
 whether they administer the treatment or the placebo. This is considered
 best practice to avoid interpretation biases (\textit{e.g.,}, when
 physicians run more diagnoses on patients who received the traetments).
