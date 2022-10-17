@@ -79,6 +79,7 @@ diagnosis for bilateral retinoblastoma.
 
 << >>=
 url <- "https://raw.githubusercontent.com/gui11aume/BIOB20/main/chapter_6/bil.txt"
+bil <- scan(url)
 @
 
 \begin{Exercise}[name=Question]
@@ -278,7 +279,8 @@ Download the data containing the age of patients in months at the time of
 diagnosis for unilateral retinoblastoma.
 
 << >>=
-url <- "https://raw.githubusercontent.com/gui11aume/BIOB20/main/chapter_5/unil.txt"
+url <- "https://raw.githubusercontent.com/gui11aume/BIOB20/main/chapter_6/unil.txt"
+unil <- scan(url)
 @
 
 \begin{Exercise}[name=Question]
