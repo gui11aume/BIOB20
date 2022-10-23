@@ -83,7 +83,7 @@ the donor died on a respirator.
 
 << >>=
 url <- "https://raw.githubusercontent.com/gui11aume/BIOB20/main/chapter_7/ACE2.txt"
-ACE2 <- read.delim("ACE2.txt")
+ACE2 <- read.delim(url)
 @
 
 \begin{Exercise}[name=Question]
