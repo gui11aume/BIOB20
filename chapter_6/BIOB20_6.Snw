@@ -430,7 +430,7 @@ value.
 \end{Answer}
 
 
-\section{An alternative model}
+\section{Bonus points: an alternative model}
 
 The gamma distribution assumes that events are consecutive but this is not
 necessarily the case for retinoblastoma. If mutations can happen

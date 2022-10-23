@@ -1,0 +1,546 @@
+\documentclass[a4paper]{article}
+
+% Packages.
+\usepackage{amsthm}
+\usepackage[answerdelayed]{exercise}
+\usepackage[usenames,dvipsnames]{color}
+\usepackage{mhchem}
+
+% Bibliography.
+\bibliographystyle{abbrv}
+
+% Definitions.
+\theoremstyle{definition}
+\newtheorem{definition}{Definition}
+
+% Exercise layout.
+\renewcommand{\ExerciseHeader}{\par\noindent\textbf{\large
+\ExerciseName\ \ExerciseHeaderNB\ExerciseHeaderTitle
+\ExerciseHeaderOrigin}\par}
+
+\renewcommand{\AnswerHeader}{\par\noindent\textbf{
+Answer of \ExerciseName\ \ExerciseHeaderNB}\par}
+
+\setlength{\ExerciseSkipAfter}{3mm}
+
+% Document layout.
+\setlength{\oddsidemargin}{18pt}
+\setlength{\textwidth}{420pt}
+\setlength{\marginparwidth}{0pt}
+\setlength{\marginparsep}{0pt}
+
+% Options.
+\SweaveOpts{keep.source=TRUE}
+
+\title{Student's t-test / gene expression }
+\author{}
+\date{October 25, 2022}
+
+
+\begin{document}
+\maketitle
+
+\section{Overview}
+
+In this chapter we explain what makes Student's t-test popular. We
+introduce the central limit theorem with some applications in gene
+expression.
+
+
+%% The problem %%
+\section{The problem}
+
+The gene for Angiotensin-converting enzyme 2 (\textit{ACE2}) encodes a
+transmembrane metalloprotease. It is part of the hormonal
+renin-angiotensin-aldosterone system that regulates blood pressure. ACE2
+modifies the different forms of angiotensin, thereby regulating
+vasodilation and blood pressure.
+
+ACE2 is used by SARS-CoV-2 to recognize its target cells and infect
+them~\cite{hoffmann2020sars}. This is possible because ACE2 is a
+transmembrane protein with a specific protein domain sticking out of the
+cell. Given its importance for the infection by SARS-CoV-2 and the
+development of COVID-19, it is important to know more about the expression
+of ACE2 in the body and in the human population.
+
+
+\section{The GTEx consortium}
+
+The Genotype-Tissue Expression (GTEx) project is an international
+initiative to learn about the human body, and more particularly about gene
+expression at the organism and at the population level. In some special
+cases, the organs of a deceased person are preserved for scientific
+analysis. The GTEx consortium offers to measure the expression of all the
+genes in every tissue and organ, and to release the results for the
+benefit of the scientific community.
+
+The database of the GTEx project is accessible at
+https://www.gtexportal.org/home/datasets. Version 8 contains 17,382
+samples from 948 deceased human donors. The expression of \texttt{ACE2}
+in the lungs is available for 576 donors. The records also show whether
+the age of the donor was above 60 years at the time of death, and whether
+the donor died on a respirator.
+
+<< >>=
+url <- "https://raw.githubusercontent.com/gui11aume/BIOB20/main/chapter_7/ACE2.txt"
+ACE2 <- read.delim("ACE2.txt")
+@
+
+\begin{Exercise}[name=Question]
+Run the usual checks for imported data. What are the column names?
+\par\noindent\textcolor{BrickRed}{\textbf{Quercus:} What is the number of
+rows of the data set?}
+\end{Exercise}
+\begin{Answer}
+<< >>=
+head(ACE2)
+nrow(ACE2)
+@
+\end{Answer}
+
+
+In \texttt{ACE2}, \texttt{1} indicates ``yes'' and \texttt{0} indicates
+``no''. For instance we can see that 299 donors died on a respirator.
+<< >>=
+sum(ACE2$resp == 1)
+@
+
+
+\section{Comparing distributions}
+
+We will often need to compare distributions and it would be useful to have
+a good method to do this. The simplest approach is to compare histograms.
+This is qualitative, but most of the time it gets the job done.
+
+The only difficulty is to represent two histograms on the same plot. The
+library \texttt{ggplot2} makes it possible, but one first needs to
+understand how to assign colors to different elements of a plot.
+
+\begin{definition}[factor]
+In the R programming language, a factor is a string that belongs to a
+finite set of possibilities. In essence, it is a qualitative variable that
+can be encoded by a number from 1 to $k$, where $k$ is the number of
+possible values. The possible values of a factor are referred to as
+levels.
+\end{definition}
+
+Examples of factors are any qualitative variables such as ``male'' vs
+``female'' or ``dark hair'' vs ``fair hair''. In R, factors are created
+with the function \texttt{factor(...)}. Below is an example. Observe how R
+prints the levels automatically after the factor.
+<< >>=
+factor(c("male", "female", "female"))
+@
+
+
+\begin{Exercise}[name=Question]
+Create an object \texttt{ACE2\_f} of class \texttt{data.frame} that
+contains the same data as \texttt{ACE2} except that the columns
+\texttt{age\_above\_60} and \texttt{respirator} are factors. How many
+factors are there in \texttt{ACE2\_f\$respirator}?
+\end{Exercise}
+\begin{Answer}
+<< >>=
+ACE2_f <- data.frame(age_above_60=factor(ACE2$age_above_60),
+   respirator=factor(ACE2$respirator), x=ACE2$x)
+ACE2_f$respirator
+@
+
+There are two levels, 0 and 1.
+\end{Answer}
+
+
+\begin{Exercise}[name=Question]
+\label{2histo}
+Run the command below to plot two histograms on the same plot. The color
+is set by the status of the factor \texttt{respirator}. Does the
+expression of \textit{ACE2} look similar between donors who died on a
+respirator versus the others?
+<< eval=FALSE, echo=TRUE >>=
+library(ggplot2)
+ggplot(ACE2_f, aes(x=x, color=respirator, fill=respirator)) + 
+  geom_histogram(position="dodge")
+@
+\end{Exercise}
+\begin{Answer}
+<< fig=TRUE >>=
+library(ggplot2)
+ggplot(ACE2_f, aes(x=x, color=respirator, fill=respirator)) + 
+  geom_histogram(position="dodge")
+@
+
+The donors who died on a respirator typically seem to have higher
+\textit{ACE2} expression than the others.
+\end{Answer}
+
+
+\begin{Exercise}[name=Question]
+Reuse the command shown at Question~\ref{2histo} to overlay the histograms
+of \textit{ACE2} expression below and above age 60. Is the difference
+between the histograms stronger or weaker than in Question~\ref{2histo}?
+\end{Exercise}
+\begin{Answer}
+<< fig=TRUE >>=
+ggplot(ACE2_f, aes(x=x, color=age_above_60, fill=age_above_60)) + 
+  geom_histogram(position="dodge")
+@
+
+The difference is weaker than in Question~\ref{2histo}.
+\end{Answer}
+
+
+\section{Student's t-test}
+
+Some early reports suggested that COVID-19 becomes more severe as age
+increases. It was proposed that the expression of ACE2 might increase with
+age~\cite{baker2021angiotensin}. We will use the GTEx data to test whether
+this is the case. More specifically, we will test whether there is any
+difference in the average \textit{ACE2} expression before and after 60
+years.
+
+\begin{Exercise}[name=Question]
+What is the null hypothesis? What is the alternative?
+\end{Exercise}
+\begin{Answer}
+The null hypothesis is that the average \textit{ACE2} expression is
+exactly the same throughout human life, \textit{i.e.}, it is the same
+before and after 60 years. The alternative hypothesis is that the average
+epxression is not the same before and after 60 years.
+\end{Answer}
+
+
+An important issue is that we do not know what kind of distribution would
+be a good fit for \textit{ACE2} expression. The numbers in \texttt{ACE2}
+are expressed in a unit that is called transcripts per million (TPM). This
+is a decimal number between 0 and 1,000,000. It would be difficult to find
+an appropriate distribution.
+
+Fortunately, we can get away with not knowing the distribution in this
+case. The sample is large (several hundred records) so we can use the
+central limit theorem.
+
+\begin{definition}[central limit theorem]
+The central limit theorem states that under general conditions, the
+distribution of the sample average becomes normal as the size of the
+sample increases. More specifically, if the $n$ records of the sample are
+independent and have the same distribution, the sample mean is
+asymptotically distributed as $N(\mu, \sigma/\sqrt{n})$, where $\mu$ and
+$\sigma$ are the population average and standard deviation, respectively.
+\end{definition}
+
+Let us illustrate the central limit theorem with an example. The standard
+uniform distribution has an average of 1/2 and a standard deviation of
+$1/\sqrt{12}$. We can compare the empirical distribution of the average of
+10 uniform random numbers with $N(1/2, 1/\sqrt{120})$.
+
+\begin{Exercise}[name=Question]
+Generate a sample of 1000 averages of 10 standard uniform random numbers.
+Generate a second sample of 1000 numbers from $N(1/2, 1/\sqrt{120})$.
+Compare the histogram of their distribution. Do they look similar?
+\par\noindent\textcolor{BrickRed}{\textbf{Quercus:} Upload the figure.}
+\end{Exercise}
+\begin{Answer}
+<< fig=TRUE >>=
+set.seed(123)
+s1 <- replicate(n=1000, mean(runif(n=10)))
+s2 <- rnorm(n=1000, mean=1/2, sd=1/sqrt(120))
+dat <- data.frame(x=c(s1,s2), sample=factor(rep(1:2, each=1000)))
+ggplot(dat, aes(x=x, color=sample, fill=sample)) + 
+  geom_histogram(position="dodge")
+@
+\end{Answer}
+
+
+The mean of each sample is asymptotically normal, but what is the
+distribution of their difference? We are interested in the difference
+between the two means so it is relevant to have a proper distribution for
+this score. It turns out that the difference between two normal variables
+is also a normal variable.
+
+
+\begin{Exercise}[name=Question]
+Generate a sample of 1000 differences between two standard normal
+variables. Generate a second sample of 1000 numbers from $N(0, \sqrt{2})$.
+Compare the histogram of their distribution. Do they look similar?
+\par\noindent\textcolor{BrickRed}{\textbf{Quercus:} Upload the figure.}
+\end{Exercise}
+\begin{Answer}
+<< fig=TRUE >>=
+library(ggplot2)
+set.seed(123)
+s1 <- replicate(n=1000, rnorm(n=1) - rnorm(n=1))
+s2 <- rnorm(n=1000, mean=0, sd=sqrt(2))
+dat <- data.frame(x=c(s1,s2), sample=factor(rep(1:2, each=1000)))
+ggplot(dat, aes(x=x, color=sample, fill=sample)) + 
+  geom_histogram(position="dodge")
+@
+\end{Answer}
+
+
+We now have a target distribution but we still need a test statistic.
+Given that we investigate a difference between two categories, it is
+tempting to use the difference of the means, but would still have to deal
+with the nuisance parameter $\sigma$. Without the value of $\sigma$ one
+cannot compute the distribution of either mean, or their difference. We
+should thus use a score where we divide the difference of the means by an
+estimate of $\sigma$.
+
+\begin{Exercise}[name=Question]
+Define a function \texttt{statistic(...)} that takes as input two samples
+and returns the difference of their means, divided by the sum of their
+standard deviations. What is the absolute value of the statistic when
+splitting \textit{ACE2} expression into the categories of column
+\texttt{age\_above\_60}?
+\end{Exercise}
+\begin{Answer}
+<< >>=
+statistic <- function(x, y) { (mean(x)-mean(y)) / (sd(x)+sd(y)) }
+group1 <- ACE2$x[ACE2$age_above_60 == 0]
+group2 <- ACE2$x[ACE2$age_above_60 == 1]
+abs(statistic(group1, group2))
+@
+\end{Answer}
+
+
+The central limit theorem says that we can approximate the null
+distribution by computing the statistic on any pair of samples that have
+the same distribution.
+
+\begin{Exercise}[name=Question]
+\label{s1}
+Let $n_1 = 364$ and $n_2 = 212$ be the number of donors below and above 60
+years, respectively. Generate a sample \texttt{s1} of size 1000 from the
+null distribution when the statistic is computed over two standard normal
+samples of sizes $n_1$ and $n_2$. What is the threshold at level 1\%
+computed from this sample (after taking the absolute value)?
+\par\noindent\textcolor{BrickRed}{\textbf{Quercus:} Use seed 123.}
+\end{Exercise}
+\begin{Answer}
+<< >>=
+set.seed(123)
+s1 <- replicate(n=1000, statistic(rnorm(364), rnorm(212)))
+quantile(abs(s1), .99)
+@
+\end{Answer}
+
+
+\begin{Exercise}[name=Question]
+\label{s2}
+Generate another sample of size 1000 from the null distribution when the
+statistic is computed over two standard uniform samples of sizes $n_1$ and
+$n_2$. What is the threshold at level 1\% computed from this sample (after
+taking the absolute value)?
+\par\noindent\textcolor{BrickRed}{\textbf{Quercus:} Use seed 123.}
+\end{Exercise}
+\begin{Answer}
+<< >>=
+set.seed(123)
+s2 <- replicate(n=1000, statistic(runif(364), runif(212)))
+quantile(abs(s2), .99)
+@
+\end{Answer}
+
+
+\begin{Exercise}[name=Question]
+Compare the histograms of \texttt{s1} and \texttt{s2} from
+Questions~\ref{s1} and \ref{s2}.
+\par\noindent\textcolor{BrickRed}{\textbf{Quercus:} Upload the figure.}
+\end{Exercise}
+\begin{Answer}
+<< fig=TRUE >>=
+dat <- data.frame(x=c(s1,s2), method=factor(rep(1:2, each=1000)))
+ggplot(dat, aes(x=x, fill=method, color=method)) + 
+  geom_histogram(position="dodge")
+@
+\end{Answer}
+
+
+It is remarkable that the null distribution of the statistic barely
+depends on the original distribution of the variable under investigation.
+The central limit theorem allows us to disregard the fact that we do not
+know the distribution of \textit{ACE2} expression.
+
+\begin{Exercise}[name=Question]
+\label{ttest}
+Generate a random sample of size 1000 from the null distribution of
+Question~\ref{s1} using the normal distribution. Use it to finish the
+statistical test and to conclude. What is the p-value?
+\par\noindent\textcolor{Blue}{\textbf{Note:} Perform a one-sided test.}
+\par\noindent\textcolor{BrickRed}{\textbf{Quercus:} Use seed 123.}
+\end{Exercise}
+\begin{Answer}
+<< >>=
+group1 <- ACE2$x[ACE2$age_above_60 == 0]
+group2 <- ACE2$x[ACE2$age_above_60 == 1]
+obs <- abs(statistic(group1, group2))
+set.seed(123)
+s1 <- replicate(n=1000, statistic(rnorm(364), rnorm(212)))
+obs
+# Level at 1%.
+quantile(abs(s1), .99)
+# P-vlaue.
+mean(abs(s1) >= obs)
+@
+
+The null hypothesis is accepted. It is tempting to conclude that the
+expression of \textit{ACE2} is constant throughout life, but we will see
+below that this is probably not the case.
+\end{Answer}
+
+
+The answer to Question~\ref{ttest} is essentially a Student's t-test. The
+R programming language contains a standard implementation of the t-test
+with several improvements. We can replace the tedious process of computing
+approximate null distributions for bespoke statistics with the function
+\texttt{t.test(...)}.
+
+\begin{Exercise}[name=Question]
+Use the function \texttt{t.test(...)} on the same two samples as in
+Question~\ref{ttest}. What is the p-value? Is it very different from your
+answer at Question~\ref{ttest}?
+\end{Exercise}
+\begin{Answer}
+<< >>=
+group1 <- ACE2$x[ACE2$age_above_60 == 0]
+group2 <- ACE2$x[ACE2$age_above_60 == 1]
+t.test(group1, group2)
+@
+
+The p-values are not very different. The implementation of Student's
+t-test is vastly superior to the one we came up with here. When addressing
+real-world problems, always use the standard implementation of R; never
+use your own implementation.
+\end{Answer}
+
+
+\section{Confounding variables}
+
+It is important to remain skeptical about the result of any statistical
+test. Many donors died on a respirator, which may obviously have an effect
+on the expression of the genes in the lungs. If the respirator has an
+effect on the expression of \textit{ACE2}, then it can mask the effect of
+the age of the donor.
+
+\begin{Exercise}[name=Question]
+Use the function \texttt{t.test(...)} to test whether the respirator has
+an effect on \textit{ACE2} expression. What is the p-value?
+\end{Exercise}
+\begin{Answer}
+<< >>=
+group1 <- ACE2$x[ACE2$respirator == 0]
+group2 <- ACE2$x[ACE2$respirator == 1]
+t.test(group1, group2)
+@
+
+The respirator has a very potent effect on \textit{ACE2} expression. It
+increases the level significantly.
+\end{Answer}
+
+
+Based on those results, we may want to exclude donors who died on a
+respirator. The expression level of \textit{ACE2} for the remaining
+donors will better represent its value for the age of the donor.
+
+\begin{Exercise}[name=Question]
+\label{last}
+Remove from \texttt{ACE2} the donors who died on a respirator. Use the
+function \texttt{t.test(...)} to test whether age has an effect on
+\textit{ACE2} expression among donors who did not die on a respirator.
+\par\noindent\textcolor{Blue}{\textbf{Hint:} The function
+\texttt{subset(...)} can be useful.}
+\end{Exercise}
+\begin{Answer}
+<< >>=
+ACE2_no_resp <- subset(ACE2, respirator == 0)
+group1 <- ACE2_no_resp$x[ACE2_no_resp$age_above_60 == 0]
+group2 <- ACE2_no_resp$x[ACE2_no_resp$age_above_60 == 1]
+t.test(group1, group2)
+@
+\end{Answer}
+
+In this case, death on a respirator is a confounding variable. It induces
+the expression of \textit{ACE2}, increasing the standard deviation within
+each group. With this inflated variation, the statistic is substantially
+smaller (because of the division by the estimated standard deviation),
+making any difference less statistically significant.
+
+
+\section{Bonus points: the \texttt{t.test(...)} options}
+
+The function \texttt{t.test(...)} is flexible and allows the user to run
+different kinds of Student's t-tests.
+
+\begin{Exercise}[name=Question]
+Redo the t-test of Question~\ref{last} but make it one-sided and reject
+the null hypothesis only if donors above age 60 have a higher
+\textit{ACE2} expression than donors below age 60. What is the p-value?
+\end{Exercise}
+\begin{Answer}
+<< >>=
+t.test(group1, group2, alternative="less")
+@
+\end{Answer}
+
+
+\section{Conclusions}
+
+Here we studied the expression of the gene \textit{ACE2} encoding the
+receptor of SARS-CoV-2. We used the publicly available GTEx data to
+estimate \textit{ACE2} expression in the lungs in the human population,
+and used the Student's t-test to evaluate differences among various
+groups.
+
+We found that donors who died on a respirator had an elevated level of
+\texttt{ACE2}, probably because the device changes the expression of genes
+in the lungs. It is also possible that individuals with high expression of
+\texttt{ACE2} in the lungs are more likely to suffer from a condition that
+will eventually lead to their death on a respirator. In one scenario,
+death on a respirator is the cause of elevated \textit{ACE2} expression,
+in the other, elevated \textit{ACE2} expression is the cause of death on a
+respirator. Even though the first scenario is more plausible based on
+what is known about medicine and biology, it is important to highlight
+that statistical associations do not imply causation.
+
+We use the central limit theorem to extract the null distribution, even
+though we do not know what kind of distribution is appropriate for
+\textit{ACE2} expression. This is permitted because the samples are large
+and because we believe that sampling was independent (the fact that an
+individual becomes a donor does not change the probability that anyone
+else in the population would also become a donor). There is no guarantee
+when using the central limit theorem, but a rule of thumb is that samples
+of 30 are sufficiently large in most cases.
+
+We have replaced the lengthy process of stating hypotheses, finding a
+statistic, extracting the null distribution and computing the p-value with
+an automatic method using the function \texttt{t.test(...)}. The
+implementation of \texttt{t.test(...)} takes care of several technical
+aspects that we did not touch upon (most notably the difference of
+variance between the samples) and it is recommended to always use the R
+implementation when performing a Student's t-test.
+
+Automating the statistical process with a single function like
+\texttt{t.test(...)} saves a lot of time, but it also makes it easy to
+forget that a test consists of the five elements below:
+\begin{enumerate}
+\item
+A null hypothesis.
+\item
+An alternative  hypothesis.
+\item
+A protocol to collect data.
+\item
+A test statistic.
+\item
+A decision rule.
+\end{enumerate}
+
+Whenever a test is performed, it is important to have an appropriate
+answer for each of those five items, otherwise the result of the test will
+be irrelevant, erroneous, or unable to address the question at hand.
+
+
+\bibliography{references}
+
+\cleardoublepage
+\shipoutAnswer
+\end{document}
