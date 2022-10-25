@@ -34,7 +34,7 @@ Answer of \ExerciseName\ \ExerciseHeaderNB}\par}
 
 \title{Student's t-test / gene expression }
 \author{}
-\date{October 25, 2022}
+\date{}
 
 
 \begin{document}
@@ -279,22 +279,27 @@ ggplot(dat, aes(x=x, color=sample, fill=sample)) +
 
 We now have a target distribution but we still need a test statistic.
 Given that we investigate a difference between two categories, it is
-tempting to use the difference of the means, but would still have to deal
-with the nuisance parameter $\sigma$. Without the value of $\sigma$ one
-cannot compute the distribution of either mean, or their difference. We
-should thus use a score where we divide the difference of the means by an
-estimate of $\sigma$.
+tempting to use the difference of the means, but we would still have to
+deal with the nuisance parameter $\sigma$. Without the value of $\sigma$
+one cannot compute the distribution of either mean, or their difference.
+We should thus use a score where we divide the difference of the means by
+an estimate of $\sigma$.
 
 \begin{Exercise}[name=Question]
 Define a function \texttt{statistic(...)} that takes as input two samples
 and returns the difference of their means, divided by the sum of their
-standard deviations. What is the absolute value of the statistic when
+standard deviations.
+
+<< >>=
+statistic <- function(x, y) { (mean(x)-mean(y)) / (sd(x)+sd(y)) }
+@
+
+What is the absolute value of the statistic when
 splitting \textit{ACE2} expression into the categories of column
 \texttt{age\_above\_60}?
 \end{Exercise}
 \begin{Answer}
 << >>=
-statistic <- function(x, y) { (mean(x)-mean(y)) / (sd(x)+sd(y)) }
 group1 <- ACE2$x[ACE2$age_above_60 == 0]
 group2 <- ACE2$x[ACE2$age_above_60 == 1]
 abs(statistic(group1, group2))

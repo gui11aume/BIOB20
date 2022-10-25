@@ -1,0 +1,108 @@
+\documentclass[a4paper]{article}
+
+% Packages.
+\usepackage{amsthm}
+\usepackage[answerdelayed]{exercise}
+\usepackage[usenames,dvipsnames]{color}
+\usepackage{mhchem}
+
+% Bibliography.
+\bibliographystyle{abbrv}
+
+% Definitions.
+\theoremstyle{definition}
+\newtheorem{definition}{Definition}
+
+% Exercise layout.
+\renewcommand{\ExerciseHeader}{\par\noindent\textbf{\large
+\ExerciseName\ \ExerciseHeaderNB\ExerciseHeaderTitle
+\ExerciseHeaderOrigin}\par}
+
+\renewcommand{\AnswerHeader}{\par\noindent\textbf{
+Answer of \ExerciseName\ \ExerciseHeaderNB}\par}
+
+\setlength{\ExerciseSkipAfter}{3mm}
+
+% Document layout.
+\setlength{\oddsidemargin}{18pt}
+\setlength{\textwidth}{420pt}
+\setlength{\marginparwidth}{0pt}
+\setlength{\marginparsep}{0pt}
+
+% Options.
+\SweaveOpts{keep.source=TRUE}
+
+\title{Wilcoxon's test / climate change }
+\author{}
+\date{}
+
+
+\begin{document}
+\maketitle
+
+\section{Overview}
+
+In this chapter we introduce the Wilcoxon test. We explain how it differs
+from Student's t-test with some application in agriculture and climate
+change.
+
+
+%% The problem %%
+\section{The problem}
+
+Agriculture depends crucially on the climate. This gives opportunities to
+study the climate of the past, which is typically less well documented
+than agricultural practice.
+
+In 2019, a international team of European researchers assembled the complete
+time series of grape harvest dates in the vineyard of Beaune, France, from
+from 1354 to 2018~\cite{labbe2019longest}. Their purpose was to
+investigate variations of temperature in the fourteenth century, for which
+practically no data is available.
+
+We want to test whether grape harvest dates are a good indicator of the
+local temperature over the year. For this, we will take advantage of the
+rapid increase in temperature observed in the last 20 years and
+investigate whether the dates changed compared to the past.
+
+
+\section{Grape harvest dates}
+
+The records from 1990 were extracted from the dataset of
+reference~\cite{labbe2019longest}. For each year, the grape harvest date
+in Beaune is indicated in number of day from the beginning of the year
+(the harvest sarts from mid-August to end-October in this region).
+
+<< >>=
+url <- "https://raw.githubusercontent.com/gui11aume/BIOB20/main/chapter_8/ghd.txt"
+ghd <- read.delim(url)
+@
+
+\begin{Exercise}[name=Question]
+Run the usual checks for imported data. What are the column names?
+\par\noindent\textcolor{BrickRed}{\textbf{Quercus:} What is the number of
+rows of the data set?}
+\end{Exercise}
+\begin{Answer}
+<< >>=
+head(ghd)
+nrow(ghd)
+@
+\end{Answer}
+
+
+If we compare the average harvest date in the interval 1990--2000 with the
+average harvest date in the interval 2001--2018, we see that there is a
+difference.
+<< >>=
+mean(ghd$days[1:11])
+mean(ghd$days[12:29])
+@
+
+
+
+\bibliography{references}
+
+\cleardoublepage
+\shipoutAnswer
+\end{document}
