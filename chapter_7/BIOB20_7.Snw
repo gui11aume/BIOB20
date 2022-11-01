@@ -137,7 +137,7 @@ factor(c("male", "female", "female"))
 Create an object \texttt{ACE2\_f} of class \texttt{data.frame} that
 contains the same data as \texttt{ACE2} except that the columns
 \texttt{age\_above\_60} and \texttt{respirator} are factors. How many
-factors are there in \texttt{ACE2\_f\$respirator}?
+levels are there in \texttt{ACE2\_f\$respirator}?
 \end{Exercise}
 \begin{Answer}
 << >>=
@@ -152,10 +152,9 @@ There are two levels, 0 and 1.
 
 \begin{Exercise}[name=Question]
 \label{2histo}
-Run the command below to plot two histograms on the same plot. The color
-is set by the status of the factor \texttt{respirator}. Does the
-expression of \textit{ACE2} look similar between donors who died on a
-respirator versus the others?
+Run the command below to overlay two histograms on the same plot. The color
+is set by the status of the factor \texttt{respirator}. In which condition
+is \textit{ACE2} expression higher?
 << eval=FALSE, echo=TRUE >>=
 library(ggplot2)
 ggplot(ACE2_f, aes(x=x, color=respirator, fill=respirator)) + 
@@ -170,7 +169,7 @@ ggplot(ACE2_f, aes(x=x, color=respirator, fill=respirator)) +
 @
 
 The donors who died on a respirator typically seem to have higher
-\textit{ACE2} expression than the others.
+\textit{ACE2} expression.
 \end{Answer}
 
 
@@ -230,8 +229,12 @@ $\sigma$ are the population average and standard deviation, respectively.
 
 Let us illustrate the central limit theorem with an example. The standard
 uniform distribution has an average of 1/2 and a standard deviation of
-$1/\sqrt{12}$. We can compare the empirical distribution of the average of
-10 uniform random numbers with $N(1/2, 1/\sqrt{120})$.
+$1/\sqrt{12}$ (this is common knowledge from the theory of mathematical
+statistics). Taking the average of a sample of size 10 divides the
+standard deviation by $\sqrt{10}$, so we can compare the empirical
+distribution of the average of 10 uniform random numbers with a normal
+distribution that has the same mean and the same standard deviation,
+\textit{i.e.}, $N(1/2, 1/\sqrt{120})$.
 
 \begin{Exercise}[name=Question]
 Generate a sample of 1000 averages of 10 standard uniform random numbers.
