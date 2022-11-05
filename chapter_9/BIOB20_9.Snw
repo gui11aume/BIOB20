@@ -33,7 +33,7 @@ Answer of \ExerciseName\ \ExerciseHeaderNB}\par}
 % Options.
 \SweaveOpts{keep.source=TRUE}
 
-\title{$The \chi^2$ test / population genetics }
+\title{The $\chi^2$ test / population genetics }
 \author{}
 \date{}
 
@@ -54,30 +54,31 @@ genetics.
 
 The ABO system of blood types was discovered in 1901 by Karl
 Landsteiner~\cite{landsteiner1901agglutination}, a researcher at the
-University of Vienna. This was the first genetic marker in human
+University of Vienna. This was the first genetic marker in human and it
+closely followed the rediscovery of Mendel's laws, even though the
+connection with Mendelian genetics was not immediately
+recognized~\cite{10.1093/genetics/155.3.995}.
 
-In 2019, an international team of European researchers assembled the
-complete time series of grape harvest dates in the vineyard of Beaune,
-France, from from 1354 to 2018~\cite{labbe2019longest}. Their purpose was
-to investigate variations of temperature in the fourteenth century, for
-which practically no data is available.
+The discovery of the ABO system was pivotal in establishing the rules of
+blood transfusion, but it was not until the discovery of anticoagulants in
+1915 that the technique became used in medicine. The use of anticoagulants
+such as citrate facilitated the transfer of blood from the donor to the
+recipient
 
-We want to test whether grape harvest dates are a good indicator of the
-local temperature over the year. For this, we will take advantage of the
-rapid increase in temperature observed in the last 20 years and
-investigate whether the dates changed compared to the past.
+Blood transfusion is an essential part of modern medicine. It is important
+to
 
 
-\section{Grape harvest dates}
+\section{Counts in $2 \times 2$ contingency tables}
 
-The records from 1990 were extracted from the dataset of
-reference~\cite{labbe2019longest}. For each year, the grape harvest date
-in Beaune is indicated in number of days from the beginning of the year
-(the harvest starts from mid-August to end-October in this region).
+Load the data for the frequency of the blood type O in two regions of
+Mexico. Nuevo Leon is in the Norhteast and San Luis Potosi is in the
+center North. The donors are patients who visited the clinics of Salud
+Digna para Todos between 2014 and 2014.
 
 << >>=
 url <- "https://raw.githubusercontent.com/gui11aume/BIOB20/main/chapter_9/O.txt"
-O <- read.delim(url, row.names=1)
+O <- as.matrix(read.delim(url, row.names=1))
 @
 
 \begin{Exercise}[name=Question]
@@ -87,10 +88,154 @@ rows of the data set?}
 \end{Exercise}
 \begin{Answer}
 << >>=
-head(ghd)
-nrow(ghd)
+O
+nrow(O)
 @
 \end{Answer}
+
+The object \texttt{O} is a \texttt{data.frame} that represents a $2 \times
+2$ contigency table.
+
+\begin{definition}[contingency table]
+A contingency table is a matrix showing the counts of two categorical
+variables in a sample of interest. Each row indicates a modality of the
+first categorical variable, each column indicates a modality of the second
+catetorical variable. Thus, an $m \times n$ contingency table shows the
+combined counts of a variable with $m$ modalities and a variable with $n$
+modalities.
+\end{definition}
+
+The $2 \times 2$ contigency table \texttt{O} crosses the geographic
+location of the patients (Nuevo Leon vs San Luis Potosi) with their blood
+type (type O vs any other type). With this data at hand, it is natural to
+ask whether people have the same blood types in different locations.
+
+Such questions can be answered by testing for independence. If geographic
+location and blood type are independent variables, then knowing one does
+not say anything about the other. This can be seen from the definition of
+conditional probability. For two independent events $A$ and $B$
+\begin{equation*}
+P(A|B) = \frac{P(A \cap B)}{P(B)} = \frac{P(A)P(B)}{P(B)} = P(A).
+\end{equation*}
+In other words, knowing that $B$ occurs does not change the probability of
+$A$. The two events are mutually information if they are \emph{not}
+independent, and the same goes for two variables.
+
+\begin{Exercise}[name=Question]
+Estimate the probability that a patient is from Nuevo Leon, call it $p_1$.
+Estimate the probability that a patient has blood type O, call it $q_1$.
+Compute the probability that a patient is from Nuevo Leon and has blood
+type O under the hypothesis that the two variables are independent.
+Assuming that the variables are independent and that the total number of
+patients remain the same, how many patients in total should be from Nuevo
+Leon and have blood type O (the total number of patients, not their
+fraction or percentage).
+\end{Exercise}
+\begin{Answer}
+<< >>=
+n_patients <- sum(O)
+p1 <- sum(O[2,]) / n_patients
+q1 <- sum(O[,2]) / n_patients
+# Expected number of patients from Nuevo Leon having blood type O
+p1 * q1 * n_patients
+@
+\end{Answer}
+
+
+The numbers are reasonably similar, but not identical. Is this because of
+random fluctuations or because the variables are not independent? To find
+out, we will resample the data.
+
+\begin{Exercise}[name=Question]
+Assume that the two variables are independent and that sampling follows a
+binomial distribution. Sample 1000 examples from the null distribution of
+the number of patients from Nuevo Leon with blood type O, assuming that
+the total number of patients always remains the same. Using level 1\%, set
+a lower and an upper threshold. Is the observed value in the rejection
+region?
+\par\noindent\textcolor{BrickRed}{\textbf{Quercus:} Use seed 123.}
+\end{Exercise}
+\begin{Answer}
+<< >>=
+set.seed(123)
+nulld <- rbinom(n=1000, prob=p1*q1, size=n_patients)
+lower <- quantile(nulld, .005)
+upper <- quantile(nulld, .995)
+c(lower, upper)
+O[2,2] < lower
+O[2,2] > upper
+@
+
+The observed value is between the thresholds, so it is not in the
+rejection region.
+\end{Answer}
+
+
+It can be argued that the binomial distribution is not the correct way to
+model this data. The binomial distribution implies that sampling is
+\emph{with} replacement, so that the total number of patients from Nuevo
+Leon and those with blood type O are themselves random variables. It is
+also possible that those numbers were fixed by the sampling scheme, in
+which case we have to sample \emph{with} replacement so as to keep those
+numbers constant.
+
+\begin{Exercise}[name=Question]
+Create a \texttt{data.frame} called \texttt{dfO} with two columns in which
+every entry is a patient. The first column contains \texttt{1} if the
+patient is from Nuevo Leon and \texttt{0} otherwise. The second column
+contains \texttt{1} if the patient has blood type O and \texttt{0}
+otherwise. How many \texttt{1} are there in total in \texttt{dfO}?
+\end{Exercise}
+\begin{Answer}
+<< >>=
+dfO <- data.frame(
+  NL=rep(c(0,1), times=rowSums(O)),
+  O=rep(c(0,1,0,1), times=t(O)))
+sum(dfO)
+@
+\end{Answer}
+
+
+\begin{Exercise}[name=Question]
+Shuffle only the second column of \texttt{dfO} using the function
+\texttt{sample(...)}. How many patients are from Nuevo Leon with blood
+type O in the shuffled \texttt{data.frame}?
+\par\noindent\textcolor{BrickRed}{\textbf{Quercus:} Use seed 123.}
+\end{Exercise}
+\begin{Answer}
+<< >>=
+set.seed(123)
+dfO$NL <- sample(dfO$NL)
+table(dfO)
+table(dfO)[2,2]
+@
+\end{Answer}
+
+
+\begin{Exercise}[name=Question]
+Shuffle the second column of \texttt{dfO} 1000 times using the function
+\texttt{sample(...)} and record the number of patients from Nuevo Leon
+with type O in the shuffled \texttt{data.frame}. Use those records as a
+sample from a null distribution. Using level 1\%, set a lower and an upper
+threshold. Is the observed value in the rejection region?
+\par\noindent\textcolor{Blue}{\textbf{Hint:} This can be done with a
+for-loop.}
+\end{Exercise}
+\begin{Answer}
+<< >>=
+nulld <- rep(NA, 1000)
+for (i in 1:1000) { dfO$NL <- sample(dfO$NL); nulld[i] <- table(dfO)[2,2] }
+lower <- quantile(nulld, .005)
+upper <- quantile(nulld, .995)
+c(lower, upper)
+O[2,2] < lower
+O[2,2] > upper
+@
+\end{Answer}
+
+
+We see that the bounds are much tighter 
+
 
 
 \bibliography{references}

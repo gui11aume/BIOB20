@@ -290,22 +290,22 @@ an estimate of $\sigma$.
 
 \begin{Exercise}[name=Question]
 Define a function \texttt{statistic(...)} that takes as input two samples
-and returns the difference of their means, divided by the sum of their
-standard deviations.
+and returns the absolute difference of their means, divided by the sum of
+their standard deviations (we take the absolute value in order to set up a
+two-tailed test).
 
 << >>=
-statistic <- function(x, y) { (mean(x)-mean(y)) / (sd(x)+sd(y)) }
+statistic <- function(x, y) { abs(mean(x)-mean(y)) / (sd(x)+sd(y)) }
 @
 
-What is the absolute value of the statistic when
-splitting \textit{ACE2} expression into the categories of column
-\texttt{age\_above\_60}?
+What is the value of the statistic when splitting \textit{ACE2} expression
+into the categories of column \texttt{age\_above\_60}?
 \end{Exercise}
 \begin{Answer}
 << >>=
 group1 <- ACE2$x[ACE2$age_above_60 == 0]
 group2 <- ACE2$x[ACE2$age_above_60 == 1]
-abs(statistic(group1, group2))
+statistic(group1, group2)
 @
 \end{Answer}
 
@@ -320,14 +320,14 @@ Let $n_1 = 364$ and $n_2 = 212$ be the number of donors below and above 60
 years, respectively. Generate a sample \texttt{s1} of size 1000 from the
 null distribution when the statistic is computed over two standard normal
 samples of sizes $n_1$ and $n_2$. What is the threshold at level 1\%
-computed from this sample (after taking the absolute value)?
+computed from this sample?
 \par\noindent\textcolor{BrickRed}{\textbf{Quercus:} Use seed 123.}
 \end{Exercise}
 \begin{Answer}
 << >>=
 set.seed(123)
 s1 <- replicate(n=1000, statistic(rnorm(364), rnorm(212)))
-quantile(abs(s1), .99)
+quantile(s1, .99)
 @
 \end{Answer}
 
@@ -336,21 +336,20 @@ quantile(abs(s1), .99)
 \label{s2}
 Generate another sample of size 1000 from the null distribution when the
 statistic is computed over two standard uniform samples of sizes $n_1$ and
-$n_2$. What is the threshold at level 1\% computed from this sample (after
-taking the absolute value)?
+$n_2$. What is the threshold at level 1\% computed from this sample?
 \par\noindent\textcolor{BrickRed}{\textbf{Quercus:} Use seed 123.}
 \end{Exercise}
 \begin{Answer}
 << >>=
 set.seed(123)
 s2 <- replicate(n=1000, statistic(runif(364), runif(212)))
-quantile(abs(s2), .99)
+quantile(s2, .99)
 @
 \end{Answer}
 
 
 \begin{Exercise}[name=Question]
-Compare the histograms of \texttt{s1} and \texttt{s2} from
+Overlay on the same graph the histograms of \texttt{s1} and \texttt{s2} from
 Questions~\ref{s1} and \ref{s2}.
 \par\noindent\textcolor{BrickRed}{\textbf{Quercus:} Upload the figure.}
 \end{Exercise}
@@ -380,14 +379,14 @@ statistical test and to conclude. What is the p-value?
 << >>=
 group1 <- ACE2$x[ACE2$age_above_60 == 0]
 group2 <- ACE2$x[ACE2$age_above_60 == 1]
-obs <- abs(statistic(group1, group2))
+obs <- statistic(group1, group2)
 set.seed(123)
 s1 <- replicate(n=1000, statistic(rnorm(364), rnorm(212)))
 obs
 # Level at 1%.
-quantile(abs(s1), .99)
+quantile(s1, .99)
 # P-vlaue.
-mean(abs(s1) >= obs)
+mean(s1 >= obs)
 @
 
 The null hypothesis is accepted. It is tempting to conclude that the
