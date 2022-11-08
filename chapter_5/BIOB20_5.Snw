@@ -32,7 +32,7 @@ Answer of \ExerciseName\ \ExerciseHeaderNB}\par}
 % Options.
 \SweaveOpts{keep.source=TRUE}
 
-\title{The normal distribution / proton gradients}
+\title{The normal distribution}
 \author{}
 \date{}
 
@@ -236,7 +236,7 @@ this statistic?
 \begin{Answer}
 To generate random samples we would need to use the function
 \texttt{rnorm(...)} without a known value of $\sigma$, like
-\texttt{rnorm(n=1000, mu=1.48, sigma=??) - 1.48}
+\texttt{rnorm(n=100000, mu=1.48, sigma=??) - 1.48}
 \end{Answer}
 
 
@@ -275,7 +275,7 @@ still need to take the average after this operation.
 \begin{Exercise}[name=Question]
 Generate a random sample using \texttt{rnorm(n=11, mean=1.48, sd=sigma)},
 divide it by its own standard deviation and compute the mean. Can you use
-the function \texttt{replicate(...)} to generate 1000 random means using
+the function \texttt{replicate(...)} to generate 100,000 random means using
 the same process?
 \end{Exercise}
 \begin{Answer}
@@ -317,7 +317,7 @@ statistic <- function(x) { mean((x - 1.48) / sd(x)) }
 
 \begin{Exercise}[name=Question]
 Use the functions \texttt{statistic(...)} from Question~\ref{stat} and
-\texttt{replicate(...)} to generate 10,000 samples from
+\texttt{replicate(...)} to generate 100,000 samples from
 \texttt{rnorm(n=11, mean=1.48, sd=sigma)}, subtract 1.48, divide them by
 their own standard deviations and compute the means. Change the value of
 \texttt{sigma} by several order of magnitude and plot the histogram every
@@ -330,13 +330,13 @@ Changing \texttt{sigma} does not change the distribution.
 << fig=TRUE >>=
 set.seed(123)
 sigma <- 1.827
-hist(replicate(n=10000, expr=statistic(rnorm(n=11, mean=1.48, sd=sigma))),
+hist(replicate(n=100000, expr=statistic(rnorm(n=11, mean=1.48, sd=sigma))),
    breaks=40, main="", xlab="Statistic (sigma=1.827)", xlim=c(-2,2))
 @
 << fig=TRUE >>=
 set.seed(123)
 sigma <- 1827
-hist(replicate(n=10000, expr=statistic(rnorm(n=11, mean=1.48, sd=sigma))),
+hist(replicate(n=100000, expr=statistic(rnorm(n=11, mean=1.48, sd=sigma))),
    breaks=40, main="", xlab="Statistic (sigma=1827)", xlim=c(-2,2))
 @
 \end{Answer}
@@ -527,11 +527,11 @@ $T > t$ is equivalent to rejecting the null hypothesis when $|T| > t$.
 \begin{Exercise}[name=Question]
 \label{fini}
 Finish the statistical test and conclude. For this, generate a sample of
-size 1000 from the distribution of the absolute statistic (\textit{i.e.},
-compute the distribution of its absolute value), plot the histogram with
-default parameters, indicate the threshold at level 1\% and the value of
-the observed statistic with vertical lines, compute the p-value of the
-test.
+size 100,000 from the distribution of the absolute statistic
+(\textit{i.e.}, compute the distribution of its absolute value), plot the
+histogram with default parameters, indicate the threshold at level 1\% and
+the value of the observed statistic with vertical lines, compute the
+p-value of the test.
 \par\noindent\textcolor{BrickRed}{\textbf{Quercus:} use seed 123 and input
 the p-value.}
 \end{Exercise}
@@ -539,7 +539,7 @@ the p-value.}
 << fig=TRUE >>=
 set.seed(123)
 # Keep default sd=1 as sigma does not matter.
-nulld <- replicate(n=1000, expr=abs(statistic(rnorm(n=11, mean=1.48))))
+nulld <- replicate(n=100000, expr=abs(statistic(rnorm(n=11, mean=1.48))))
 hist(nulld)
 # Threshold with a red line.
 abline(v=quantile(nulld, .99), col=2)
@@ -592,7 +592,7 @@ statistic(rnorm(n=11, mean=mu, sd=sigma))
 
 
 \begin{Exercise}[name=Question]
-Using \texttt{replicate(...)}, generate 1000 random values of the
+Using \texttt{replicate(...)}, generate 100,000 random values of the
 statistic when $\mu = 1.48 + \sigma$. Symmetrize the statistic by taking
 the absolute value and plot the histogram using default parameters.
 Compare this histogram to that of the null distribution. What range of
@@ -604,7 +604,7 @@ values has highest frequency?
 sigma <- 1.827
 mu <- 1.48 + sigma
 set.seed(123)
-altd <- replicate(n=1000, expr=abs(statistic(rnorm(n=11, mean=mu, sd=sigma))))
+altd <- replicate(n=100000, expr=abs(statistic(rnorm(n=11, mean=mu, sd=sigma))))
 # Values in range 1.0-1.5 have highest frequency.
 hist(altd)
 @
@@ -663,7 +663,7 @@ hypothesis is already higher than 99\%.
 sigma <- 1.827
 mu <- 1.48 + 2*sigma
 set.seed(123)
-altd <- replicate(n=1000, expr=abs(statistic(rnorm(n=11, mean=mu, sd=sigma))))
+altd <- replicate(n=100000, expr=abs(statistic(rnorm(n=11, mean=mu, sd=sigma))))
 mean(altd >= t)
 2*sd(PO) / 1.48
 @
@@ -717,7 +717,7 @@ region?
 \begin{Answer}
 << fig=TRUE >>=
 set.seed(123)
-nulld <- replicate(n=1000, expr=statistic(rnorm(n=11, mean=1.48)))
+nulld <- replicate(n=100000, expr=statistic(rnorm(n=11, mean=1.48)))
 hist(nulld)
 left_threshold <- quantile(nulld, .005)
 right_threshold <- quantile(nulld, .995)
@@ -773,7 +773,7 @@ must reject the null hypothesis 1\% of the time when it is true
 quantile 0.99, even if we do not take the absolute value.
 << fig=TRUE >>=
 set.seed(123)
-nulld <- replicate(n=1000, expr=statistic(rnorm(n=3, mean=1.48)))
+nulld <- replicate(n=100000, expr=statistic(rnorm(n=3, mean=1.48)))
 hist(nulld, breaks=50)
 threshold <- quantile(nulld, .99)
 # Thresholds with a red line.

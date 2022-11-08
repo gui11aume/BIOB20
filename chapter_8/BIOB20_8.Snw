@@ -227,7 +227,7 @@ reject the null hypothesis at level 1\%.
 \label{pval}
 Compute the p-value of the test.
 \par\noindent\textcolor{Blue}{\textbf{Hint:} Use absolute values because
-the test is two-tailed.}
+the test is two-sided.}
 \par\noindent\textcolor{BrickRed}{\textbf{Quercus:} Use seed 123 and
 \texttt{nulld\_norm} with size 10,000}
 \end{Exercise}

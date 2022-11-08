@@ -31,7 +31,7 @@ Answer of \ExerciseName\ \ExerciseHeaderNB}\par}
 % Options.
 \SweaveOpts{keep.source=TRUE}
 
-\title{The uniform distribution / circadian clocks}
+\title{The uniform distribution}
 \author{}
 \date{}
 
@@ -183,7 +183,7 @@ empirically formula~(\ref{formula}) using \texttt{runif(...)}.
 Choose a number \texttt{x} between 0 and 1. Check that the command below
 has a result close to \texttt{x}.
 << eval=FALSE, echo=TRUE >>=
-mean(runif(n=1000) <= x)
+mean(runif(n=100000) <= x)
 @
 \par\noindent\textcolor{BrickRed}{\textbf{Quercus:} set \texttt{x} to 0.5
 and use seed 123.}
@@ -191,7 +191,7 @@ and use seed 123.}
 \begin{Answer}
 << >>=
 set.seed(123)
-mean(runif(n=1000) <= 0.5)
+mean(runif(n=100000) <= 0.5)
 @
 \end{Answer}
 
@@ -376,17 +376,17 @@ sum(diff(sort(runif(n=length(KBwt), max=24)))^2)
 
 \begin{Exercise}[name=Question]
 \label{exnulld}
-Using the function \texttt{replicate(...)}, produce 1000 random values of
-the statistic under the null hypothesis. Store them in a variable called
-\texttt{nulld} for ``null distribution''. Plot the histogram of the null
-distribution with default parameters. What is the range of values with
-highest frequency?
+Using the function \texttt{replicate(...)}, produce 100,000 random values
+of the statistic under the null hypothesis. Store them in a variable
+called \texttt{nulld} for ``null distribution''. Plot the histogram of the
+null distribution with default parameters. What is the range of values
+with highest frequency?
 \par\noindent\textcolor{BrickRed}{\textbf{Quercus:} use seed 123.}
 \end{Exercise}
 \begin{Answer}
 << fig=TRUE >>=
 set.seed(123)
-nulld <- replicate(n=1000, sum(diff(sort(runif(n=length(KBwt), max=24)))^2))
+nulld <- replicate(n=100000, sum(diff(sort(runif(n=length(KBwt), max=24)))^2))
 # Values in the range 1.85-1.90 have highest frequency.
 hist(nulld)
 @
@@ -457,7 +457,7 @@ Estimate the p-value of the test. Give an upper bound.
 << >>=
 mean(nulld >= 4.346533)
 @
-Out of 1000 trials, the null distribution has never produced a value
+Out of 100,000 trials, the null distribution has never produced a value
 greater than or equal to 4.346533. We conclude that the probability of
 producing such a large value must be lower than 1/1000.
 \end{Answer}
@@ -622,7 +622,7 @@ from the exponential distribution.
 
 
 \begin{Exercise}[name=Question]
-Generate a standard uniform sample of size 10,000. Compute the logarithm
+Generate a standard uniform sample of size 100,000. Compute the logarithm
 of the values and invert the sign. Finally, plot the histogram of the
 sample with default parameters. What is the range of values with highest
 frequency?
@@ -632,7 +632,7 @@ frequency?
 << fig=TRUE >>=
 set.seed(123)
 # Values in the range 0.0-0.5 have highest frequency.
-hist(-log(runif(n=10000)))
+hist(-log(runif(n=100000)))
 @
 \end{Answer}
 
@@ -650,7 +650,7 @@ parameters. What is the range of values with highest frequency?
 << fig=TRUE >>=
 set.seed(123)
 # Values in the range 0.0-0.5 have highest frequency.
-hist(rexp(n=10000))
+hist(rexp(n=100000))
 @
 \end{Answer}
 

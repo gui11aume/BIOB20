@@ -4,7 +4,6 @@
 \usepackage{amsthm}
 \usepackage[answerdelayed]{exercise}
 \usepackage[usenames,dvipsnames]{color}
-\usepackage{mhchem}
 \usepackage{url}
 
 % Bibliography.
@@ -72,9 +71,11 @@ blood banks can support the local needs for transfusion.
 
 \section{Counts in $2 \times 2$ contingency tables}
 
-Load the data for the frequency of the blood type O in two regions of
-Mexico. Nuevo Leon is in the Northeast and San Luis Potosi is in the
-center North. The donors are patients who visited the clinics of Salud
+The data is taken from a relatively recent survey that provides a wealth
+of information about the distribution of blood types in a country, in this
+case Mexico~\cite{canizalez2018blood}. Load the counts for the blood type
+O in two regions. Nuevo Leon is in the Northeast and San Luis Potosi is in
+the center North. The donors are patients who visited the clinics of Salud
 Digna para Todos between 2014 and 2016.
 
 << >>=
@@ -94,8 +95,7 @@ nrow(btO)
 @
 \end{Answer}
 
-The object \texttt{btO} is a \texttt{data.frame} that represents a $2
-\times 2$ contingency table.
+The object \texttt{btO} is a $2 \times 2$ contingency table.
 
 \begin{definition}[contingency table]
 A contingency table is a matrix showing the counts of two categorical
@@ -116,29 +116,30 @@ geographic location and blood type are independent variables, then knowing
 one does not say anything about the other. This can be seen from the
 definition of conditional probability. For two independent events $A$ and
 $B$
-\begin{equation*}
+\begin{equation}
 P(A|B) = \frac{P(A \cap B)}{P(B)} = \frac{P(A)P(B)}{P(B)} = P(A).
-\end{equation*}
+\end{equation}
 In other words, knowing that $B$ occurs does not change the probability of
 $A$. Conversely, the two events are mutually informative if they are
 \emph{not} independent.
 
 \begin{Exercise}[name=Question]
 \label{pq}
-Estimate the probability that a patient is from Nuevo Leon, call it
-$p_{NL}$. Estimate the probability that a patient has blood type O, call
-it $q_O$. Compute the probability that a patient is from Nuevo Leon and
-has blood type O under the hypothesis that the two variables are
-independent. Assuming that the variables are independent and that the
-total number of patients remains the same, how many patients in total
-should be from Nuevo Leon and have blood type O (give the total number of
-patients, not their fraction or percentage).
+Estimate from the available data the probability that a patient is from
+Nuevo Leon, call it $P_{NL}$. Also estimate the probability that a patient
+has blood type O, call it $P_O$. Compute the probability that a patient is
+from Nuevo Leon and has blood type O under the hypothesis that the two
+variables are independent. Compute $N$, the total number of patients in
+the data. Using $P_{NL}$, $P_O$ and $N$, compute the number of patients
+from Nuevo Leon that have blood type O that is expected under the
+assumption of independence (give the expected \emph{number} of patients,
+not their fraction or percentage).
 \end{Exercise}
 \begin{Answer}
 << >>=
 N <- sum(btO) # Number of patients.
-pNL <- sum(O[2,]) / N
-pO <- sum(O[,2]) / N
+pNL <- sum(btO[2,]) / N
+pO <- sum(btO[,2]) / N
 # Expected number of patients from Nuevo Leon having blood type O
 pNL * pO * N
 @
@@ -152,21 +153,25 @@ out, we will resample the data.
 \begin{Exercise}[name=Question]
 \label{binom}
 Assume that the two variables are independent and that sampling follows a
-binomial distribution. Sample 100,000 examples from the null distribution
-of the number of patients from Nuevo Leon with blood type O, assuming that
-the total number of patients always remains the same. What is the p-value
-of the test?
-\par\noindent\textcolor{Blue}{\textbf{Hint:} The test is two-tailed and
-since the observed value is above expectation, the p-value is of the form
-\texttt{2*pnorm(observed)}.}
+binomial distribution. Using the values of $P_{NL}$, $P_O$ and $N$ from
+Question~\ref{pq}, sample 100,000 times the number of patients from Nuevo
+Leon with blood type O. Use this as a proxy for a null distribution. Set
+the level to 1\% and find the lower and the upper bounds of a rejection
+region. Is the observed value in the rejection region?
 \par\noindent\textcolor{BrickRed}{\textbf{Quercus:} Use seed 123.}
 \end{Exercise}
 \begin{Answer}
 << >>=
 set.seed(123)
 nulld <- rbinom(n=100000, prob=pNL*pO, size=N)
-2 * mean(nulld >= 346)
+lower <- print(quantile(nulld, .005))
+upper <- print(quantile(nulld, .995))
+obs <- print(btO[2,2])
+obs < lower
+obs > upper
 @
+
+The observed value is in the acceptance region.
 \end{Answer}
 
 
@@ -184,12 +189,15 @@ which every entry is a patient. The first column contains \texttt{1} if
 the patient is from Nuevo Leon and \texttt{0} otherwise. The second column
 contains \texttt{1} if the patient has blood type O and \texttt{0}
 otherwise. How many \texttt{1} are there in total in \texttt{patients}?
+\par\noindent\textcolor{Blue}{\textbf{Hint:} Verify that
+\texttt{table(patients)} is equal to \texttt{btO}.}
 \end{Exercise}
 \begin{Answer}
 << >>=
 patients <- data.frame(
   NL=rep(c(0,1), times=rowSums(btO)),
   O=rep(c(0,1,0,1), times=t(btO)))
+table(patients) # Same as btO.
 sum(patients)
 @
 \end{Answer}
@@ -199,6 +207,8 @@ sum(patients)
 Shuffle only the second column of \texttt{patients} using the function
 \texttt{sample(...)}. How many patients are from Nuevo Leon with blood
 type O in the shuffled \texttt{data.frame}?
+\par\noindent\textcolor{Blue}{\textbf{Hint:} Use the function
+\texttt{table(...)} to extract the information.}
 \par\noindent\textcolor{BrickRed}{\textbf{Quercus:} Use seed 123.}
 \end{Exercise}
 \begin{Answer}
@@ -206,34 +216,72 @@ type O in the shuffled \texttt{data.frame}?
 set.seed(123)
 patients$NL <- sample(patients$NL)
 table(patients)
-table(patients)[2,2] # Answer to the question.
+# Blood type O from Nuevo Leon.
+table(patients)[2,2]
 @
 \end{Answer}
 
 
 \begin{Exercise}[name=Question]
-\label{fisher}
+\label{wo_replace}
 Shuffle the second column of \texttt{patients} 100,000 times using the
 function \texttt{sample(...)} and record the number of patients from Nuevo
-Leon with type O in the shuffled \texttt{data.frame}. Use those records as
-a sample from a null distribution. What is the p-value of the test?
-\par\noindent\textcolor{Blue}{\textbf{Hint:} Use a for-loop. The test is
-two-tailed and since the observed value is above expectation, the p-value
-is of the form \texttt{2*pnorm(observed)}.}
+Leon with type O in the shuffled \texttt{data.frame}. Use this as a proxy
+for a null distribution. Set the level to 1\% and find the lower and the
+upper bounds of a rejection region. Is the observed value in the rejection
+region?
+\par\noindent\textcolor{Blue}{\textbf{Hint:} Use a for-loop.}
+\par\noindent\textcolor{BrickRed}{\textbf{Quercus:} Use seed 123.}
 \end{Exercise}
 \begin{Answer}
 << >>=
+set.seed(123)
 nulld <- rep(NA, 100000)
 for (i in 1:100000) {
   patients$NL <- sample(patients$NL)
   nulld[i] <- table(patients)[2,2]
 }
-2 * mean(nulld >= 346)
+lower <- print(quantile(nulld, .005))
+upper <- print(quantile(nulld, .995))
+obs <- print(btO[2,2])
+obs < lower
+obs > upper
 @
 \end{Answer}
 
 
-We see that the p-value is substantially smaller when sampling
+A more formal way to simulate this data is to use the hypergeometric
+distribution, which is used when drawing black balls and white balls from
+an urn without replacement.
+
+\begin{Exercise}[name=Question]
+\label{hyper}
+Say that white balls are patients with blood type O and that black balls
+are patients with other blood types, and that one draws from the urn a
+number of balls equal to the number of patients from Nuevo Leon. Use the
+function \texttt{dhyper(...)} to simulate 100,000 random draws from this
+urn. Use this as a proxy for a null distribution. Set the level to 1\% and
+find the lower and the upper bounds of a rejection region. Is the observed
+value in the rejection region? How close are the upper and lower bounds
+compared to Question~\ref{wo_replace}?
+\par\noindent\textcolor{Blue}{\textbf{Note:} The sample for
+\texttt{dhyper(...)} is given by \texttt{nn} and not \texttt{n}.}
+\par\noindent\textcolor{BrickRed}{\textbf{Quercus:} Use seed 123.}
+\end{Exercise}
+\begin{Answer}
+<< >>=
+set.seed(123)
+nulld <- rhyper(nn=100000, m=sum(btO[,2]), n=sum(btO[,1]), k=sum(btO[2,]))
+lower <- print(quantile(nulld, .005))
+upper <- print(quantile(nulld, .995))
+obs <- print(btO[2,2])
+obs < lower
+obs > upper
+@
+\end{Answer}
+
+
+We see that the bounds are substantially tighter when sampling
 \emph{without} replacement. It is thus critical to understand whether
 resampling should be done \emph{with} or \emph{without} replacement, which
 in turn requires understanding how the data was collected.
@@ -241,35 +289,35 @@ in turn requires understanding how the data was collected.
 
 \section{Is this a statistical test?}
 
-Documenting data collection is essential to compute the null distribution.
-Theoretically, the null distribution must be available before data is
+In theory, the null distribution must be available before data is
 collected. This is possible when resampling \emph{without} replacement
 because in this case the totals by rows and columns are chosen as part of
 the data collection protocol. This does not seem plausible if the blood
 type is recorded for every patient who walks in a clinic. However, the
 data may be subsampled from a larger pool in ways that enforce this
 constraint. That being said, it is somewhat far-fetched in the present
-case and it is overall more likely that resampling \emph{with} replacement
-is the better model.
+case and overall, it is more likely that resampling \emph{with}
+replacement should be used (using a binomial model and not a
+hypergeometric model).
 
 The main difficulty for sampling \emph{with} replacement is that one
 cannot compute the null distribution before the data is collected. Indeed,
-we needed to know $p_{NL}$ and $p_O$, which depend on the number of
+we needed to know $P_{NL}$ and $P_O$, which depend on the number of
 patients from Nuevo Leon and on the number of patients with blood type O
 in the sample. Without those numbers, one cannot sample from the correct
 binomial distribution.
 
-However, it is possible that $p_{NL}$ and $p_O$ are simply nuisance
-parameters, and maybe we can find a statistic that does not depend on
-them.
+However, this may be an illustion... Maybe $P_{NL}$ and $P_O$ are nuisance
+parameters and there may exist a statistic whose distribution does not
+depend on them.
 
 \begin{Exercise}[name=Question]
 \label{cell}
-Call $N$ the total number of patients and recall the values of $p_{NL}$
-and $p_O$ from Question~\ref{pq}. Compute the null distribution as in
-Question~\ref{binom}, but subtract $p_{NL}p_ON$ from the score, and divide
-the result by $\sqrt{p_{NL}p_O(1-p_{NL}p_O)N}$. Draw 100,000 examples from
-this null distribution and plot their density using the function
+Recall the values of $N$, $P_{NL}$ and $P_O$ from Question~\ref{pq}.
+Compute the null distribution as in Question~\ref{binom}, but subtract
+$P_{NL}P_ON$ from the score, and divide the result by
+$\sqrt{P_{NL}P_O(1-P_{NL}P_O)N}$. Draw 100,000 numbers from this new null
+distribution and plot their density using the function
 \texttt{density(...)}. Compare it to the density of the standard normal
 distribution. How good is the Gaussian approximation?
 \par\noindent\textcolor{BrickRed}{\textbf{Quercus:} Upload the figure.}
@@ -287,22 +335,22 @@ lines(density(rnorm(n=100000)), col=2)
 Some central limit theorem is at work. It can be proved that the binomial
 distribution converges to a Gaussian as the \texttt{size} parameter
 increases. The results above show that with appropriate scaling, we can
-obtain a statistic with a distribution that does not depend on $p_{NL}$,
-$p_O$ or $N$.
+obtain a statistic with a distribution that does not depend on $P_{NL}$,
+$P_O$ or $N$.
 
 \begin{Exercise}[name=Question]
 \label{pval}
 Compute the observed statistic with this new score and compute the p-value
 of the test when using the standard normal distribution as the null
 distribution.
-\par\noindent\textcolor{Blue}{\textbf{Hint:} For two-tailed tests, 
-the p-value is of the form \texttt{2*pnorm(observed)} if \texttt{observed}
-is negative and \texttt{2*pnorm(observed, lower.tail=FALSE)} if it is
-positive.}
+\par\noindent\textcolor{Blue}{\textbf{Hint:} For two-sided tests with a
+Gaussian null distribution, the p-value is of the form
+\texttt{2*pnorm(observed)} if \texttt{observed} is negative and
+\texttt{2*pnorm(observed, lower.tail=FALSE)} if it is positive.}
 \end{Exercise}
 \begin{Answer}
 << >>=
-observed <- (O[2,2] - pNL*pO*N) / sqrt(pNL*pO*(1-pNL*pO)*N)
+observed <- (btO[2,2] - pNL*pO*N) / sqrt(pNL*pO*(1-pNL*pO)*N)
 observed
 2*pnorm(observed, lower.tail=FALSE)
 @
@@ -310,14 +358,15 @@ observed
 
 
 The main issue with the approach above is that we focused on only one cell
-of the $2 \times 2$ contingency matrix. We need to find a way to take all
-the cells into account so that the result does not depend on an arbitrary
-choice.
+of the $2 \times 2$ contingency matrix (blood type O in Nuevo Leon). We
+need to find a way to take all the cells into account so that the result
+does not depend on an arbitrary choice.
 
 \begin{definition}{$\chi^2$ distribution}
 The $\chi^2$ distribution with $n$ degrees of freedom is the gamma
 distribution $\Gamma(n/2, 2)$. Incidentally, this is also the distribution
-of the sum of the squares of $n$ independent standard normal variables.
+of the sum of $n$ squared standard normal variables that are mutually
+independent.
 \end{definition}
 
 Since the sum of squared normal variables has a known distribution, we can
@@ -335,9 +384,8 @@ expected number for that cell and compute the grand sum.
 \end{Exercise}
 \begin{Answer}
 << >>=
-expected <- outer(rowSums(btO), colSums(btO)) / N
+expected <- print(outer(rowSums(btO), colSums(btO)) / N)
 sum((expected - btO)^2 / expected)
-expected
 @
 \end{Answer}
 
@@ -364,8 +412,8 @@ chisq.test(btO, correct=FALSE)
 
 Note that the default $\chi^2$ statistic computed by
 \texttt{chisq.test(...)} is not the same as the Pearson statistic. There
-are several $\chi^2$ statistics but here we will focus exclusively on that
-proposed by Pearson.
+are several $\chi^2$ statistics but here we will focus exclusively on the
+version originally proposed by Pearson.
 
 \begin{Exercise}[name=Question]
 \label{resample1}
@@ -382,9 +430,8 @@ matrix.}
 \begin{Answer}
 << >>=
 set.seed(123)
-P <- outer(rowSums(btO), colSums(btO)) / N^2
-mat <- matrix(rmultinom(n=1, size=N, prob=P), ncol=2)
-mat
+P <- print(outer(rowSums(btO), colSums(btO)) / N^2)
+mat <- print(matrix(rmultinom(n=1, size=N, prob=P), ncol=2))
 chisq.test(mat, correct=FALSE)
 @
 \end{Answer}
@@ -403,7 +450,7 @@ proper options.}
 \begin{Answer}
 << fig=TRUE >>=
 set.seed(123)
-P <- outer(rowSums(btO), colSums(btO)) / N^2
+P <- print(outer(rowSums(btO), colSums(btO)) / N^2)
 nulld <- rep(NA, 100000)
 for (i in 1:100000) { nulld[i] <-
   chisq.test(matrix(rmultinom(n=1, size=N, prob=P), ncol=2), correct=FALSE)$statistic
@@ -419,7 +466,8 @@ freedom establishes that we can compute this null distribution before
 collecting any data. Even though the procedure of the $\chi^2$ test
 involves some computations that depend on the observations, those
 computations are only necessary for the statistic. In conclusion, the
-$\chi^2$ procedure is a statistical test in the strict sense.
+$\chi^2$ procedure is a statistical test in the strict sense (but note
+that the $\chi^2$ distribution is only an approximation).
 
 Incidentally, Question~\ref{stat} gave the answer to the question whether
 blood types differ between Nuevo Leon and San Luis Potosi, at least when
@@ -437,7 +485,7 @@ ABO <- as.matrix(read.delim(url, row.names=1))
 @
 
 We will now take all the groups into account and focus on the differences
-between genders.
+between men and women.
 
 \begin{Exercise}[name=Question]
 Compute the expected counts in each cell of the contingency table
@@ -450,7 +498,7 @@ distribution with 3 degrees of freedom.
 \begin{Answer}
 << fig=TRUE >>=
 set.seed(123)
-P <- outer(rowSums(ABO), colSums(ABO)) / sum(ABO)^2
+P <- print(outer(rowSums(ABO), colSums(ABO)) / sum(ABO)^2)
 nulld <- rep(NA, 100000)
 for (i in 1:100000) { nulld[i] <-
   chisq.test(matrix(rmultinom(n=1, size=sum(ABO), prob=P), ncol=4), correct=FALSE)$statistic
@@ -462,13 +510,13 @@ lines(density(rgamma(n=100000, shape=3*.5, scale=2)), col=2)
 
 
 \begin{Exercise}[name=Question]
-Run the function \texttt{chisq.test(...)} on \texttt{ABO} with default
-parameters (observe the number of degrees of freedom). Set the level to
-1\%. What is the conclusion of the test?
+Run the function \texttt{chisq.test(...)} on \texttt{ABO} using the
+Pearson $\chi^2$ statistic. Observe the number of degrees of freedom. Set
+the level to 1\%. What is the conclusion of the test?
 \end{Exercise}
 \begin{Answer}
 << >>=
-chisq.test(ABO)
+chisq.test(ABO, correct=FALSE)
 @
 \end{Answer}
 
@@ -476,34 +524,34 @@ chisq.test(ABO)
 The number of degrees of freedom represents the number of independent
 normal variables that are squared and then summed. In an $m \times n$
 contingency table, the squared terms that are computed in each cell are
-Gaussian but they are not independent. Since the expected values in each
-cell are not known \textit{a priori}, one has to compute them from the
-data, which introduces dependencies. The parameters that must be estimated
-in order to compute the expected counts are: $m-1$ probabilities for each
-modality of the row variable (the $m$ probabilities must sum to 1 so there
-are only $m-1$ independent numbers), $n-1$ probabilities for each modality
-of the column variable, and finally the total count of the contingency
-table. Considering that estimating one parameter removes one independent
-normal variable, the remaining number is $mn - (m-1) - (n-1) - 1 =
-(m-1)(n-1)$.
+Gaussian but they are not mutually independent. The expected counts in
+each cell are not known \textit{a priori}, so one has to compute them from
+the data, which introduces dependencies. The parameters that must be
+estimated in order to compute the expected counts are: $m-1$ probabilities
+for each modality of the row variable (the $m$ probabilities must sum to 1
+so there are only $m-1$ independent numbers), $n-1$ probabilities for each
+modality of the column variable, and finally the total count of the
+contingency table. Considering that estimating one parameter removes one
+independent normal variable, the remaining number is $mn - (m-1) - (n-1) -
+1 = (m-1)(n-1)$.
 
-This is the general method to know the number of degrees of freedom of the
-$\chi^2$ distribution for an $m \times n$ contingency table. Note that the
-$\chi^2$ test can be used in other cases and that the number of degrees of
-freedom may be different, especially if there are no parameters to
-estimate.
+Above is the general method to know the number of degrees of freedom of
+the $\chi^2$ distribution for an $m \times n$ contingency table. Note that
+the $\chi^2$ test can be used in other contexts and that the number of
+degrees of freedom may be different, especially if there are no parameters
+to estimate.
 
-As to the biological significance of any difference between blood types
-between men and women, it is important to highlight that this data set
-shows a heavy sampling bias toward women and that this bias is not exactly
-the same in every region. Since blood types vary between regions, it is
-important to control for this confounding variable before making any
+As to the biological significance of any difference of blood types between
+men and women, it is important to highlight that this data set shows a
+heavy sampling bias toward women and that this bias is not exactly the
+same in every region. Since blood types usually vary between regions, it
+is important to control for this confounding variable before making any
 conclusion regarding the differences between genders.
 
 
 \section{Bonus points: Fisher's exact test}
 
-We noted that the resampling scheme of Question~\ref{fisher} gives a
+We noted that the resampling scheme of Question~\ref{wo_replace} gives a
 different null distribution from the one we derived for the $\chi^2$ test.
 We also noted that this sampling scheme corresponds to drawing elements at
 random without replacement, and that this rarely applies to sampling in
@@ -511,17 +559,19 @@ the field.
 
 This type of sampling is more appropriate for benchmarking, challenges and
 competitions. Ronald Fisher famously designed a test that bears his name
-when a friend of his claimed to be able to tell by taste alone whether
-milk was poured in tea or tea was poured in milk. Fisher challenged her
-with 4 cups of each, asking her to guess what she which was tasting.
-Importantly, the friend knew that there were 4 cups of each. The null
-hypothesis is that she made random choices, which can be modeled by
-permuting the labels as we did in Question~\ref{fisher}.
+when a friend of his, Muriel Bristol, claimed to be able to tell by taste
+alone whether milk was poured in tea or tea was poured in milk. Fisher
+challenged her with 4 cups of each, asking her to guess what she was
+tasting. The null hypothesis is that her choices were random. Since
+Bristol knew that there were 4 cups of each, this hypothesis can be
+modeled by permuting the labels as we did in Question~\ref{wo_replace}.
+Alternatively, it can be modeled with the hypergeometric framework as we
+did in Question~\ref{hyper}.
 
-The insight of Fisher was that there are only a few possibilities for a $2
-\times 2$ contingency table with this constraint, so he counted them all
-and made a test that was \emph{exact}, contrary to the $\chi^2$ test,
-which is an approximation based on the central limit theorem.
+The insight of Fisher was to enumerate all the cases of the hypergeometric
+distribution for small $2 \times 2$ contingency tables. He obtained a test
+that was \emph{exact}, contrary to the $\chi^2$ test, which is an
+approximation based on the central limit theorem.
 
 \begin{Exercise}[name=Question]
 Use the function \texttt{fisher.test(...)} to perform Fisher's exact test
@@ -533,6 +583,50 @@ fisher.test(btO)
 @
 \end{Answer}
 
+
+The logic of Fisher's exact test is the same as the one we derived in
+Questions~\ref{wo_replace} and \ref{hyper} but the statistic is different.
+
+
+\section{Conclusions}
+
+We have introduced the $\chi^2$ test for contingency tables. In this
+context, it is used to test the existence of a statistical assocation
+between the variable in column and the variable in row. Many scientific
+questions can be cast in this type of framework, making the $\chi^2$ test
+a common tool of scientific investigation.
+
+We showcased the $\chi^2$ test to analyze genetic differences in the human
+population, and more particularly differences of blood types. The
+distribution of blood types is diverse throughout the world and the ABO
+alleles appeared before the emergenece of humans~\ref{segurel2012abo}. Why
+human populations differ so much in this regard and why the polymorphism
+was maintained for so long is still the subject of speculation.
+
+The $\chi^2$ test was developed in 1900 by Karl Pearson~\cite{FRS2009XOT},
+making it is the first modern statistical test. It was intended to be a
+goodness-of-fit test for models that made predictions in the realm of
+count data. Several alternatives were later developed, like the
+Kolmogorov-Smirnov test for instance, so nowadays the $\chi^2$ test is
+mostly used for contingency tables.
+
+We have seen that the $\chi^2$ distribution can be an excellent
+approximation to the null distribution of the Pearson $\chi^2$ statistic.
+However, this is not always the case. When the counts are low, the
+Gaussian approximation can be poor, with direct consequences on the
+distribution of the statistic. Interestingly, the quality of the
+approximation depends on the expected counts more than on the observed
+ones, so it is usually recommended to not perform a $\chi^2$ test if any
+of the cells has an expected count below 5.
+
+When the condition is not met, it is usually advised to merge categories
+or sample more data. This is a real limitation and the fix is rather
+awkward. In contrast, Fisher's exact test for $2 \times 2$ contingency
+tables is valid for any sample size and sometimes imposes itself as the
+default test for this reason. However, it is important to realize that
+Fisher's exact test and the $\chi^2$ test do not make the same assumptions
+about the sampling process. In principle, only one of those apply and it
+should not be considered that they are interchangeable on the same data.
 
 \bibliography{references}
 

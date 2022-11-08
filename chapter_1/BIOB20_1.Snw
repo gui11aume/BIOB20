@@ -31,7 +31,7 @@ Answer of \ExerciseName\ \ExerciseHeaderNB}\par}
 % Options.
 \SweaveOpts{keep.source=TRUE}
 
-\title{Random shufflings / randomized clinical trials}
+\title{Random shufflings}
 \author{}
 \date{}
 
@@ -477,7 +477,7 @@ tests.
 
 \begin{Exercise}[name=Question]
 \label{exmin}
-Use the function \texttt{replicate(...)} to repeat 1000 times the
+Use the function \texttt{replicate(...)} to repeat 100,000 times the
 procedure of Question~\ref{extrial} and use the function \texttt{min(...)}
 to output the minimum.
 \par\noindent\textcolor{BrickRed}{\textbf{Quercus:} use seed 123.}
@@ -485,14 +485,14 @@ to output the minimum.
 \begin{Answer}
 << >>=
 set.seed(123)
-min(replicate(n=1000, expr=sum(sample(x=cohort, size=196))))
+min(replicate(n=100000, expr=sum(sample(x=cohort, size=196))))
 @
 \end{Answer}
 
 If the null hypothesis is true (\textit{i.e.}, if the vaccine is exactly
 as efficient as the placebo), the number of vaccinated participants among
 the 196 who developed symptomatic COVID-19 cannot be too low. In fact, the
-chance is less than 1 in 1000 (approximately) that we observe a number
+chance is less than 1 in 100,000 (approximately) that we observe a number
 that is smaller than the minimum we obtained at Question~\ref{exmin}.
 
 We can thus use this value as a threshold. If the number of vaccinated
@@ -604,9 +604,9 @@ sum(c(8, 11, 9, 11) == 11)
 
 \begin{Exercise}[name=Question]
 \label{exsum}
-Use the function \texttt{replicate(...)} to repeat 1000 times the
+Use the function \texttt{replicate(...)} to repeat 100,000 times the
 procedure of Question~\ref{ex20}. Using \texttt{sum(...)} and \texttt{==},
-count the number of samples (out of 1000) where 1 is present exactly 11
+count the number of samples (out of 100,000) where 1 is present exactly 11
 times.
 \par\noindent\textcolor{BrickRed}{\textbf{Quercus:} use seed 123.}
 \end{Exercise}
@@ -614,14 +614,14 @@ times.
 << >>=
 bias <- rep(x=c(1, 0.2), times=15210)
 set.seed(123)
-sum(replicate(n=1000, expr=sum(sample(x=cohort, size=196, prob=bias))) == 11)
+sum(replicate(n=100000, expr=sum(sample(x=cohort, size=196, prob=bias))) == 11)
 @
 \end{Answer}
 
 
 \begin{Exercise}[name=Question]
 \label{exml}
-Keeping the number of replications at 1000 as in Question~\ref{exsum},
+Keeping the number of replications at 100,000 as in Question~\ref{exsum},
 decrease the values of \texttt{bias} from 0.175 to 0.025 by 0.025
 decrements. For which value of the bias do you obtain the highest amount
 of samples where 1 is present exactly 11 times?
@@ -632,25 +632,25 @@ every call to \texttt{replicate(...)}.}
 << >>=
 bias <- rep(x=c(1, 0.175), times=15210)
 set.seed(123)
-sum(replicate(n=1000, expr=sum(sample(x=cohort, size=196, prob=bias))) == 11)
+sum(replicate(n=100000, expr=sum(sample(x=cohort, size=196, prob=bias))) == 11)
 bias <- rep(x=c(1, 0.150), times=15210)
 set.seed(123)
-sum(replicate(n=1000, expr=sum(sample(x=cohort, size=196, prob=bias))) == 11)
+sum(replicate(n=100000, expr=sum(sample(x=cohort, size=196, prob=bias))) == 11)
 bias <- rep(x=c(1, 0.125), times=15210)
 set.seed(123)
-sum(replicate(n=1000, expr=sum(sample(x=cohort, size=196, prob=bias))) == 11)
+sum(replicate(n=100000, expr=sum(sample(x=cohort, size=196, prob=bias))) == 11)
 bias <- rep(x=c(1, 0.100), times=15210)
 set.seed(123)
-sum(replicate(n=1000, expr=sum(sample(x=cohort, size=196, prob=bias))) == 11)
+sum(replicate(n=100000, expr=sum(sample(x=cohort, size=196, prob=bias))) == 11)
 bias <- rep(x=c(1, 0.075), times=15210)
 set.seed(123)
-sum(replicate(n=1000, expr=sum(sample(x=cohort, size=196, prob=bias))) == 11)
+sum(replicate(n=100000, expr=sum(sample(x=cohort, size=196, prob=bias))) == 11)
 bias <- rep(x=c(1, 0.050), times=15210)
 set.seed(123)
-sum(replicate(n=1000, expr=sum(sample(x=cohort, size=196, prob=bias))) == 11)
+sum(replicate(n=100000, expr=sum(sample(x=cohort, size=196, prob=bias))) == 11)
 bias <- rep(x=c(1, 0.025), times=15210)
 set.seed(123)
-sum(replicate(n=1000, expr=sum(sample(x=cohort, size=196, prob=bias))) == 11)
+sum(replicate(n=100000, expr=sum(sample(x=cohort, size=196, prob=bias))) == 11)
 @
 \end{Answer}
 
@@ -752,8 +752,8 @@ clinical trials often have an efficiency above 95\% (this is a fictitious
 example). Say that the values of efficiency at 95\% or above are twice as
 likely as those below 95\%. If this were the case, we should generate
 twice as many samples in Question~\ref{exml} when the efficiency is 95\%
-or above, \textit{i.e.}, we should use \texttt{n=2000} instead of
-\texttt{n=1000} in \texttt{replicate(...)} for those values. This way, we
+or above, \textit{i.e.}, we should use \texttt{n=200000} instead of
+\texttt{n=100000} in \texttt{replicate(...)} for those values. This way, we
 would incorporate our belief that the base rate is twice higher than for
 the other values of efficiency.
 

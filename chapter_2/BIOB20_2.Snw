@@ -33,7 +33,7 @@ Answer of \ExerciseName\ \ExerciseHeaderNB}\par}
 % Options.
 \SweaveOpts{keep.source=TRUE}
 
-\title{The binomial distribution / Mendelian genetics}
+\title{The binomial distribution}
 \author{}
 \date{}
 
@@ -134,14 +134,14 @@ rbinom(n=1, size=1084, prob=1/2)
 
 
 \begin{Exercise}[name=Question]
-Produce 1000 random numbers from $B(1084, 1/2)$ using the function
+Produce 100,000 random numbers from $B(1084, 1/2)$ using the function
 \texttt{rbinom(...)} and compute the average.
 \par\noindent\textcolor{BrickRed}{\textbf{Quercus:} use seed 123.}
 \end{Exercise}
 \begin{Answer}
 << >>=
 set.seed(123)
-mean(rbinom(n=1000, size=1084, prob=1/2))
+mean(rbinom(n=100000, size=1084, prob=1/2))
 @
 \end{Answer}
 
@@ -211,16 +211,16 @@ abs(rbinom(n=1, size=1084, prob=1/2) - 542)
 
 
 \begin{Exercise}[name=Question]
-Produce 1000 random values of the statistic under the null distribution.
-Store them in a variable called \texttt{nulld} (this stands for ``null
-distribution''). Use the function \texttt{mean(...)} to compute the
-approximate expected value of the statistic under the null hypothesis.
+Produce 100,000 random values of the statistic under the null
+distribution. Store them in a variable called \texttt{nulld} (this stands
+for ``null distribution''). Use the function \texttt{mean(...)} to compute
+the approximate expected value of the statistic under the null hypothesis.
 \par\noindent\textcolor{BrickRed}{\textbf{Quercus:} use seed 123.}
 \end{Exercise}
 \begin{Answer}
 << >>=
 set.seed(123)
-nulld <- abs(rbinom(n=1000, size=1084, prob=1/2) - 542)
+nulld <- abs(rbinom(n=100000, size=1084, prob=1/2) - 542)
 mean(nulld)
 @
 \end{Answer}
@@ -372,16 +372,16 @@ deviation from 271.
 
 \begin{Exercise}[name=Question]
 \label{exnulld_pair}
-Produce 1000 random values of the statistic under the null distribution.
-Store them in a variable called \texttt{nulld}. Use the function
-\texttt{mean(...)} to compute the approximate expected value of the
-statistic under the null hypothesis.
+Produce 100,000 random values of the statistic under the null
+distribution. Store them in a variable called \texttt{nulld}. Use the
+function \texttt{mean(...)} to compute the approximate expected value of
+the statistic under the null hypothesis.
 \par\noindent\textcolor{BrickRed}{\textbf{Quercus:} use seed 123.}
 \end{Exercise}
 \begin{Answer}
 << >>=
 set.seed(123)
-nulld <- abs(rbinom(n=1000, size=1084, prob=1/4) - 271)
+nulld <- abs(rbinom(n=100000, size=1084, prob=1/4) - 271)
 mean(nulld)
 @
 \end{Answer}
@@ -427,14 +427,14 @@ events are the most probable.
 
 \begin{Exercise}[name=Question]
 \label{exnulld_pair}
-Produce 1000 random values from the distribution $B(1084, 1/4)$. How many
-times does the value 385 appear in the output?
+Produce 100,000 random values from the distribution $B(1084, 1/4)$. How
+many times does the value 385 appear in the output?
 \par\noindent\textcolor{BrickRed}{\textbf{Quercus:} use seed 123.}
 \end{Exercise}
 \begin{Answer}
 << >>=
 set.seed(123)
-sum(rbinom(n=1000, size=1084, prob=1/4) == 385)
+sum(rbinom(n=100000, size=1084, prob=1/4) == 385)
 @
 \end{Answer}
 
@@ -449,13 +449,13 @@ time.}
 \begin{Answer}
 << >>=
 set.seed(123)
-sum(rbinom(n=1000, size=1084, prob=0.30) == 385)
+sum(rbinom(n=100000, size=1084, prob=0.30) == 385)
 set.seed(123)
-sum(rbinom(n=1000, size=1084, prob=0.35) == 385)
+sum(rbinom(n=100000, size=1084, prob=0.35) == 385)
 set.seed(123)
-sum(rbinom(n=1000, size=1084, prob=0.40) == 385)
+sum(rbinom(n=100000, size=1084, prob=0.40) == 385)
 set.seed(123)
-sum(rbinom(n=1000, size=1084, prob=0.45) == 385)
+sum(rbinom(n=100000, size=1084, prob=0.45) == 385)
 # The highest is reached for prob = 0.35.
 @
 \end{Answer}
@@ -571,16 +571,16 @@ approach.
 \end{center}
 
 \begin{Exercise}[name=Question]
-If we ran 1000 simulations for each value of $p$ in 0.300, 0.305, \ldots,
-0.40, what is the total number of times we should observe 385 in the
-outcome on average (\textit{i.e.}, what is the expected number of
-occurrences of 385 in the 21,000 simulations)?
+If we ran 100,000 simulations for each value of $p$ in 0.300, 0.305,
+\ldots, 0.40, what is the total number of times we should observe 385 in
+the outcome on average (\textit{i.e.}, what is the expected number of
+occurrences of 385 in the 2,100,000 simulations)?
 \par\noindent\textcolor{Blue}{\textbf{Note:} you should not run the
 simulations, only compute the expected numbers.}
 \end{Exercise}
 \begin{Answer}
 << >>=
-sum(1000 * dbinom(x=385, size=1084, prob=p))
+sum(100000 * dbinom(x=385, size=1084, prob=p))
 @
 \end{Answer}
 
@@ -591,7 +591,7 @@ the value of $p$ is in the interval 0.325--0.385?
 \end{Exercise}
 \begin{Answer}
 << >>=
-sum(1000 * dbinom(x=385, size=1084, prob=seq(from=.325, to=.385, by=.005)))
+sum(100000 * dbinom(x=385, size=1084, prob=seq(from=.325, to=.385, by=.005)))
 @
 \end{Answer}
 

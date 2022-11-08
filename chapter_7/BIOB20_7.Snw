@@ -292,7 +292,7 @@ an estimate of $\sigma$.
 Define a function \texttt{statistic(...)} that takes as input two samples
 and returns the absolute difference of their means, divided by the sum of
 their standard deviations (we take the absolute value in order to set up a
-two-tailed test).
+two-sided test).
 
 << >>=
 statistic <- function(x, y) { abs(mean(x)-mean(y)) / (sd(x)+sd(y)) }

@@ -32,7 +32,7 @@ Answer of \ExerciseName\ \ExerciseHeaderNB}\par}
 % Options.
 \SweaveOpts{keep.source=TRUE}
 
-\title{The Poisson distribution / molecular evolution}
+\title{The Poisson distribution}
 \author{}
 \date{}
 
