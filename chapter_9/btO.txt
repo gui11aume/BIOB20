@@ -1,0 +1,3 @@
+	O_no	O_yes
+San_Luis_Potosi	417	201
+Nuevo_Leon	575	346
