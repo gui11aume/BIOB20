@@ -32,7 +32,7 @@ Answer of \ExerciseName\ \ExerciseHeaderNB}\par}
 % Options.
 \SweaveOpts{keep.source=TRUE}
 
-\title{The $\chi^2$ test / population genetics }
+\title{Confidence intervals}
 \author{}
 \date{}
 
@@ -259,13 +259,13 @@ an urn without replacement.
 Say that white balls are patients with blood type O and that black balls
 are patients with other blood types, and that one draws from the urn a
 number of balls equal to the number of patients from Nuevo Leon. Use the
-function \texttt{dhyper(...)} to simulate 100,000 random draws from this
+function \texttt{rhyper(...)} to simulate 100,000 random draws from this
 urn. Use this as a proxy for a null distribution. Set the level to 1\% and
 find the lower and the upper bounds of a rejection region. Is the observed
 value in the rejection region? How close are the upper and lower bounds
 compared to Question~\ref{wo_replace}?
-\par\noindent\textcolor{Blue}{\textbf{Note:} The sample for
-\texttt{dhyper(...)} is given by \texttt{nn} and not \texttt{n}.}
+\par\noindent\textcolor{Blue}{\textbf{Note:} The sample size for
+\texttt{rhyper(...)} is given by \texttt{nn} and not \texttt{n}.}
 \par\noindent\textcolor{BrickRed}{\textbf{Quercus:} Use seed 123.}
 \end{Exercise}
 \begin{Answer}
@@ -423,7 +423,7 @@ them in a matrix \texttt{P}. Use the function \texttt{rmultinom(...)} to
 draw a random matrix with $N$ counts (the total number of patients).
 Compute the Pearson $\chi^2$ statistic on this resampled matrix.
 \par\noindent\textcolor{Blue}{\textbf{Hint:} Wrap the output of
-\texttt{rmultinom(...)} in \texttt{matrix(..., ncol=2} to obtain a
+\texttt{rmultinom(...)} in \texttt{matrix(..., ncol=2)} to obtain a
 matrix.}
 \par\noindent\textcolor{BrickRed}{\textbf{Quercus:} Use seed 123.}
 \end{Exercise}
@@ -491,7 +491,7 @@ between men and women.
 Compute the expected counts in each cell of the contingency table
 \texttt{ABO} under the hypothesis of independence. Use this information to
 resample 100,000 contingency tables as in Question~\ref{finale} and plot
-the density of this null distribution. overlay the density of the $\chi^2$
+the density of this null distribution. Overlay the density of the $\chi^2$
 distribution with 3 degrees of freedom.
 \par\noindent\textcolor{BrickRed}{\textbf{Quercus:} Upload the figure.}
 \end{Exercise}

@@ -1,0 +1,13 @@
+\documentclass{article}
+
+\usepackage{amsmath}
+
+\begin{document}
+
+\begin{equation*}
+\theta
+\end{equation*}
+
+\end{document}
+
+%gs -dNoOutputFonts -sDEVICE=pdfwrite -o latex.pdf sht.pdf

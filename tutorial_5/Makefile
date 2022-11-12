@@ -1,4 +1,4 @@
-DOC:= BIOB20_7.Snw
+DOC:= BIOB20_tutorial_5.Snw
 
 RERUN:= "(undefined references|Rerun to get (cross-references|the bars|point totals) right|Table widths have changed. Rerun LaTeX.|Linenumber reference failed)"
 RERUNBIB:= "No file.*\.bbl|Citation.*undefined"
