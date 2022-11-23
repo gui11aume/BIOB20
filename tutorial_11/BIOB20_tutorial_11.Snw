@@ -94,7 +94,7 @@ atmospheric \ce{CO2} in $\mu$mol per mol of air, as reconstructed from ice
 core studies
 
 << >>=
-url <- "https://raw.githubusercontent.com/gui11aume/BIOB20/main/chapter_11/stom.txt"
+url <- "https://raw.githubusercontent.com/gui11aume/BIOB20/main/tutorial_11/stom.txt"
 stom <- read.delim(url)
 @
 
