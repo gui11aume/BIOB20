@@ -60,11 +60,11 @@ infectious diseases.
 
 We will review the efficiency data of the clinical trial for the mRNA-1273
 vaccine produced by the company Moderna. The vaccine was designed in
-January 2020, within 24 hours of the publication of the SARS-CoV-2 genome
-\cite{corbett2020sars}. The phase-1 clinical trial started on March 16
-2020, the phase-2 clinical trial on May 29 2020, and the phase-3 clinical
-trial on July 27 2020. The initial results of the phase-3 trial were
-published in early February 2021 \cite{baden2020efficacy}.
+January 2020, within 24 hours of the publication of the SARS-CoV-2
+genome~\cite{corbett2020sars}. The phase-1 clinical trial started on March
+16 2020, the phase-2 clinical trial on May 29 2020, and the phase-3
+clinical trial on July 27 2020. The initial results of the phase-3 trial
+were published in early February 2021~\cite{baden2020efficacy}.
 
 We will use R to analyze the outcome and to quantify our confidence in the
 results and in the efficiency of the vaccine.

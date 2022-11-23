@@ -130,8 +130,8 @@ Nuevo Leon, call it $P_{NL}$. Also estimate the probability that a patient
 has blood type O, call it $P_O$. Compute the probability that a patient is
 from Nuevo Leon and has blood type O under the hypothesis that the two
 variables are independent. Compute $N$, the total number of patients in
-the data. Using $P_{NL}$, $P_O$ and $N$, compute the number of patients
-from Nuevo Leon that have blood type O that is expected under the
+the data. Using $P_{NL}$, $P_O$ and $N$, compute the expected number of
+patients that are from Nuevo Leon and that have blood type O, under the
 assumption of independence (give the expected \emph{number} of patients,
 not their fraction or percentage).
 \end{Exercise}

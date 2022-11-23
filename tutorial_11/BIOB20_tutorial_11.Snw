@@ -1,0 +1,486 @@
+\documentclass[a4paper]{article}
+
+% Packages.
+\usepackage{amsthm}
+\usepackage[answerdelayed]{exercise}
+\usepackage[usenames,dvipsnames]{color}
+\usepackage{url}
+\usepackage{mhchem}
+
+% Bibliography.
+\bibliographystyle{abbrv}
+
+% Definitions.
+\theoremstyle{definition}
+\newtheorem{definition}{Definition}
+
+% Exercise layout.
+\renewcommand{\ExerciseHeader}{\par\noindent\textbf{\large
+\ExerciseName\ \ExerciseHeaderNB\ExerciseHeaderTitle
+\ExerciseHeaderOrigin}\par}
+
+\renewcommand{\AnswerHeader}{\par\noindent\textbf{
+Answer of \ExerciseName\ \ExerciseHeaderNB}\par}
+
+\setlength{\ExerciseSkipAfter}{3mm}
+
+% Document layout.
+\setlength{\oddsidemargin}{18pt}
+\setlength{\textwidth}{420pt}
+\setlength{\marginparwidth}{0pt}
+\setlength{\marginparsep}{0pt}
+
+% Options.
+\SweaveOpts{keep.source=TRUE}
+
+\title{Simple linear regression}
+\author{}
+\date{}
+
+
+\begin{document}
+\maketitle
+
+
+\section{Overview}
+
+In this chapter we introduce simple linear regression and correlation, and
+we showcase some applications in paleobiology and climatology.
+
+
+%% The problem %%
+\section{The problem}
+
+The rise of atmospheric \ce{CO2} associated with human activities is
+predicted to increase the temperature of the Earth in the coming
+years~\cite{allen2018framing}. \ce{CO2} is a so-called greenhouse gas: it
+lets the high-energy sunrays through but blocks the low-energy infrared
+emissions from the Earth, allowing heat to accumulate at the surface of
+the Earth.
+
+The atmospheric \ce{CO2} has varied substantially over the history of the
+Earth. It is important to evaluate these variations so that we can better
+understand them.
+
+It is challenging to estimate the atmospheric \ce{CO2} of past periods.
+This is usually done using so-called ice cores, \textit{i.e.}, cylinders
+of ice drilled from glaciers. Air from the atmosphere constantly gets
+trapped by falling snow, which later turns into ice that is burried in the
+depth of glaciers. Ice cores from Antarctica can revaled the composition
+of the atmosphere as far back as 800,000 years ago, but not beyond.
+
+However, fossils of plant specimens can provide a window on the
+atmospheric \ce{CO2} of the distant past.
+
+
+\section{Stomatal density}
+
+In 1987, Ian Woodward, a researcher at Cambridge University established a
+method to measure atmospheric \ce{CO2} from specimens of plant from the
+oldest herbariums of England~\cite{woodward1987stomatal}. Woodward
+measured the density of stomata on the leaves on specimens that were
+collected from 1750. Stomata are openings on the surface of leaves to
+allow the passage of gases for respiration and photosynthesis. Their
+amount is regulated by the plant to optimize its energy metabolism.
+
+Woodward noticed that the amount of stomata seemed to decrease as
+atmospheric \ce{CO2} measured in ice cores increased.
+
+Load the data into an R session. The column \texttt{SD} corresonds to
+stomatal density, as a percentage of the levels obsereved in 1987. The
+column \texttt{Year} indicates the year that the sample was collected and
+stored into a museum collection. The column \texttt{CO2} indicates the
+atmospheric \ce{CO2} in $\mu$mol per mol of air, as reconstructed from ice
+core studies
+
+<< >>=
+url <- "https://raw.githubusercontent.com/gui11aume/BIOB20/main/chapter_11/stom.txt"
+stom <- read.delim(url)
+@
+
+\begin{Exercise}[name=Question]
+Perform the usual checks for imported data.
+\par\noindent\textcolor{BrickRed}{\textbf{Quercus:} Input the number of
+rows.}
+\end{Exercise}
+\begin{Answer}
+<< >>=
+dim(stom)
+nrow(stom)
+@
+\end{Answer}
+
+
+\begin{Exercise}[name=Question]
+\texttt{scatter}
+Make a scatter plot with the year on the x-axis and the stomatal density
+on the y-axis. As usual, label the axes and indicates the units wherever
+needed.
+\par\noindent\textcolor{BrickRed}{\textbf{Quercus:} Upload the figure.}
+\end{Exercise}
+\begin{Answer}
+<< fig=TRUE >>=
+plot(stom$Year, stom$SD, panel.first=grid(),
+     xlab="Year of collection", ylab="Stomatal density (% of 1987)")
+@
+\end{Answer}
+
+
+A common way to analyze scatter plots is to use a model known as simple
+linear regression. The model assumes that the variable $y$ is a linear
+function of the variable $x$ plus a Gaussian noise, \textit{i.e.}, $y = ax
++ b + \varepsilon$ where $a$ and $b$ are constant, and where $\varepsilon$
+has a normal distribution with mean 0 and unspecified standard deviation.
+It is possible to estimate the parameters $a$ and $b$ using the maximum
+likelihood method.
+
+\begin{Exercise}[name=Question]
+\label{slope}
+Compute the regression line between the stomatal density and the year
+using the function \texttt{lm(...)}. Indicate the slope of the
+relationship.
+\end{Exercise}
+\begin{Answer}
+<< >>=
+lm(stom$SD~stom$Year)
+@
+
+The slope is -0.17.
+\end{Answer}
+
+
+\begin{Exercise}[name=Question]
+Using the results of Question~\ref{slope}, indicate the intercept of the
+regression line.
+\end{Exercise}
+\begin{Answer}
+The intercept is 440.42.
+\end{Answer}
+
+
+The slope is the gain or loss of stomatal density in a year. The intercept
+is the predicted stomatal density when the x value is 0, \textit{i.e.} at
+year 0. Year 0 is far off from the records, and it is usually understood
+in this kind of model that the intercept serves primarily as a way to
+adjust the vertical position of the line, but that it is not always
+possible to extrapolate outside the range of the data that is available.
+
+\begin{Exercise}[name=Question]
+\label{line}
+Add the regression line in red on the plot of Question~\ref{scatter} using
+\par\noindent\textcolor{BrickRed}{\textbf{Quercus:} Upload the figure.}
+\end{Exercise}
+\begin{Answer}
+<< fig=TRUE >>=
+plot(stom$Year, stom$SD, panel.first=grid(),
+     xlab="Year of collection", ylab="Stomatal density (% of 1987)")
+abline(lm(stom$SD~stom$Year), col=2)
+@
+\end{Answer}
+
+The parameter $b$ is particularly important. If it is positive, the
+stomatal density increases over time, if it is negative, it decreases, and
+if it is null, stomatal density is contstant.
+
+In the classical approach, the parameter $b$ is assumed to be an unknown
+constant. Its maximum likelihood estimator as given by the function
+\texttt{lm(...)} is a random variable with a certain dispersion around the
+true value of $b$. It is thus interesting to know how accurately the true
+value of $b$ is esimated. As usual, we can proceed with a statistical test
+to know whether the parameter fits a certain null hypothesis. In this
+case, it is natural to test $b = 0$ because it corresponds to the absence
+of trend.
+
+\begin{Exercise}[name=Question]
+When $b = 0$, the maximum likelihood estimate of the regression line is
+a horizontal line at the height of the average y value. Add this line in
+blue to the plot of Question~\ref{line}.
+\par\noindent\textcolor{BrickRed}{\textbf{Quercus:} Upload the figure.}
+\end{Exercise}
+\begin{Answer}
+<< fig=TRUE >>=
+plot(stom$Year, stom$SD, panel.first=grid(),
+     xlab="Year of collection", ylab="Stomatal density (% of 1987)")
+abline(lm(stom$SD~stom$Year), col=2)
+abline(h=mean(stom$SD), col=4)
+@
+\end{Answer}
+
+
+\begin{Exercise}[name=Question]
+One can perform a statistical test for $b = 0$ to decide if the blue line
+is compatible with the data by calling the function \texttt{anova(...)} on
+the output of \texttt{lm(...)}. Performa a test for $b = 0$ and conclude.
+Is it plausible that the relationship that appears on the scatter plot is
+due to random sampling alone?
+\par\noindent\textcolor{Blue}{\textbf{Hint:} The p-value of the test is
+indicated in the column \texttt{Pr(>F)}.}
+\end{Exercise}
+\begin{Answer}
+<< >>=
+anova(lm(stom$SD~stom$Year))
+@
+\end{Answer}
+
+
+The test for $b = 0$ is based on a statistic that measures how much the
+quality of the fit decreases when we force $b = 0$. This in turn is based
+on the vertical deviations between the points and the regression line,
+also known as the residuals. The null distribution can be computed from
+the assumption that the residuals have a normal distribution.
+
+We will not delve deeper into the theory, all that matters to us is that
+such a test exists, which also gives us access to confidence interval
+estimation. By choosing the values of $b$ that are accepted using a test
+at level 5\%, one can construct a confidence interval for $b$.
+
+\begin{Exercise}[name=Question]
+\label{confint}
+Use the function \texttt{confint(...)} on the output of \texttt{lm(...)}.
+Specify as an additional parameter \texttt{"stom\$Year"} (note the double
+quotes) to specify which parameter to estimate. Does the value 0 belong to
+the interval? Does this confirm your previous conclusions about the trend
+of stomatal density?
+\par\noindent\textcolor{BrickRed}{\textbf{Quercus:} Input the length of
+the interval.}
+\end{Exercise}
+\begin{Answer}
+<< >>=
+confint(lm(stom$SD~stom$Year), "stom$Year")
+@
+\end{Answer}
+
+
+\section{Making predictions}
+
+The section above shows how Linear models can be useful for inference,
+\textit{i.e.}, to understand existing relationships between variables. But
+they can also be used for prediction.
+
+\begin{Exercise}[name=Question]
+Using the maximum likelihood estimates of $a$ and $b$ given by the
+function \texttt{lm(...)}, predict the average stomatal density in the
+flora of England in 2030.
+\end{Exercise}
+\begin{Answer}
+<< >>=
+440.42 - 0.17 * 2030
+@
+\end{Answer}
+
+
+Pointwise predictions cannot be exact for continuous variables, the
+probability is 0 that they take a given value. It is more useful to give
+an interval where the measurement may be in the future. This has a chance
+of being correct and it conveys the uncertainty around the predicted
+value.
+
+\begin{Exercise}[name=Question]
+Assume for simplicity that $a$ is estimated perfectly. Use the results of
+the 95\% confidence estimation of $b$ from Question~\ref{confint} to give
+an (approximate) 95\% confidence region for the predicted average stomatal
+density in the flora of England in 2030. Is this estimate reasonable?
+\par\noindent\textcolor{BrickRed}{\textbf{Quercus:} Input the length of
+the interval.}
+\end{Exercise}
+\begin{Answer}
+<< >>=
+# Lower bound.
+440.42 - 0.2487 * 2030
+# Upper bound.
+440.42 - 0.0914 * 2030
+@
+\end{Answer}
+
+
+The last Question shows that uncertainty keeps growing over time. Small
+imprecisions on the estimation of $b$ are amplified as time increases.
+This is a general phenomenon in statistics. The standard way to deal with
+this is to recalibrate the model as more data becomes available.
+
+
+\section{Stomata and atmospheric \ce{CO2}}
+
+Let us now investigate the relationship between stomatal density and and
+atmospheric \ce{CO2}.
+
+
+\begin{Exercise}[name=Question]
+\label{CO2}
+Make a scatter plot with the atmospheric \ce{CO2} as the x-axis and the
+stomatal density as the y-axis. Label the axes as usual and indicate the
+units wherever needed. Add the regression line in red as in
+Question~\ref{line}
+\par\noindent\textcolor{BrickRed}{\textbf{Quercus:} Upload the figure.}
+\end{Exercise}
+\begin{Answer}
+<< fig=TRUE >>=
+plot(stom$CO2, stom$SD, panel.first=grid(),
+    xlab="atmospheric CO2 (umol/mol)", ylab="Stomatal density (% of 1987)")
+abline(lm(stom$SD~stom$CO2), col=2)
+@
+\end{Answer}
+\section{Conclusions}
+
+
+\begin{Exercise}[name=Question]
+Give a 95\% confidence interval for the slope of the regression line in
+Question~\ref{CO2}. Do the results coincide with your conclusions from the
+previous section?
+\par\noindent\textcolor{BrickRed}{\textbf{Quercus:} Input the length of
+the interval.}
+\end{Exercise}
+\begin{Answer}
+<< >>=
+confint(lm(stom$SD~stom$CO2), "stom$CO2")
+@
+\end{Answer}
+
+
+\section{The Pearson coefficient of correlation}
+
+Simple linear regression is useful for inference and prediction. Its only
+weakness is that the coefficient $b$ has a unit, so it is impossible to
+compare estimates between problems. For instance, $b$ was expressed in
+percent stomatal density per year in the first linear regression and in
+percent stomatal density per $\mu$mol of \ce{CO2} per mol of air in the
+second linear regression.
+
+Also, one can perform the regression of the x variable over the y
+varialbe, and one obtains another coefficient $b$ with other units. In the
+cases that we just want to know whether the variables are related, it is
+awkward to force the choice of one of these two coefficients.
+
+It would be useful if we could get an idea as to wether the x and y
+variables depend strongly each other or not. This is one of the main
+purposes of the Pearson correlation coefficient, often notend $r$. This
+value is always between -1 and +1, where -1 indicates a deterministic
+negative trend, 0 indicates no trend at all, and +1 indicates a
+deterministic positive trend. In R, the Pearson correlation coefficient
+can be computed with the function \texttt{cor(...)}.
+
+\begin{Exercise}[name=Question]
+Compute the Pearson correlation coefficient between stomatal density and
+atmospheric \ce{CO2}. Check that the order of the variables in the
+function does not matter.
+\par\noindent\textcolor{BrickRed}{\textbf{Hint:} When NAs are present in
+the data, one has to set the parameter \texttt{use} to
+\texttt{"complete.obs"}.}
+\end{Exercise}
+\begin{Answer}
+<< >>=
+cor(stom$SD, stom$CO2, use="complete.obs")
+cor(stom$CO2, stom$SD, use="complete.obs")
+@
+\end{Answer}
+
+
+\begin{Exercise}[name=Question]
+Multiple the maximum likelihood estimate of the slope $b$ between the
+stomatal density and atmospheric \ce{CO2} by $S_1/S_2$, where $S_1$ is the
+standard deviation of the atmospheric \ce{CO2} and $S_2$ is the standard
+deviation of stomatal density. What do you observe?
+\end{Exercise}
+\begin{Answer}
+<< >>=
+lm(stom$SD~stom$CO2)
+sd(stom$SD)
+sd(stom$CO2, na.rm=TRUE)
+-0.6371 * 17.33896 / 14.35873
+@
+
+The value is close to the Pearson coefficient of correlation. In theory,
+the two values should be identical, here they differ due to rounding
+errors.
+\end{Answer}
+
+
+The Pearson coefficient of correlation and the estimated slope in simple
+linear regression are intimately linked. Their distributions under the
+null hypothesis is based on the same statistic, so one can also perform
+statistical tests on the Pearson coefficient of correlation and give
+confidence intervals in the same way.
+
+In R, the function to perform a statistical test for the Pearson
+coefficient of correlation is \texttt{cor.test(...)}.
+
+\begin{Exercise}[name=Question]
+Perform a test for the Pearson coefficient of correlation between stomatal
+density and atmospheric \ce{CO2}.
+\end{Exercise}
+\begin{Answer}
+<< >>=
+cor.test(stom$SD, stom$CO2)
+@
+\end{Answer}
+
+\begin{Exercise}[name=Question (bonus points)]
+Give a 99\% confidence interval for the Pearson coefficient of correlation
+between stomatal density and atmospheric \ce{CO2} (not a 95\% confidence
+interval).
+\par\noindent\textcolor{Blue}{\textbf{Hint:} The function
+\texttt{cor.test(...)} gives a confidence interval by default.}
+\par\noindent\textcolor{BrickRed}{\textbf{Quercus:} Input the length of
+the interval.}
+\end{Exercise}
+\begin{Answer}
+<< >>=
+cor.test(stom$SD, stom$CO2, conf.level = 0.99)
+@
+\end{Answer}
+
+
+\section{Conclusions}
+
+We have introduced simple linear regression and correlation, showing how
+to use them for inference or for prediction. As standard statistical
+methods, they enjoy the complete toolset associated with estimation and
+testing. This allows us to test whether two quantiative variables are
+statistically associated (somewhat like the $\chi^2$ test for qualitative
+variables) and consequently to derive confidence intervals for their
+degree of interaction.
+
+In this example, we have used the correlation between the number of
+stomata on the surface of the leaves and the atmospheric \ce{CO2}. The
+pioneering work of Woodward showed that specimens collected over 200 years
+ago had fewer stomata than modern specimens~\cite{woodward1987stomatal},
+suggesting that older specimens can be used to estimate atmospheric
+\ce{CO2} beyond the record from the ice cores. This was done using fossils
+of leaves from the European durmast oak \textit{Quercus petraea}, on which
+stomata can still be identified~\cite{kurschner1996oak}. This allowed to
+estimate the atmospheric \ce{CO2} in the Pleistocene, \textit{i.e.}, more
+than 2 million years ago.
+
+The quality of the estimates crucially depends on the assumptions and on
+the calibration of the linear regression model. Parameters are always
+estiamted with some uncertainty that is carried forward to predictions or
+estimations. Larger datasets allow for more accurate estimations, but it
+is important to distinguish two types of predictions. The first is the
+average value of the y variable, which can be estimate to within great
+accuracy if the sample is large enough. The second is the value of an
+individual observation of the y varialble, which contains some irreducible
+randomness. The observations are not exactly along a straight line, and
+this fact will not change even in a large sample.
+
+The Pearson coefficient of correlation is a useful inference tool to
+indicate that two variables are correlated without having to use one as
+the predictor and the other as the response. Its interpretation is
+difficult or even risky for multiple reasons. The first is that some
+deterministic relationships have a coefficient of correlation equal to 0.
+This is the case of perfect parabolas for instance, so a null coefficient
+of correlation does not indicate an absence of relation. The second is
+that correlation is itself difficult to interpret from the human point of
+view.
+
+The cautionary tale that ``correlation is not causation'' is only one of
+the many pitfalls. A full treatment would cover Berkson's and Simpsons's
+paradoxes, post-treatment bias, multicollinearity, confounding variables,
+colliders, table 2 fallacy and more. An analyst should make predictions,
+but remain humble as to their purported validity.
+
+
+\bibliography{references}
+
+\cleardoublepage
+\shipoutAnswer
+\end{document}
