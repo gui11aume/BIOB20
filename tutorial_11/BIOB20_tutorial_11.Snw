@@ -112,7 +112,7 @@ nrow(stom)
 
 
 \begin{Exercise}[name=Question]
-\texttt{scatter}
+\label{scatter}
 Make a scatter plot with the year on the x-axis and the stomatal density
 on the y-axis. As usual, label the axes and indicates the units wherever
 needed.
@@ -128,8 +128,8 @@ plot(stom$Year, stom$SD, panel.first=grid(),
 
 A common way to analyze scatter plots is to use a model known as simple
 linear regression. The model assumes that the variable $y$ is a linear
-function of the variable $x$ plus a Gaussian noise, \textit{i.e.}, $y = ax
-+ b + \varepsilon$ where $a$ and $b$ are constant, and where $\varepsilon$
+function of the variable $x$ plus a Gaussian noise, \textit{i.e.}, $y = a
++ bx + \varepsilon$ where $a$ and $b$ are constant, and where $\varepsilon$
 has a normal distribution with mean 0 and unspecified standard deviation.
 It is possible to estimate the parameters $a$ and $b$ using the maximum
 likelihood method.
@@ -168,6 +168,7 @@ possible to extrapolate outside the range of the data that is available.
 \begin{Exercise}[name=Question]
 \label{line}
 Add the regression line in red on the plot of Question~\ref{scatter} using
+the function \texttt{abline(...)}.
 \par\noindent\textcolor{BrickRed}{\textbf{Quercus:} Upload the figure.}
 \end{Exercise}
 \begin{Answer}
@@ -210,7 +211,7 @@ abline(h=mean(stom$SD), col=4)
 \begin{Exercise}[name=Question]
 One can perform a statistical test for $b = 0$ to decide if the blue line
 is compatible with the data by calling the function \texttt{anova(...)} on
-the output of \texttt{lm(...)}. Performa a test for $b = 0$ and conclude.
+the output of \texttt{lm(...)}. Perform a test for $b = 0$ and conclude.
 Is it plausible that the relationship that appears on the scatter plot is
 due to random sampling alone?
 \par\noindent\textcolor{Blue}{\textbf{Hint:} The p-value of the test is
@@ -363,7 +364,7 @@ can be computed with the function \texttt{cor(...)}.
 Compute the Pearson correlation coefficient between stomatal density and
 atmospheric \ce{CO2}. Check that the order of the variables in the
 function does not matter.
-\par\noindent\textcolor{BrickRed}{\textbf{Hint:} When NAs are present in
+\par\noindent\textcolor{Blue}{\textbf{Hint:} When NAs are present in
 the data, one has to set the parameter \texttt{use} to
 \texttt{"complete.obs"}.}
 \end{Exercise}
@@ -376,7 +377,7 @@ cor(stom$CO2, stom$SD, use="complete.obs")
 
 
 \begin{Exercise}[name=Question]
-Multiple the maximum likelihood estimate of the slope $b$ between the
+Multiply the maximum likelihood estimate of the slope $b$ between the
 stomatal density and atmospheric \ce{CO2} by $S_1/S_2$, where $S_1$ is the
 standard deviation of the atmospheric \ce{CO2} and $S_2$ is the standard
 deviation of stomatal density. What do you observe?
@@ -406,7 +407,7 @@ coefficient of correlation is \texttt{cor.test(...)}.
 
 \begin{Exercise}[name=Question]
 Perform a test for the Pearson coefficient of correlation between stomatal
-density and atmospheric \ce{CO2}.
+density and atmospheric \ce{CO2}. What do you conclude?
 \end{Exercise}
 \begin{Answer}
 << >>=

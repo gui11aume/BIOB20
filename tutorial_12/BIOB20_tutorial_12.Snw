@@ -1,0 +1,431 @@
+\documentclass[a4paper]{article}
+
+% Packages.
+\usepackage{amsthm}
+\usepackage[answerdelayed]{exercise}
+\usepackage[usenames,dvipsnames]{color}
+
+% Bibliography.
+\bibliographystyle{abbrv}
+
+% Definitions.
+\theoremstyle{definition}
+\newtheorem{definition}{Definition}
+
+% Exercise layout.
+\renewcommand{\ExerciseHeader}{\par\noindent\textbf{\large
+\ExerciseName\ \ExerciseHeaderNB\ExerciseHeaderTitle
+\ExerciseHeaderOrigin}\par}
+
+\renewcommand{\AnswerHeader}{\par\noindent\textbf{
+Answer of \ExerciseName\ \ExerciseHeaderNB}\par}
+
+\setlength{\ExerciseSkipAfter}{3mm}
+
+% Document layout.
+\setlength{\oddsidemargin}{18pt}
+\setlength{\textwidth}{420pt}
+\setlength{\marginparwidth}{0pt}
+\setlength{\marginparsep}{0pt}
+
+% Options.
+\SweaveOpts{keep.source=TRUE}
+
+\title{The Bayesian approach}
+\author{}
+\date{}
+
+
+\begin{document}
+\maketitle
+
+
+\section{Overview}
+
+In this chapter we revisit the example of randomized clinical and
+introduce the Bayesian approach in this context.
+
+
+%% The problem %%
+\section{The problem}
+
+We analzyed the results of the clinical trial for the mRNA-1273 vaccine in
+tutorials 1 and 10. In tutorial 1, we concluded that the vaccine was more
+efficient than the placebo and in tutorial 10 we estimated the efficiency
+with a confidence interval. In this tutorial, we will go one step further
+and estimate the efficiency with Bayesian methods.
+
+
+\section{The mRNA-1273 clinical trial}
+
+In the course of the mRNA-1273 clinical trial, 15210 participants received
+the placebo and 15210 received the vaccine~\cite{baden2020efficacy}. 196
+participants developed symptomatic COVID-19, including 11 patients who
+received the vaccein and 185 who received the placebo.
+
+Let us first review the results of estimation by confidence intervals.
+
+\begin{Exercise}[name=Question]
+\label{binom.test}
+Use the function \texttt{binom.test(...)} to obtain a 95\% confidence for
+the proportion of participants who are vaccinated among those who develop
+symptomatic COVID-19.
+\par\noindent\textcolor{Blue}{\textbf{Note:} Assume that the interval is
+two-sided.}
+\par\noindent\textcolor{BrickRed}{\textbf{Quercus:} Input the length of
+the interval.}
+\end{Exercise}
+\begin{Answer}
+<< >>=
+binom.test(x=11, n=196)
+@
+
+The efficiency is estimated at $(1 - 2 \cdot 0.0561) / (1 - 0.0561) =
+0.9405$.
+\end{Answer}
+
+
+Remember that the efficiency $\theta$ is not $1-p$, where $p$ is the
+probability of ``success'' in the binomial distribution (the probability
+that a participant who develops symptomatic COVID-19 is vaccinated).
+Instead, the efficiency is 0 when half of the participants who develop
+symptomatic COVID-19 are vaccinated, so $\theta = (1-2p) / (1-p)$. In
+tutorial 10 we estimated $\theta$ whereas here we estimate $p$, explaining
+why the numbers are dissimilar.
+
+Confidence intervals address the limitations of point estimation by
+providing a measure of uncertainty around the estimate. The main feature
+of confidence intervals (and the most common confusion about their
+intrepretation) is that the guarantees of precision apply to the method in
+general, but not to a particular interval.
+
+This consideration highlights the main limitation of confidence intervals.
+When protocols are not scrupulously respected, confidence intervals
+provide guarantees for methods that are not followed. In this clinical
+trial, it does not seem that the protocol specifically mentioned that the
+results would be analayzed as soons as 196 participants develop
+symptomatic COVID-19. If this number cannot be fixed beforehand, the null
+distribution of the score cannot be computed and the protocol for
+constructing a confidence interval cannot be completed. The bounds of the
+confidence interval are thus given by a protocol that was not followed.
+
+
+\section{The Bayesian point of view}
+
+A different approach to estimation and inference is to consider that
+unknown parameters are random variables instead of unknown constants. The
+analyst conjures up a probability distribution that represtents the
+current state of knowledge about the parameters. For instance, if a
+parameter is thought to be between between 11 and 15, the analyst may
+assume that it has a normal distribution with mean 13 and standard
+deviation 2/3 (more than 99.7\% of the probability in a normal
+distribution is in an interval of 3 standard deviations). This
+distribution is called the \emph{prior}.
+
+The parameter $p$ describes the probability that a participant who
+develops symptomatic COVID-19 was vaccinated. From now on, we consider
+that $p$ is a random quantity. To simplify notations, we will denote $X$
+the number of vaccinated participants among the 196 who develop
+symptomatic COVID-19.
+
+\begin{Exercise}[name=Question]
+\label{prior}
+Since we know nothing about $p$, we will assume that it has a uniform
+prior distribution, meaning that it could be any number between 0 and 1
+with equal probability. Give the probability that $p$ is below $10\%$.
+\end{Exercise}
+\begin{Answer}
+This probability is 0.1. One can see this from the fact that 10\% of the
+numbers between 0 and 1 are below 10\% (by definition). Alternatively, one
+can recall that for a variable $X$ with the uniform distribution $P(X < x)
+= x$.
+\end{Answer}
+
+
+\begin{Exercise}[name=Question]
+\label{X_sample}
+Simulate the outcome of 100,000 clinical trials where $p$ has a uniform
+distribution and $X$ has a $B(196, p)$ distribution. Store the result in a
+variable called \texttt{X\_sample}. What is the average value of $X$ in
+\texttt{X\_sample}?
+\par\noindent\textcolor{Blue}{\textbf{Hint:} Using the vector
+notation to sample 100,000 values with a single call to
+\texttt{rbinom(...)} is faster than a for-loop.}
+\end{Exercise}
+\begin{Answer}
+<< >>=
+X_sample <- rbinom(size=196, prob=runif(100000), n=100000)
+mean(X_sample)
+@
+\end{Answer}
+
+
+The distribution of $X$ is not the null distribution associated with the
+null hypothesis $p = 0.5$. Actually, it is not a null distribution at all
+because it is not linked to a target value of $p$.
+
+\begin{Exercise}[name=Question]
+\label{histo_1}
+Plot the histogram of \texttt{X\_sample}. Is it a binomial distribution?
+\par\noindent\textcolor{BrickRed}{\textbf{Quercus:} Upload the figure.}
+\end{Exercise}
+\begin{Answer}
+<< fig=TRUE >>=
+library(ggplot2)
+ggplot(data.frame(x=X_sample), aes(x=x)) + geom_histogram(bins=17,
+  fill="gray70") + theme_classic()
+@
+\end{Answer}
+
+After the result $X = 11$ is observed, the probability of $p$ is updated.
+This new distribution is called the \emph{posterior} and it is the sole
+focus of Bayesian approaches. It is in general difficult to compute or to
+sample from. The posterior distribution can be expressed by Bayes'
+formula
+\begin{equation}
+\label{bayes}
+P(p|X) = P(X|p) \frac{P(p)}{P(X)}.
+\end{equation}
+
+In this expression, $P(X|p)$ is a simple binomial distribution, $P(p)$ is
+the uniform distribution, and $P(X)$ is the distribution of
+\texttt{X\_sample} that was computed at Question~\ref{X_sample}. We can
+thus substitute $X$ by 11 to obtain the full posterior distribution of
+$p$.
+
+However, $p$ is a continuous random variable, so it is only available
+through a probability density. We can use sample methods to estimate this
+density.
+
+\begin{Exercise}[name=Question]
+\label{posterior}
+Produce 1000,000 values of $p$ from a uniform distribution and then sample
+$X$ as $B(196, p)$. Keep only the values of $p$ such that $X=11$ and store
+the results into a variable called \texttt{p\_posterior\_sample}. Plot the
+density of \texttt{p\_posterior\_sample}.
+\par\noindent\textcolor{Blue}{\textbf{Hint:} Using the vector
+notation as in Question~\ref{X_sample} is faster than a for-loop.}
+\par\noindent\textcolor{BrickRed}{\textbf{Quercus:} Upload the figure.}
+\end{Exercise}
+\begin{Answer}
+<< fig=TRUE >>=
+p_prior_sample <- runif(n=1000000)
+X_sample <- rbinom(size=196, prob=p_prior_sample, n=1000000)
+p_posterior_sample <- p_prior_sample[X_sample==11]
+plot(density(p_posterior_sample), xlim=c(0,1), panel.first=grid())
+@
+\end{Answer}
+
+
+The posterior distribution of $p$ contains all the information we need for
+any kind of inference about $p$.
+
+\begin{Exercise}[name=Question]
+\label{credible}
+Using the function \texttt{quantile(...)} on
+\texttt{p\_posterior\_sample}, give the boundaries of an interval that
+contains 95\% of the posterior probability of $p$. Set the interval so
+that each tails contains 2.5\% of the probability.
+\par\noindent\textcolor{BrickRed}{\textbf{Quercus:} Input the length of
+the interval.}
+\end{Exercise}
+\begin{Answer}
+<< >>=
+quantile(p_posterior_sample, c(.025, .975))
+@
+\end{Answer}
+
+
+The intervals produced from the posterior distribution as in
+Question~\ref{credible} are called \textit{credible intervals}. The common
+misinterpretation of confidence interval is actually the correct
+interpretation of credible intervals. One can say that ther is a 95\%
+probability that $p$ belongs to the actual interval of
+Question~\ref{credible}.
+
+
+\begin{Exercise}[name=Question]
+\label{posterior10}
+Using \texttt{p\_posterior\_sample}, give the posterior probability that
+$p$ is less than 10\%.
+\end{Exercise}
+\begin{Answer}
+<< >>=
+mean(p_posterior_sample < 0.1)
+@
+\end{Answer}
+
+
+It is interesting to compare the answers to Questions~\ref{prior} and
+\ref{posterior10}. This shows how much the observations can change our
+belief about the parameter. This is actually reassuring as the objective
+part of the process should dominate, not the prior beliefs.
+
+
+\section{The prior distribution}
+
+The Bayesian point of view is very coherent. The computations are usually
+more difficult but the interpretations are somewhat more straightforward.
+A tenet of the Bayesian approach is that it is impossible to carry out
+any kind of inference without making assumptions, and that it is better to
+fully specify those assumptions.
+
+However, it is usually difficult to choose a prior over another. We
+claimed that $p$ should have a uniform prior distribution because we know
+nothing about it, but the same could be said of $\theta$, the vaccine
+efficiency.
+
+\begin{Exercise}[name=Question]
+\label{X_sample_revisited}
+Simulate the outcome of 100,000 clinical trials where $\theta$ has a uniform
+distribution and $X$ has a $B(196, p)$ distribution. Store the result in a
+variable called \texttt{X\_sample} and plot the histogram.
+\par\noindent\textcolor{Blue}{\textbf{Hint:} Use $p = (\theta-1) /
+(\theta-2)$.}
+\par\noindent\textcolor{BrickRed}{\textbf{Quercus:} Upload the figure.}
+\end{Exercise}
+\begin{Answer}
+<< fig=TRUE >>=
+theta_prior_sample <- runif(100000)
+p_sample <- (theta_prior_sample - 1) / (theta_prior_sample - 2)
+X_sample <- rbinom(size=196, prob=p_sample, n=100000)
+ggplot(data.frame(x=X_sample), aes(x=x)) + geom_histogram(bins=17,
+  fill="gray70") + theme_classic()
+@
+\end{Answer}
+
+
+The results are very different from those of Question~\ref{histo_1}, which
+shows that careful thought should be put into the priors. Even the
+so-called uninformative priors like the uniform distribution make
+particular statements about the parameters. In this particular case,
+putting a uniform distribution on $p$ amounts to believing that 50\% of
+the vaccines make participants more vulnerable to the disease than the
+placebo. This is in clear contradiction with common knowledge about
+vaccines, so the uniform prior on $\theta$ is a better choice, albeit a
+questionable one because it does not allow any room for vaccines that are
+worse than the placebo.
+
+Finding a good prior distribution is a difficult task. Importantly, the
+prior distribution reflects \emph{prior} knowledge, so it must be derived
+without looking at the results. If the results are known beforehand, it
+can be difficult to pretend that we do not know them.
+
+In spite of the criticism above, we will continue with the uniform prior
+on $\theta$ in order to investigate how much the results change.
+
+\begin{Exercise}[name=Question]
+\label{posterior_2}
+Produce 1000,000 values of $\theta$ from a uniform distribution and then
+proceed as in Question~\ref{posterior} to obtain a random sample from the
+posterior distribution of $\theta$. Store the result into
+a variable called \texttt{theta\_posterior\_sample}. Plot the density of
+\texttt{theta\_posterior\_sample}. Transform the values of $p$ from
+Question~\ref{posterior} into $\theta = (1-2p)/(1-p)$ and add their density
+to the graph. 
+\par\noindent\textcolor{BrickRed}{\textbf{Quercus:} Upload the figure.}
+\end{Exercise}
+\begin{Answer}
+<< fig=TRUE >>=
+theta_prior_sample <- runif(n=1000000)
+p_sample = (theta_prior_sample - 1) / (theta_prior_sample - 2)
+X_sample <- rbinom(size=196, prob=p_sample, n=1000000)
+theta_posterior_sample <- theta_prior_sample[X_sample==11]
+plot(density(theta_posterior_sample), xlim=c(0,1), panel.first=grid())
+theta_from_p <- (1-2*p_posterior_sample) / (1-p_posterior_sample)
+lines(density(theta_from_p), col=2)
+legend(x="topleft", inset=.02, col=c(1,2), lwd=1, box.lty=0, bg="white",
+   legend=c("uniform on theta", "uniform on p"))
+@
+\end{Answer}
+
+
+If the results are very different for two reasonable priors, there is
+insufficient information in the observations and decisions will be made
+based on prior beliefs. If the results are very similar, then the
+observations overrule prior beliefs.
+
+\begin{Exercise}[name=Question]
+Using the function \texttt{quantile(...)} on
+\texttt{theta\_posterior\_sample}, give the boundaries of an interval that
+contains 95\% of the posterior probability of $\theta$, the efficiency of
+the vaccine. Set the interval so that each tails contains 2.5\% of the
+probability.
+\par\noindent\textcolor{BrickRed}{\textbf{Quercus:} Input the length of
+the interval.}
+\end{Exercise}
+\begin{Answer}
+<< >>=
+quantile(theta_posterior_sample, c(.025, .975))
+@
+\end{Answer}
+
+This concludes the tutorials of course and gives an answer to the very
+first question we asked in tutorial 1.
+
+
+\section{Conclusions}
+
+Using a Bayesian approach, we confirmed that the efficiency of the
+mRNA-1273 vaccine was probably above 90\% against the SARS-CoV-2 variants
+that were in circulation at the onset of the COVID-19
+epidemic\cite{baden2020efficacy}.
+
+There is doubt whether the stopping criterion of the trial was scripted.
+If the choice was made without peeking at the data, then the guarantees
+given by the confidence intervals still hold. But if the choice depended
+on the results, then the confidence intervals are erroneous ---
+\textit{e.g.}, if the organizers stop the trial only when they are
+satisfied with the results.
+
+The Bayesian approach does not have this kind of problem. The fact that
+the stopping time was not scripted can even be used as information to
+about the vaccine efficiency $\theta$ by introducing additional
+distributions. And even if the decision to stop the trial was based on the
+results, the posteriod distribution of $\theta$ is still valid.
+
+Another advantage of Bayesian approaches is that they are typically easier
+to interpret. The posterior distribution of $\theta$ carries more
+information than any interval estimation. The most likely value, the range
+and the asymmetry are clearly visible on the density.
+
+Another advantage of Bayesian methods is that they are coherent. The
+posterior probability represents the state of knowledge after the
+observations are known and every inference is based on this. When new
+knowledge arrives, the posterior is further updated. Decisions are made
+through cost--benefit analyses of this distribution. In comparison,
+the decisions made in statistical tests are based on guarantees to be
+right or wrong, without consideration for the associated costs.
+
+The main disadvantage of Bayesian methods is the reliance on subjective
+prior probabilities. We have seen that there are multiple ways to use
+non-informative priors in the present example. The context  usually brings
+more information that one realizes. For instance, this is a phase 3
+clinical trial, meaning that the vaccine successfully passed phases 1 and
+2, already saying something about its efficiency. However, it is usually
+difficult to translate this knowledge into prior distributions. And a
+large part of it is subjective, as the critics of Bayesian approaches
+point out.
+
+That said, observations eventually take over as the sample size increases,
+even when the prior distribution is biased or incorrect. This can be seen
+as an argument to not use Bayesian methods as it only introduces
+subjectivity into a process that objectively converges to the correct
+answer, or as an argument to use Bayesian methods to speed up convergence
+by taking all the information that is available and not just the parts
+that are easy to put into a statistical model.
+
+But these differences should not diminish the substantial similarity
+between frequentist and Bayesian approaches. Both amount to phrasing
+hypotheses before observing the results, constructing expectations from
+those hypotheses, acquiring the data and using the likelihood to compare
+the results with the expectations. Frequentists then update their
+knowledge by rejecting hypotheses or not, while the Bayesians modify the
+probabilities of those hypotheses.
+
+
+\bibliography{references}
+
+\cleardoublepage
+\shipoutAnswer
+\end{document}

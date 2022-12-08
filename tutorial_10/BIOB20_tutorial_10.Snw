@@ -42,8 +42,8 @@ Answer of \ExerciseName\ \ExerciseHeaderNB}\par}
 
 \section{Overview}
 
-In this chapter we introduce confidence intervals and and showcase some
-applications in randomized clinical trials.
+In this chapter we revisit the example of randomized clinical and
+introduce confidence intervals in this context.
 
 
 %% The problem %%
@@ -160,10 +160,12 @@ values occur randomly when 196 participants become ill?
 
 \begin{Exercise}[name=Question]
 \label{test}
-Using a binomial distribution as in Question~\ref{binom}, test the the null
-hypothesis that the efficiency of the vaccine is 0.94.
-\par\noindent\textcolor{Blue}{\textbf{Hint:} The probability of
-``success'' is $(1-\theta) / (2-\theta)$, not $1-\theta$.}
+Using a binomial distribution as in Question~\ref{binom}, test the the
+null hypothesis that the efficiency of the vaccine is 0.94. Note the
+probability of ``success'' of the binomial is $(1-\theta) / (2-\theta)$,
+not $1-\theta$ (if the efficiency $\theta$ is 0, then half of the
+participants who develop symptomatic COVID-19 are in the vaccinated group
+so a correction is necessary).
 \end{Exercise}
 \begin{Answer}
 << >>=
