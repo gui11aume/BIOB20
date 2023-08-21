@@ -79,6 +79,9 @@ R generates randomness.
 \begin{Exercise}[name=Question]
 Start R, type the command \texttt{sample(x=10)} and press enter. Do you
 obtain the same result as shown below?
+<<echo=FALSE>>=
+set.seed(0)
+@
 << >>=
 sample(x=10)
 @
@@ -248,8 +251,8 @@ become useful at some point.
 
 \begin{Exercise}[name=Question]
 Use the function \texttt{sample(...)} to pick 5 numbers at random from the
-first 6 prime numbers without replacement. Make sure to define the prime
-numbers in the same order as shown as above.
+first 6 prime numbers without replacement. Define the prime numbers as
+\texttt{c(2, 3, 5, 7, 11, 13)}.
 \par\noindent\textcolor{BrickRed}{\textbf{Quercus:} use seed 123 and
 concatenate.}
 \end{Exercise}
@@ -351,6 +354,11 @@ threshold to stop the clinical trial, \textit{i.e.}, that it is a
 parameter that was known \textit{a priori} and not a random outcome of the
 trial.
 
+The null hypothesis always posits that there are no differences between
+the groups of interest (\textit{e.g.}, treatment versus plaebo). This may
+seem odd, but we need such assumptions to be able to make predictions. The
+alternative hypothesis usually posits that a difference exists between the
+groups.
 
 \begin{Exercise}[name=Question]
 What are the null hypothesis and the alternative hypothesis in the case of
@@ -362,6 +370,8 @@ vaccine and the placebo. The alternative hypothesis is that the vaccine
 protects better than the placebo against COVID-19.
 \end{Answer}
 
+There are many protocols to collect data, and this typically depends on the
+study, the available resources, legislations \textit{etc}.
 
 \begin{Exercise}[name=Question]
 What is the protocol to collect data in the case of the Moderna clinical
@@ -569,6 +579,7 @@ number of vaccinated patients in the sample using the function
 the argument \texttt{prob}.}
 \end{Exercise}
 \begin{Answer}
+% From 1000 simulations: 19--49
 << >>=
 bias <- rep(x=c(1, 0.2), times=15210)
 set.seed(123)
@@ -583,7 +594,7 @@ of Question~\ref{exeff} and use the function \texttt{min(...)} to output
 the minimum.
 \end{Exercise}
 \begin{Answer}
-% From 1000 simulations: x--y
+% From 1000 simulations: 10--21
 << >>=
 set.seed(123)
 min(replicate(n=1000, expr=sum(sample(x=cohort, size=196, prob=bias))))
@@ -591,20 +602,15 @@ min(replicate(n=1000, expr=sum(sample(x=cohort, size=196, prob=bias))))
 \end{Answer}
 
 
-We can decide whether the efficiency of the vaccine is above or below 80\%
-by comparing the thresold above to the actual results of the clinical
-trial.
-
-
-\begin{Exercise}[name=Question]
-Do the results indicate that the efficiency of the Moderna vaccine is
-above 80\%
-\end{Exercise}
-\begin{Answer}
-Yes. The actual number of vaccinated patients with symptomatic COVID-19 is
-11, which is below the lowest amount we obtained under the assumption
-that the efficiency of the vaccine is 80\%.
-\end{Answer}
+Comparing the theoretical result above with the actual results of the
+clinical trial allows us to decide whether the efficiency of the vaccine
+is above or below 80\%. If in 1000 random simulations we never obtain a
+number as low as 11, then the actual number of individuals that are
+vaccinated and symptomatic is lower than expected with an 80\% efficiency,
+meaning that the true efficiency must be higher. On the contrary, if in
+the simulations we obtain 11 or fewer individuals that are vaccinated and
+symptomatic, then the actual results are compatible with an efficiency of
+80\% or below.
 
 
 %Based on this result, we can already have an idea as to whether the
@@ -830,11 +836,11 @@ other problems, we will need to be creative to find appropriate scores and
 compute their distributions, but the overall process will remain remarkably
 similar.
 
-We have also introduced a method called maximum likelihood estimation,
-which is based on the idea that we should favor the hypothesis whereby the
-events that actually happened were as likely as possible. This is not the
-only method for estimation (see optional questions) but it is very general
-and usually gives reliable results.
+%We have also introduced a method called maximum likelihood estimation,
+%which is based on the idea that we should favor the hypothesis whereby the
+%events that actually happened were as likely as possible. This is not the
+%only method for estimation (see optional questions) but it is very general
+%and usually gives reliable results.
 
 We have seen that the programming language R contains many useful
 functions to implement the strategy above. The function
