@@ -18,7 +18,7 @@
 \ExerciseHeaderOrigin}}
 
 \renewcommand{\AnswerHeader}{\par\noindent\textbf{
-Answer of \ExerciseName\ \ExerciseHeaderNB}\par}
+Answer to Question \ExerciseHeaderNB}\par}
 
 \setlength{\ExerciseSkipAfter}{3mm}
 
@@ -308,7 +308,7 @@ avoid treatment biases (\textit{e.g.}, when physicians decide to give
 an aggressive treatment to the patients who are most likely to tolerate
 it). The clinical trial is \emph{blinded} if the physicians do not know
 whether they administer the treatment or the placebo. This is considered
-best practice to avoid interpretation biases (\textit{e.g.,}, when
+best practice to avoid interpretation biases (\textit{e.g.}, when
 physicians run more diagnoses on patients who received the traetments).
 
 The phase-3 clinical trial of the mRNA-1723 vaccine was randomized

@@ -20,7 +20,8 @@
 \ExerciseHeaderOrigin}\par}
 
 \renewcommand{\AnswerHeader}{\par\noindent\textbf{
-Answer of \ExerciseName\ \ExerciseHeaderNB}\par}
+Answer to Question \ExerciseHeaderNB}\par}
+%Answer to \ExerciseName\ \ExerciseHeaderNB}\par}
 
 \setlength{\ExerciseSkipAfter}{3mm}
 
@@ -136,9 +137,9 @@ rbinom(n=1, size=1084, prob=1/2)
 \begin{Exercise}[name=Question]
 Produce 100,000 random numbers from $B(1084, 1/2)$ using the function
 \texttt{rbinom(...)} and compute the average.
-\par\noindent\textcolor{BrickRed}{\textbf{Quercus:} use seed 123.}
 \end{Exercise}
 \begin{Answer}
+% 0.1%-99.9 quantiles from 10,000 replications: 541.842--542.165
 << >>=
 set.seed(123)
 mean(rbinom(n=100000, size=1084, prob=1/2))
@@ -182,19 +183,14 @@ reference~\cite{sturtevant1913linear}. Here we will simply assume that he
 followed the principles of unbiased data collection and we will not look
 further into this.
 
-\begin{Exercise}[name=Question]
-What statistic could we use to distinguish the null from the alternative
-hypothesis?
-\end{Exercise}
-\begin{Answer}
-There are many options. If the null hypothesis is true, we expect that
-approximately half of the sample should consist of $b^0$ alleles. We will
-thus choose the absolute difference to 1084 / 2 = 542.
-\end{Answer}
+Our statistic will be the absolute difference between the observed number
+of $b^0$ alleles and their expected value ($1084 / 2 = 542$ in this case).
+By taking the absolute value, the score is low if the null hypothesis is
+true, and high if it is false. With this simple trick, the null hypothesis
+allows us to make predictions about the magnitude of the score.
 
-
-To find a quantitative decision rule, we need to know more about the
-distribution of the statistic so that we can have clear expectations.
+To find a quantitative decision rule, we need to find out more about the
+distribution of the statistic when the null hypothesis is true.
 
 \begin{Exercise}[name=Question]
 Produce a random sample of size 1 from $B(1084, 1/2)$ using the function
@@ -215,9 +211,9 @@ Produce 100,000 random values of the statistic under the null
 distribution. Store them in a variable called \texttt{nulld} (this stands
 for ``null distribution''). Use the function \texttt{mean(...)} to compute
 the approximate expected value of the statistic under the null hypothesis.
-\par\noindent\textcolor{BrickRed}{\textbf{Quercus:} use seed 123.}
 \end{Exercise}
 \begin{Answer}
+% 0.1%-99.9 quantiles from 10,000 replications: 13.033--13.238
 << >>=
 set.seed(123)
 nulld <- abs(rbinom(n=100000, size=1084, prob=1/2) - 542)
@@ -234,11 +230,9 @@ when the score is too large to be explained by chance.
 
 \begin{Exercise}[name=Question]
 Plot the histogram of the vector \texttt{nulld} using the function
-\texttt{hist(...)} with default parameters. What is the range of values
-with highest frequency?
+\texttt{hist(...)} with default parameters.
 \end{Exercise}
 \begin{Answer}
-The values in 0-5 have highest frequency.
 << fig=TRUE >>=
 hist(nulld)
 @
@@ -267,6 +261,7 @@ statistic is greater than or equal to $x$ when the null hypothesis is
 true? Add a red vertical line at this value in the plot of the histogram.
 \end{Exercise}
 \begin{Answer}
+% 0.1%-99.9 quantiles from 10,000 replications: 42--43 (included).
 << fig=TRUE >>=
 quantile(nulld, 0.99)
 hist(nulld)
@@ -283,14 +278,14 @@ Finish the statistical analysis and conclude about the null hypothesis.
 \end{Exercise}
 \begin{Answer}
 The value $x$ at the top 1\% of the null distribution \texttt{nulld} is
-approximately 43. This means that if the null hypothesis is true, there is
-an approximately 1\% chance that the statistic is below 542 - 43 = 499 or
-higher than 542 + 43 = 585. Sturtevant obtained 571 $b^0$ alleles, which
-is within the interval 499--585, so there is no reason to reject the null
+approximately 42. This means that if the null hypothesis is true, there is
+an approximately 1\% chance that the statistic is below 542 - 42 = 500 or
+higher than 542 + 42 = 584. Sturtevant obtained 571 $b^0$ alleles, which
+is within the interval 500--584, so there is no reason to reject the null
 hypothesis. The results are compatible with expectations.
 
 A more automatic way of concluding is to note that the observed value of
-the statistic is $|571 - 542| = 29 < 43$. The value 29 is on the
+the statistic is $|571 - 542| = 29 < 42$. The value 29 is on the
 \emph{left} or the red line in the histogram of the null distribution.
 This kind of statement is in general sufficient to accept the null
 hypothesis.
@@ -315,7 +310,7 @@ $r^0$ and $r^1$ are equally probable.
 The null hypothesis, the alternative hypothesis, the data collection
 protocol, the statistic and the decision rule are the same. In this case
 the null distribution is also the same, so we can conclude directly. The
-observed statistic is $|574 - 542| = 32 < 43$ (the value is on the
+observed statistic is $|574 - 542| = 32 < 42$ (the value is on the
 \emph{left} of the red line in the histogram) so we accept the null
 hypothesis.
 \end{Answer}
@@ -373,16 +368,16 @@ deviation from 271.
 \begin{Exercise}[name=Question]
 \label{exnulld_pair}
 Produce 100,000 random values of the statistic under the null
-distribution. Store them in a variable called \texttt{nulld}. Use the
-function \texttt{mean(...)} to compute the approximate expected value of
-the statistic under the null hypothesis.
-\par\noindent\textcolor{BrickRed}{\textbf{Quercus:} use seed 123.}
+distribution. Store them in a variable called \texttt{nulld}. Plot the
+histogram of the vector \texttt{nulld} using the function
+\texttt{hist(...)} with default parameters.
 \end{Exercise}
 \begin{Answer}
-<< >>=
+% 0.1%-99.9 quantiles from 10,000 replications: 36--37 (included).
+<< fig=TRUE >>=
 set.seed(123)
 nulld <- abs(rbinom(n=100000, size=1084, prob=1/4) - 271)
-mean(nulld)
+hist(nulld)
 @
 \end{Answer}
 
@@ -408,7 +403,7 @@ Finish the statistical analysis and conclude about the null hypothesis.
 The observed statistic is $|385 - 271| = 114 > 36$. This value is higher
 than the threshold so we reject the null hypothesis (it is on the
 \emph{right} of the red line in the histogram). We conclude that the
-probability of ocurrence of $b^0, r^0$ is not 1/4 and the two alleles are
+probability of ocurrence of $b^0, r^0$ is not 1/4 so the two alleles are
 not inherited independently.
 \end{Answer}
 
@@ -424,12 +419,28 @@ the genotype $b^0, r^0$. For this, we can use the maximum likelihood
 method, whereby we screen hypotheses and pick the one where the observed
 events are the most probable.
 
+\begin{center}
+\includegraphics[width=71mm]{maximum_likelihood.pdf}
+\end{center}
+
+The likelihood is just the probability of the observations. The parameter
+is the quantity to estimate. The principle of maximum likelihood
+estimation is to pick the value of the parameter such that the likelihood
+reaches its maximum. This is the value for which the events that happened
+were the most plausible, or most likely to occur.
+
+This is a very deep idea. It says that given two scenarios, we should give
+preference to the one where reality involves fewer improbable events. This
+is a general principle of science, sometimes referred to as Occam's razor.
+
+Going back to the problem at hand, we start with a coarse approach where
+we test a select few values of interest and pick the best option among
+them.
 
 \begin{Exercise}[name=Question]
 \label{exnulld_pair}
 Produce 100,000 random values from the distribution $B(1084, 1/4)$. How
 many times does the value 385 appear in the output?
-\par\noindent\textcolor{BrickRed}{\textbf{Quercus:} use seed 123.}
 \end{Exercise}
 \begin{Answer}
 << >>=
@@ -443,18 +454,13 @@ sum(rbinom(n=100000, size=1084, prob=1/4) == 385)
 Repeat the procedure of Question~\ref{exnulld_pair} by setting
 \texttt{prob} to 0.30, 0.35, 0.40 and 0.45. Which is the value of
 \texttt{prob} such that 385 appears most frequently in the output?
-\par\noindent\textcolor{BrickRed}{\textbf{Quercus:} use seed 123 each
-time.}
 \end{Exercise}
 \begin{Answer}
 << >>=
 set.seed(123)
 sum(rbinom(n=100000, size=1084, prob=0.30) == 385)
-set.seed(123)
 sum(rbinom(n=100000, size=1084, prob=0.35) == 385)
-set.seed(123)
 sum(rbinom(n=100000, size=1084, prob=0.40) == 385)
-set.seed(123)
 sum(rbinom(n=100000, size=1084, prob=0.45) == 385)
 # The highest is reached for prob = 0.35.
 @
@@ -463,17 +469,19 @@ sum(rbinom(n=100000, size=1084, prob=0.45) == 385)
 
 We should favor the distribution $B(1084, p)$ where the observed value
 (\textit{i.e.}, 385) is as common as possible. Other distributions should
-be ignored because the observations would be very unlikely to occur. This
-makes sense at an intuitive level, but we have screened only a few values
-of $p$. How could we be more thorough?
+be ignored because the observations were less likely to occur.
 
 
-\begin{Exercise}[name=Question]
+\section{Bonus points: the likelihood curve}
+
 The function \texttt{dbinom(...)} gives the probability of observing a
 result under a given binomial distribution. It is the numeric application
-of equation~(\ref{formula}) (\textit{i.e.}, it is a deterministic function
-without random component). Using the documentation if necessary, compute
-the probability of observing 385 with the distribution $B(1084, 0.35)$
+of equation~(\ref{formula}), \textit{i.e.}, unlike \texttt{rbinom(...)} it
+is a deterministic function.
+
+\begin{Exercise}[name=Question]
+Using the documentation if necessary, compute the probability that the
+distribution $B(1084, 0.35)$ produces the observation 385.
 \end{Exercise}
 \begin{Answer}
 << >>=
@@ -482,149 +490,154 @@ dbinom(x=385, size=1084, prob=0.35)
 \end{Answer}
 
 
-We see that this approach gives almost the same result as the simulations.
-The simulations are inexact because of the random sampling, but for
-large samples, they approach the correct result. The function
-\texttt{dbinom(...)} allows us to compute the probability of interest on a
-large set of models.
+This approach gives almost the same result as simulations with 100,000
+replications. The simulations are inexact because of the random sampling,
+but for large samples, they approach the correct result.
 
 
-\begin{Exercise}[name=Question]
-The function \texttt{seq(...)} creates a regular sequence of values.
-Using the documentation if necessary, create a sequence with values
-$0.300, 0.305, 0.3100, \ldots  0.40$. Assign the result to a vector called
-\texttt{p}. What is the length of \texttt{p}?
-\end{Exercise}
-\begin{Answer}
+The function \texttt{seq(...)} creates a regular sequence of values. Let
+us create a vector with values $0.300, 0.305, 0.3100, \ldots  0.40$ and
+call it \texttt{p} as in $B(n,p)$.
+
 << >>=
 p <- seq(from=0.3, to=.4, by=.005)
-length(p)
 @
-\end{Answer}
+
+We are now ready to test multiple values of the parameter $p$ of the
+binomial distribution and see for which value we are most likely to
+observe 385 genotypes $b^0,r^0$.
 
 
 \begin{Exercise}[name=Question]
 Use the functions \texttt{dbinom(...)} and \texttt{seq(...)} as above to
 return the probability of obtaining 385 when $p = 0.300, 0.305, \ldots
-0.40$. Assign the results to a variable called \texttt{likelihood}. What
-is the maximum value of the vector \texttt{likelihood}?
+0.40$. Assign the results to a variable called \texttt{likelihood}. Plot
+the likelihood with the command \texttt{plot(p, likelihood, type="l",
+panel.first=grid())}. For which value of \texttt{p} does the curve reach
+its heighest point?
 \end{Exercise}
 \begin{Answer}
-<< >>=
-likelihood <- dbinom(x=385, size=1084, prob=p)
-max(likelihood)
-@
-\end{Answer}
-
-
-The highest value of the likelihood is of little relevance. What matters
-is the value of $p$ for which the maximum is reached. It is interesting to
-get the answer graphically. The R programming language makes it easy to
-create figures from which further insight can be gained. Run the following
-command to plot the likelihood against the value of $p$ in the
-distribution $B(1084, p)$.
-<< eval=FALSE, echo=TRUE >>=
-plot(x=p, y=likelihood, type="l")
-@
-
-
-\begin{Exercise}[name=Question]
-What is the maximum likelihood estimate of $p$?
-\par\noindent\textcolor{Blue}{\textbf{Note:} you can use the argument
-\texttt{panel.first=grid()} in \texttt{plot(...)} for more precision.}
-\end{Exercise}
-\begin{Answer}
-The maximum is reached for $p=0.355$.
 << fig=TRUE >>=
+likelihood <- dbinom(x=385, size=1084, prob=p)
 plot(p, likelihood, type="l", panel.first=grid())
+# Add a red vertical line at position p = .355
+abline(v=.355, col="red")
 @
 \end{Answer}
 
 
-\section{Bonus points: the Bayesian approach}
-
-Plotting the likelihood function brings us one step closer to being able
-to comment on the confidence in our estimate $p=0.355$. Indeed, we can see
-that the likelihood drops by a factor 10 or more for values outside the
-interval 0.325--0.385. This means that the values of $p$ outside this
-interval are at least 10 times less likely to produce the observed outcome
-385 males with genotype $b^0,r^0$ than $p=0.355$.
-
-But this is not the same as saying that values of $p$ outside the interval
-are 10 times less plausible than $p=0.355$. Actually, if you are a
-frequentist, this last statement does not mean anything at all because $p$
-is not a random variable. It is the unknown linkage between the alleles
-$b^0$ and $r^0$, which is a value fixed by nature.
-
-The most intuitive way to quantify the uncertainty about our estimate of
-$p$ is to use a Bayesian approach, with the caveat that the answer is
-influenced by our prior beliefs. We can say that we had no preconception
-and we believed that all the possible values between 0 and 1 were equally
-plausible (specifying a prior belief based on the conclusion of Gregor Mendel
-that the value is 1/4 turns out to be more difficult).
-
-Once again, it is useful to refer to the graphical representation of the
-approach.
-
-\begin{center}
-\includegraphics{the_prob_we_are_looking_for.pdf}
-\end{center}
-
-\begin{Exercise}[name=Question]
-If we ran 100,000 simulations for each value of $p$ in 0.300, 0.305,
-\ldots, 0.40, what is the total number of times we should observe 385 in
-the outcome on average (\textit{i.e.}, what is the expected number of
-occurrences of 385 in the 2,100,000 simulations)?
-\par\noindent\textcolor{Blue}{\textbf{Note:} you should not run the
-simulations, only compute the expected numbers.}
-\end{Exercise}
-\begin{Answer}
-<< >>=
-sum(100000 * dbinom(x=385, size=1084, prob=p))
-@
-\end{Answer}
-
-
-\begin{Exercise}[name=Question]
-In the same conditions, how many times would we expect to observe 385 when
-the value of $p$ is in the interval 0.325--0.385?
-\end{Exercise}
-\begin{Answer}
-<< >>=
-sum(100000 * dbinom(x=385, size=1084, prob=seq(from=.325, to=.385, by=.005)))
-@
-\end{Answer}
-
-
-\begin{Exercise}[name=Question]
-From the Bayesian point of view, what is the probability that $p$ is in
-the interval 0.325--0.385 given that we had no prior belief about $p$?
-\end{Exercise}
-\begin{Answer}
-<< >>=
-179.8136 / 184.2043
-@
-\end{Answer}
+%The highest value of the likelihood is of little relevance. What matters
+%is the value of $p$ for which the maximum is reached. It is interesting to
+%get the answer graphically. The R programming language makes it easy to
+%create figures from which further insight can be gained. Run the following
+%command to plot the likelihood against the value of $p$ in the
+%distribution $B(1084, p)$.
+%<< eval=FALSE, echo=TRUE >>=
+%plot(x=p, y=likelihood, type="l")
+%@
+%
+%
+%\begin{Exercise}[name=Question]
+%What is the maximum likelihood estimate of $p$?
+%\par\noindent\textcolor{Blue}{\textbf{Note:} you can use the argument
+%\texttt{panel.first=grid()} in \texttt{plot(...)} for more precision.}
+%\end{Exercise}
+%\begin{Answer}
+%The maximum is reached for $p=0.355$.
+%<< fig=TRUE >>=
+%plot(p, likelihood, type="l", panel.first=grid())
+%@
+%\end{Answer}
+%
+%
+%\section{Bonus points: the Bayesian approach}
+%
+%Plotting the likelihood function brings us one step closer to being able
+%to comment on the confidence in our estimate $p=0.355$. Indeed, we can see
+%that the likelihood drops by a factor 10 or more for values outside the
+%interval 0.325--0.385. This means that the values of $p$ outside this
+%interval are at least 10 times less likely to produce the observed outcome
+%385 males with genotype $b^0,r^0$ than $p=0.355$.
+%
+%But this is not the same as saying that values of $p$ outside the interval
+%are 10 times less plausible than $p=0.355$. Actually, if you are a
+%frequentist, this last statement does not mean anything at all because $p$
+%is not a random variable. It is the unknown linkage between the alleles
+%$b^0$ and $r^0$, which is a value fixed by nature.
+%
+%The most intuitive way to quantify the uncertainty about our estimate of
+%$p$ is to use a Bayesian approach, with the caveat that the answer is
+%influenced by our prior beliefs. We can say that we had no preconception
+%and we believed that all the possible values between 0 and 1 were equally
+%plausible (specifying a prior belief based on the conclusion of Gregor Mendel
+%that the value is 1/4 turns out to be more difficult).
+%
+%Once again, it is useful to refer to the graphical representation of the
+%approach.
+%
+%<< >>=
+%p <- seq(from=0.3, to=.4, by=.005)
+%@
+%
+%\begin{center}
+%\includegraphics{the_prob_we_are_looking_for.pdf}
+%\end{center}
+%
+%\begin{Exercise}[name=Question]
+%If we ran 100,000 simulations for each value of $p$ in 0.300, 0.305,
+%\ldots, 0.40, what is the total number of times we should observe 385 in
+%the outcome on average (\textit{i.e.}, what is the expected number of
+%occurrences of 385 in the 2,100,000 simulations)?
+%\par\noindent\textcolor{Blue}{\textbf{Note:} you should not run the
+%simulations, only compute the expected numbers.}
+%\end{Exercise}
+%\begin{Answer}
+%<< >>=
+%sum(100000 * dbinom(x=385, size=1084, prob=p))
+%@
+%\end{Answer}
+%
+%
+%\begin{Exercise}[name=Question]
+%In the same conditions, how many times would we expect to observe 385 when
+%the value of $p$ is in the interval 0.325--0.385?
+%\end{Exercise}
+%\begin{Answer}
+%<< >>=
+%sum(100000 * dbinom(x=385, size=1084, prob=seq(from=.325, to=.385, by=.005)))
+%@
+%\end{Answer}
+%
+%
+%\begin{Exercise}[name=Question]
+%From the Bayesian point of view, what is the probability that $p$ is in
+%the interval 0.325--0.385 given that we had no prior belief about $p$?
+%\end{Exercise}
+%\begin{Answer}
+%<< >>=
+%179.8136 / 184.2043
+%@
+%\end{Answer}
 
 
 \section{Conclusions}
 
-The strategy that we referred to as ``statistical analysis'' throughout is
-actually a formal statistical test. We introduced the notion of level of a
-test, which is reminiscent of the judicial system where one has to decide
-whether it worse to condemn an innocent or release a criminal. Likewise,
-the level controls the chance of making an error when the null hypothesis
-is true, but it does not say anything about the chance of making an error
-when the null hypothesis is false (which always increases when the level
-is decreased).
+We introduced the notion of level of a test. One can make a loose analogy
+with judicial systems where people are innocent until they are proven
+guilty: this ensures that every convict is a criminal (in theory), but it
+says nothing about how many criminals can walk free. Likewise, the level
+of a test gives the probability of making an error when the null
+hypothesis is true, but it does not say anything about the chance of
+making an error when the null hypothesis is false.
 
-Along those lines, it is important to understand that the level is not the
-probability that the null hypothesis is true given that it was rejected.
-It is the probability that the null hypothesis is rejected given that it
-is true. So if an analyst working at level 1\% rejects a null hypothesis,
-one does not know the probability that it was a mistake. In short, the
-level is only a way to control one type of error in statistical tests, but
-there are multiple ways to be wrong.
+Along those lines, it is important to understand that the level is the
+probability of rejecting the null hypothesis when it is true. It is
+\emph{not} the probability that the null hypothesis is true when we reject
+it. Those probabilities can be very different. So if an analyst working at
+level 1\% rejects a null hypothesis, one does not know the probability
+that it was a mistake. In short, the level is only a way to control one
+given type of error in statistical tests, but there are multiple ways to
+be wrong.
 
 We have introduced binomial variables as sums over binary events. They
 cover a large panel of phenomena in biology, Mendelian genetics being just
@@ -632,17 +645,23 @@ one of many. The R functions \texttt{rbinom(...)} and \texttt{dbinom(...)}
 allow us to sample binomial variables or to compute their probabilities,
 respectively.
 
-We have used the method of estimation by maximum likelihood. This was
-particularly relevant when we concluded that $p \neq 1/4$. Accepting the
-null hypothesis provides a target value for the parameter under study, but
-rejecting the null hypothesis does not, so it can be useful to give an
-estimate in this case.
+We have also introduced the method of estimation by maximum likelihood,
+This method is based on the idea that we should choose scenarios where
+reality appears as most plausible.
+
+You may wonder what the difference is between accepting the hypothesis $p
+= 0.25$, say, versus estimating $p = 0.25$. Without going into details,
+accepting $p = 0.25$ merely says that it is possible that $p$ is $0.25$.
+It does not exclude every other value. Estimating $p = 0.25$ says that
+$0.25$ is the ``best'' value according to some criterion. For instance, we
+could estimate $p = 0.28$ and accept $p = 0.25$, meaning that $0.28$ is
+our best guess, but $0.25$ is not excluded.
 
 Finally, we started to explore the graphical capabilities of R. Using the
 functions \texttt{hist(...)} and \texttt{plot(...)} we were able to
 represent whole distributions and curves of interest, respectively. The
-graphical toolbox of R is very developed, and those are only some examples
-of the possibilities at our disposal.
+graphical toolbox of R is very rich, and those are only some examples of
+the possibilities at our disposal.
 
 
 \bibliography{references}
