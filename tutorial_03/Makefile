@@ -11,10 +11,10 @@ doc: $(DOC:.Snw=.pdf)
 	R CMD SWEAVE $<
 
 %.pdf: %.tex
-	pdflatex $<
-	@egrep -q $(RERUNBIB) $*.log && bibtex $* && pdflatex $<; true
-	@egrep -q $(RERUN) $*.log && pdflatex $<; true
-	@egrep -q $(RERUN) $*.log && pdflatex $<; true
+        TEXINPUTS=".;../sty;$$TEXINPUTS" pdflatex $<
+        @egrep -q $(RERUNBIB) $*.log && bibtex $* && TEXINPUTS=".;../sty;$$TEXINPUTS" pdflatex $<; true
+        @egrep -q $(RERUN) $*.log && TEXINPUTS=".;../sty;$$TEXINPUTS" pdflatex $<; true
+        @egrep -q $(RERUN) $*.log && TEXINPUTS=".;../sty;$$TEXINPUTS" pdflatex $<; true
 
 latexmk: $(DOC:.Snw=.tex)
 	-latexmk -pvc -pdf $<

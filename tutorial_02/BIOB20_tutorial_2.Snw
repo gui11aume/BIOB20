@@ -435,7 +435,19 @@ is a general principle of science, sometimes referred to as Occam's razor.
 
 Going back to the problem at hand, we start with a coarse approach where
 we test a select few values of interest and pick the best option among
-them.
+them. But first, we need to introduce a useful way of counting values in
+vectors.
+
+The operator \texttt{==} (two equals signs in a row) is used for testing
+(it should not be confused with a single equals sign, that is used for
+assignment). It is convenient to combine the \texttt{==} operator with the
+function \texttt{sum(...)} to count how many occurrences of a certain
+value are in a given vector. Below is an example.
+
+<< >>=
+x <- c(0, 1, 1, 1, 0 ,0, 1)
+sum(x == 1)
+@
 
 \begin{Exercise}[name=Question]
 \label{exnulld_pair}
