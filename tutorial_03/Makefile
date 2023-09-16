@@ -8,13 +8,13 @@ all: doc
 doc: $(DOC:.Snw=.pdf)
 
 %.tex: %.Snw
-	R CMD SWEAVE $<
+	R CMD Sweave $<
 
 %.pdf: %.tex
-        TEXINPUTS=".;../sty;$$TEXINPUTS" pdflatex $<
-        @egrep -q $(RERUNBIB) $*.log && bibtex $* && TEXINPUTS=".;../sty;$$TEXINPUTS" pdflatex $<; true
-        @egrep -q $(RERUN) $*.log && TEXINPUTS=".;../sty;$$TEXINPUTS" pdflatex $<; true
-        @egrep -q $(RERUN) $*.log && TEXINPUTS=".;../sty;$$TEXINPUTS" pdflatex $<; true
+	TEXINPUTS=".;../sty;$$TEXINPUTS" pdflatex $<
+	@egrep -q $(RERUNBIB) $*.log && bibtex $* && TEXINPUTS=".;../sty;$$TEXINPUTS" pdflatex $<; true
+	@egrep -q $(RERUN) $*.log && TEXINPUTS=".;../sty;$$TEXINPUTS" pdflatex $<; true
+	@egrep -q $(RERUN) $*.log && TEXINPUTS=".;../sty;$$TEXINPUTS" pdflatex $<; true
 
 latexmk: $(DOC:.Snw=.tex)
 	-latexmk -pvc -pdf $<

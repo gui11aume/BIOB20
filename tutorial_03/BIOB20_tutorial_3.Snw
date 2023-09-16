@@ -83,7 +83,7 @@ purposes).
 \begin{Exercise}[name=Question]
 Load the data set in your R session with the command below.
 << >>=
-url <- "https://raw.githubusercontent.com/gui11aume/BIOB20/main/chapter_3/prot.txt"
+url <- "https://raw.githubusercontent.com/gui11aume/BIOB20/main/tutorial_03/prot.txt"
 prot <- read.delim(url)
 @
 How many rows are in the data frame \texttt{prot}?

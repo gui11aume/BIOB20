@@ -20,7 +20,7 @@
 \ExerciseHeaderOrigin}\par}
 
 \renewcommand{\AnswerHeader}{\par\noindent\textbf{
-Answer of \ExerciseName\ \ExerciseHeaderNB}\par}
+Answer to Question \ExerciseHeaderNB}\par}
 
 \setlength{\ExerciseSkipAfter}{3mm}
 
