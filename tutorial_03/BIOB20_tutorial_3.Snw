@@ -118,12 +118,10 @@ understand the major trends. This is typically a good first approach.
 \begin{Exercise}[name=Question]
 Plot the column \texttt{diff} against the column \texttt{time} for the
 whole dataset. Label the x-axis as ``Time (Myr)'' and the y-axis as
-``Differences''. Add a grid to the plot. What is the highest graduation
-appearing on the y-axis?
+``Differences''. Add a grid to the plot.
 \end{Exercise}
 \begin{Answer}
-<< >>=
-# The highest graduation is 500.
+<< fig=TRUE >>=
 plot(x=prot$time, y=prot$diff, xlab="Time (Myr)",
   ylab="Differences", panel.first=grid())
 @
@@ -138,12 +136,10 @@ picture.
 \label{cytcfig}
 Plot the column \texttt{diff} against the column \texttt{time} for the
 family \texttt{cytc}. Label the x-axis as ``Time (Myr)'' and the y-axis as
-``Differences''. Add a grid to the plot. What is the highest graduation
-appearing on the y-axis?
+``Differences''. Add a grid to the plot.
 \end{Exercise}
 \begin{Answer}
-<< >>=
-# The highest graduation is 50.
+<< fig=TRUE >>=
 plot(x=prot$time[1:10], y=prot$diff[1:10], xlab="Time (Myr)",
   ylab="Differences", panel.first=grid())
 @
@@ -156,27 +152,13 @@ display each family with a different color.
 \begin{Exercise}[name=Question]
 \label{pch16}
 The option \texttt{pch} of the function \texttt{plot(...)} changes the
-symbol used in the scatter plot. Draw the scatter plot of
-Question~\ref{cytcfig} again, this time with \texttt{pch=1}. Keep drawing
-it again, each time with a different number. What is the smallest number
-that produces closed circles?
+symbol used in the scatter plot and the option \texttt{col} changes the
+color of the symbols. Both of them can be encoded as numbers like
+\texttt{0}, \texttt{1}, \texttt{2}... Draw the scatter plot of
+Question~\ref{cytcfig} again, this time with gray closed circles.
 \end{Exercise}
 \begin{Answer}
-<< >>=
-plot(x=prot$time[1:10], y=prot$diff[1:10], xlab="Time (Myr)",
-  ylab="Differences", panel.first=grid(), pch=16)
-@
-\end{Answer}
-
-
-\begin{Exercise}[name=Question]
-The option \texttt{col} of the function \texttt{plot(...)} changes the
-color of the symbols. Draw the scatter plot of Question~\ref{pch16} again,
-this time with \texttt{col=1}. Keep drawing it again, each time with a
-different number. What is the smallest number that produces gray symbols?
-\end{Exercise}
-\begin{Answer}
-<< >>=
+<< fig=TRUE >>=
 plot(x=prot$time[1:10], y=prot$diff[1:10], xlab="Time (Myr)",
   ylab="Differences", panel.first=grid(), pch=16, col=8)
 @
@@ -203,17 +185,18 @@ Do all the points of the dataset appear on the graph?
 \end{Exercise}
 \begin{Answer}
 Some points are missing because the y-axis is limited to 50.
-<< >>=
+<< fig=TRUE >>=
+plot(x=prot$time[1:10], y=prot$diff[1:10], xlab="Time (Myr)",
+  ylab="Differences", panel.first=grid(), pch=16, col=8)
 points(x=prot$time[11:16], y=prot$diff[11:16], pch=16, col=2)
 points(x=prot$time[17:22], y=prot$diff[17:22], pch=16, col=4)
 @
 \end{Answer}
 
 
-The argument \texttt{ylim} of the function \texttt{plot(...)} allows the
-user to specify a range to adjust the y-axis. Since the largest value of
-the column \texttt{diff} is 573, we can use 600 as a boundaries for the
-y-axis.
+The argument \texttt{ylim} of the function \texttt{plot(...)} allows us to
+specify a range for the y-axis. Since the largest value of the column
+\texttt{diff} is 573, we can use 600 as a boundary for the y-axis.
 
 \begin{Exercise}[name=Question]
 Draw the plot of Question~\ref{plot3}, but this time use the argument
@@ -221,8 +204,7 @@ Draw the plot of Question~\ref{plot3}, but this time use the argument
 graduation appearing on the y-axis?
 \end{Exercise}
 \begin{Answer}
-<< >>=
-# The highest graduation is 600.
+<< fig=TRUE >>=
 plot(x=prot$time[1:10], y=prot$diff[1:10], xlab="Time (Myr)",
   ylab="Differences", panel.first=grid(), pch=16, col=8, ylim=c(0,600))
 points(x=prot$time[11:16], y=prot$diff[11:16], pch=16, col=2)
@@ -243,7 +225,7 @@ instance, a command for the current plot would start like
 \begin{Exercise}[name=Question]
 \label{plotfull}
 Use the documentation to see how to place the legend in the top right
-corner. What argument do you have to use?
+corner.
 \end{Exercise}
 \begin{Answer}
 << fig=TRUE >>=
@@ -270,19 +252,14 @@ is it exactly? To answer this question, we will estimate $\theta$, defined
 as the number of differences per million year of evolution of the
 cytochrome c.
 
-\begin{Exercise}[name=Question]
-\label{rough}
-Based on the graphs we produced previously, what would be a good
-ballpark estimate for $\theta$? Call this value $\theta_0$ and store it
-into a variable called \texttt{theta0}.
-\end{Exercise}
-\begin{Answer}
-There are approximately 50 differences in approximately 1500 million years
-of evolution so $\theta_0 \approx 50 / 1500 \approx 0.033$.
+Based on the graphs we produced previously, there are approximately 50
+differences in approximately 1500 million years. This is a good ballpark
+estimate for $\theta$. We call this value $\theta_0$ and store it into a
+variable called \texttt{theta0}.
+
 << >>=
 theta0 <- 50 / 1500
 @
-\end{Answer}
 
 
 We will now search for an optimal estimate around $\theta_0$ using the
@@ -315,7 +292,7 @@ The function \texttt{dpois(...)} returns the probability of an event
 following the Poisson distribution. It is a numeric application of
 equation~(\ref{formula}). Use it to compute the probability that a
 cytochrome c protein remains identical for 1 Myr when the parameter
-$\lambda$ is equal to $\theta_0$, the estimate of Question~\ref{rough}.
+$\lambda$ is equal to $\theta_0$.
 \end{Exercise}
 \begin{Answer}
 << >>=
@@ -329,9 +306,11 @@ According to our definition, $\theta$ is the base rate of change, so over
 $3\theta$ \textit{etc}.
 
 \begin{Exercise}[name=Question]
-If $\theta$ were equal to $\theta_0$, what would be the expected number of
-differences for the 10 data points of cytochrome c? Compute the
-probability of each observation.
+Assume for now that $\theta$ is equal to $\theta_0$. Compute the
+parameters $\lambda$ for the 10 data points of cytochrome c
+(\textit{i.e.}, the expected number of differences for each of the 10 data
+points). What would be the 10 probabilities of the observations if
+$\theta$ were equal to $\theta_0$?
 \par\noindent\textcolor{Blue}{\textbf{Hint:} the arguments \texttt{lambda}
 and \texttt{x} of the function \texttt{dpois(...)} can be vectors.}
 \par\noindent\textcolor{BrickRed}{\textbf{Quercus:} input the number of
@@ -354,7 +333,8 @@ occurrence.
 
 \begin{Exercise}[name=Question]
 Use the function \texttt{prod(...)} to find the probability of observing
-the whole cytochrome dataset if $\theta$ were equal to $\theta_0$.
+the whole cytochrome dataset (\textit{i.e.}, the probability of the 10
+data points) if $\theta$ were equal to $\theta_0$.
 \par\noindent\textcolor{BrickRed}{\textbf{Quercus:} is the value larger
 than $10^{-16}$?}
 \end{Exercise}
@@ -372,8 +352,9 @@ observation only \emph{decreases} the collective probability because
 probabilities are lower than 1. The larger the dataset, the lower the
 probability of the observations. But this is not a problem since we only
 search the value of $\theta$ that makes this probability as large as
-possible. We do not care about the value of the maximum; we care only
-about the value of $\theta$ for which the maximum is reached.
+possible (\textit{i.e.}, in relative terms). We do not care about the
+value of the maximum; we care only about the value of $\theta$ for which
+the maximum is reached.
 
 \begin{definition}[likelihood]
 The likelihood of a parameter at value $\theta$ is the probability of the
@@ -424,6 +405,9 @@ sum(dpois(lambda=prot$time[1:10]*(theta0 - 0.001),
 sum(dpois(lambda=prot$time[1:10]*(theta0 + 0.001),
   x=prot$diff[1:10], log=TRUE))
 @
+The log-likelihood of $\theta_0 + 0.001$ is higher than that of $\theta_0$
+(note that the numbers are negative) so the maximum likelihood must be
+\emph{larger} than $\theta_0$.
 \end{Answer}
 
 
@@ -436,12 +420,13 @@ To keep it relatively simple, we will use matrices. Wherever R expects a
 vector, it is possible to pass a matrix. The difference between a matrix
 and a data frame is that the rows of a matrix are vectors, but the rows of
 a data frame are not (because they can be data of different types, like
-text and numbers). The sketch below shows the logic of using matrices: we
-can compute the sums over the columns to get the log-likelihood of the
-whole sample.
+text and numbers).
+
+The sketch below shows the logic of using matrices: we can compute the
+sums over the columns to get the log-likelihood of the whole sample.
 
 \begin{center}
-\includegraphics[width=65mm]{matrix.pdf}
+\includegraphics[width=61mm]{matrix.pdf}
 \end{center}
 
 Replacing \texttt{x} by a matrix in \texttt{dpois(...)} is easy, we just
@@ -510,6 +495,7 @@ theta.grid[which.max(loglik)]
 @
 \end{Answer}
 
+\section{Bonus points: Other proteins}
 
 \begin{Exercise}[name=Question]
 \label{ll2}
@@ -561,11 +547,13 @@ Reproduce the plot of Question~\ref{plotfull}. Use the function
 \texttt{abline(...)} with \texttt{a=0} to add a straight line for the
 evolutionary rate of each data set. In each call to \texttt{abline(...)}
 set the parameter \texttt{b} to one of the maximum likelihood estimates of
-$\theta$. For which dataset does the straight line fit best?
+$\theta$.
 \end{Exercise}
 \begin{Answer}
 The best fit is for the cytochrome c data set. The molecular clock
-hypothesis is realistic in this case.
+hypothesis is most realistic in this case. The molecular clock is a good
+first model but it is important to remember that it is not accurate for
+every protein family.
 << fig=TRUE >>=
 plot(x=prot$time[1:10], y=prot$diff[1:10], xlab="Time (Myr)",
   ylab="Differences", panel.first=grid(), pch=16, col=8, ylim=c(0,600))
@@ -580,68 +568,71 @@ legend(legend=c("cytc", "glob", "fibr"), pch=16, col=c(8,2,4),
 @
 \end{Answer}
 
+Notice the differences between the datasets: for which does the straight
+line fit best? What are the implications for the molecular clock
+hypothesis?
 
-\section{Bonus points: Fisher information}
-
-The summit of the log-likelihood curve gives the optimal value of the
-parameter, also known as the maximum likelihood estimate. The shape of the
-curve around the summit indicates the uncertainty about the estimate. If
-the curve is very flat, then there are many values with a high likelihood
-and none of them stands out as the clear winner. On the contrary, if the
-peak is sharp, then the value at the summit stands above the others and
-one can be certain that the true value of the parameter is not far off.
-
-\begin{Exercise}[name=Question]
-\label{itvl}
-Consider the log-likelihood curve of Questions~\ref{ll1}. By eye, estimate
-the length of the interval of all the values with a log-likelihood at most
-10 units below the maximum. Do the same for the log-likelihood curves of
-Questions~\ref{ll2} and \ref{ll3}. For which dataset is the interval the
-smallest?
-\end{Exercise}
-\begin{Answer}
-For the dataset \texttt{cytc}, the interval goes approximately from 0.030
-to 0.065 (length 0.035). For the dataset \texttt{glob}, the interval goes
-approximatelyfrom 0.24 to 0.38 (length 0.14). For the dataset
-\texttt{fibr}, the interval goes approximately from 7 to 8 (length 1).
-\end{Answer}
-
-
-This example illustrates that the uncertainty about parameters can differ,
-even though the log-likelihood curves always have the same general aspect.
-Ronald Fisher defined the information about a parameter as the curvature
-of the log-likelihood around the maximum, or more accurately as the
-negative of the second derivative (the first derivative of the
-log-likelihood at the top is always null and the second derivative is
-always negative, so the Fisher information is always positive).
-
-Every new data point makes the likelihood smaller because probabilities
-are lower than 1, but it also makes the peak narrower on average (we are
-not going to show this), so it adds to the information about the
-parameter.
-
-\begin{center}
-\includegraphics[width=71mm]{sample_size.pdf}
-\end{center}
-
-\begin{Exercise}[name=Question]
-For which of the dataset do we have the most information about the
-evolutionary rate?
-\end{Exercise}
-\begin{Answer}
-We have more information for the dataset \texttt{cytc}. The interval
-computed at Question~\ref{intvl} is smaller because the peak is sharper so
-the second derivative is larger (in absolute value).
-\end{Answer}
-
-
-It is not a coincidence that the dataset for which we have the most
-information about the parameter is also the dataset for which the fit with
-the model is the best. When a model fits the data poorly, the
-log-likelihood curve is broad because the model carries a lot of
-uncertainty about the parameters. In conclusion, the shape of the
-log-likelihood curve allows us to express our confidence in the model and
-in the estimates.
+%\section{Bonus points: Fisher information}
+%
+%The summit of the log-likelihood curve gives the optimal value of the
+%parameter, also known as the maximum likelihood estimate. The shape of the
+%curve around the summit indicates the uncertainty about the estimate. If
+%the curve is very flat, then there are many values with a high likelihood
+%and none of them stands out as the clear winner. On the contrary, if the
+%peak is sharp, then the value at the summit stands above the others and
+%one can be certain that the true value of the parameter is not far off.
+%
+%\begin{Exercise}[name=Question]
+%\label{itvl}
+%Consider the log-likelihood curve of Questions~\ref{ll1}. By eye, estimate
+%the length of the interval of all the values with a log-likelihood at most
+%10 units below the maximum. Do the same for the log-likelihood curves of
+%Questions~\ref{ll2} and \ref{ll3}. For which dataset is the interval the
+%smallest?
+%\end{Exercise}
+%\begin{Answer}
+%For the dataset \texttt{cytc}, the interval goes approximately from 0.030
+%to 0.065 (length 0.035). For the dataset \texttt{glob}, the interval goes
+%approximatelyfrom 0.24 to 0.38 (length 0.14). For the dataset
+%\texttt{fibr}, the interval goes approximately from 7 to 8 (length 1).
+%\end{Answer}
+%
+%
+%This example illustrates that the uncertainty about parameters can differ,
+%even though the log-likelihood curves always have the same general aspect.
+%Ronald Fisher defined the information about a parameter as the curvature
+%of the log-likelihood around the maximum, or more accurately as the
+%negative of the second derivative (the first derivative of the
+%log-likelihood at the top is always null and the second derivative is
+%always negative, so the Fisher information is always positive).
+%
+%Every new data point makes the likelihood smaller because probabilities
+%are lower than 1, but it also makes the peak narrower on average (we are
+%not going to show this), so it adds to the information about the
+%parameter.
+%
+%\begin{center}
+%\includegraphics[width=71mm]{sample_size.pdf}
+%\end{center}
+%
+%\begin{Exercise}[name=Question]
+%For which of the dataset do we have the most information about the
+%evolutionary rate?
+%\end{Exercise}
+%\begin{Answer}
+%We have more information for the dataset \texttt{cytc}. The interval
+%computed at Question~\ref{intvl} is smaller because the peak is sharper so
+%the second derivative is larger (in absolute value).
+%\end{Answer}
+%
+%
+%It is not a coincidence that the dataset for which we have the most
+%information about the parameter is also the dataset for which the fit with
+%the model is the best. When a model fits the data poorly, the
+%log-likelihood curve is broad because the model carries a lot of
+%uncertainty about the parameters. In conclusion, the shape of the
+%log-likelihood curve allows us to express our confidence in the model and
+%in the estimates.
 
 
 \section{Conclusions}
