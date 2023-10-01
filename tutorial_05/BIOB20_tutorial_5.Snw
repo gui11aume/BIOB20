@@ -89,7 +89,7 @@ malonate~\cite{hinkle1991mechanistic}. The P/O ratio without malonate was
 previously measured at 1.48.
 
 << >>=
-url <- "https://raw.githubusercontent.com/gui11aume/BIOB20/main/chapter_5/PO.txt"
+url <- "https://raw.githubusercontent.com/gui11aume/BIOB20/main/tutorial_05/PO.txt"
 PO <- scan(url)
 @
 
@@ -228,16 +228,11 @@ close to 1.48). This practice is even the source of the term ``null''
 hypothesis because it has the form ``something is equal to zero'', as in
 $\mu - 1.48 = 0$.
 
-\begin{Exercise}[name=Question]
 It is easy to compute the value of the mean of the sample from which we
-subtract 1.48. But why is it not possible to derive the distribution of
-this statistic?
-\end{Exercise}
-\begin{Answer}
-To generate random samples we would need to use the function
-\texttt{rnorm(...)} without a known value of $\sigma$, like
+subtract 1.48, but it is not possible to derive the distribution of
+this statistic. Indeed, to generate random samples we would need to use
+the function \texttt{rnorm(...)} without a known value of $\sigma$, like
 \texttt{rnorm(n=100000, mu=1.48, sigma=??) - 1.48}
-\end{Answer}
 
 
 \section{The nuisance parameter}

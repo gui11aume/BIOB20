@@ -74,7 +74,7 @@ can be used to read in data that consists of a single entry per line. Load
 the data set for the wild type flies in your R session with the command
 below.
 << >>=
-url <- "https://raw.githubusercontent.com/gui11aume/BIOB20/main/chapter_4/KB71_wt.txt"
+url <- "https://raw.githubusercontent.com/gui11aume/BIOB20/main/tutorial_04/KB71_wt.txt"
 KBwt <- scan(url)
 @
 
@@ -132,8 +132,7 @@ package will be available.
 \label{excirc}
 The code below activates the packages \texttt{circular} and plots the
 hatching data in a circular way. Each dot represents a fly that hatched.
-Run the code in your R session. How many flies hatched in the interval
-2:00 to 3:00?
+Run the code in your R session.
 << eval=FALSE, echo=TRUE >>=
 library(circular)
 plot(circular(KBwt, template="clock24", units="hours"), stack=TRUE)
@@ -143,7 +142,6 @@ plot(circular(KBwt, template="clock24", units="hours"), stack=TRUE)
 << fig=TRUE >>=
 library(circular)
 plot(circular(KBwt, template="clock24", units="hours"), stack=TRUE)
-# There are two data points in the interval 2:00 to 3:00.
 @
 \end{Answer}
 
@@ -179,37 +177,12 @@ numbers between 0 and 1. Numbers are drawn from the uniform distribution,
 meaning that every value between 0 and 1 is equally likely. We can check
 empirically formula~(\ref{formula}) using \texttt{runif(...)}.
 
-\begin{Exercise}[name=Question]
 Choose a number \texttt{x} between 0 and 1. Check that the command below
 has a result close to \texttt{x}.
+
 << eval=FALSE, echo=TRUE >>=
 mean(runif(n=100000) <= x)
 @
-\par\noindent\textcolor{BrickRed}{\textbf{Quercus:} set \texttt{x} to 0.5
-and use seed 123.}
-\end{Exercise}
-\begin{Answer}
-<< >>=
-set.seed(123)
-mean(runif(n=100000) <= 0.5)
-@
-\end{Answer}
-
-
-The uniform distribution is not restricted to numbers from 0 to 1. One can
-produce uniform random numbers between any two values.
-
-\begin{Exercise}[name=Question]
-Using the documentation if necessary, generate a uniform random number
-between 0 and 24.
-\par\noindent\textcolor{BrickRed}{\textbf{Quercus:} use seed 123.}
-\end{Exercise}
-\begin{Answer}
-<< >>=
-set.seed(123)
-sum(runif(n=1, max=24))
-@
-\end{Answer}
 
 
 We can now see how a typical uniform random sample would look like in the
@@ -220,16 +193,13 @@ representation of Question~\ref{excirc}.
 Produce a uniform random sample between 0 and 24 with the same size as
 the data set \texttt{KBwt}. Call this random sample \texttt{KBrnd}. Using
 the same command as in Question~\ref{excirc}, plot this sample in circular
-format. How many stacks of 5 points appear on the plot?
-\par\noindent\textcolor{BrickRed}{\textbf{Quercus:} use seed 123.}
+format.
 \end{Exercise}
 \begin{Answer}
 << fig=TRUE >>=
 set.seed(123)
 KBrnd <- runif(n=length(KBwt), max=24)
 plot(circular(KBrnd, template="clock24", units="hours"), stack=TRUE)
-# There are two stacks of 5 points: one in the interval 6:00 to 7:00
-# and the other one in the interval 9:00 to 10:00.
 @
 \end{Answer}
 
@@ -303,19 +273,15 @@ The first ingredient to compute our score is the function
 \texttt{sort(...)} and the second one is the function \texttt{diff(...)}
 to compute the distance between consecutive points.
 
-\begin{Exercise}[name=Question]
-Generate 5 numbers between 0 and 1 and sort them using the function
-\texttt{sort(...)}. Compute the distances between consecutive points using
-the function \texttt{diff(...)}. What is the smallest distance?
-\par\noindent\textcolor{BrickRed}{\textbf{Quercus:} use seed 123.}
-\end{Exercise}
-\begin{Answer}
-The minimum is 0.05745.
+To give an example, we generate 5 numbers between 0 and 1 and sort them
+using the function \texttt{sort(...)}. We then compute the distances
+between consecutive points using the function \texttt{diff(...)}. In this
+case, the minimum distance is 0.05745.
+
 << >>=
 set.seed(123)
 diff(sort(runif(n=5)))
 @
-\end{Answer}
 
 
 Note that the function \texttt{diff(...)} has one element fewer than its
@@ -361,33 +327,16 @@ with the null hypothesis.
 
 
 \begin{Exercise}[name=Question]
-Produce a uniform random sample between 0 and 24 with the same size as the
-data set \texttt{KBwt}. Compute the statistic of the previous section on
-this random sample.
-\par\noindent\textcolor{BrickRed}{\textbf{Quercus:} use seed 123.}
-\end{Exercise}
-\begin{Answer}
-<< >>=
-set.seed(123)
-sum(diff(sort(runif(n=length(KBwt), max=24)))^2)
-@
-\end{Answer}
-
-
-\begin{Exercise}[name=Question]
 \label{exnulld}
-Using the function \texttt{replicate(...)}, produce 100,000 random values
+Using the function \texttt{replicate(...)}, produce 1,000 random values
 of the statistic under the null hypothesis. Store them in a variable
 called \texttt{nulld} for ``null distribution''. Plot the histogram of the
-null distribution with default parameters. What is the range of values
-with highest frequency?
-\par\noindent\textcolor{BrickRed}{\textbf{Quercus:} use seed 123.}
+null distribution with default parameters.
 \end{Exercise}
 \begin{Answer}
 << fig=TRUE >>=
 set.seed(123)
-nulld <- replicate(n=100000, sum(diff(sort(runif(n=length(KBwt), max=24)))^2))
-# Values in the range 1.85-1.90 have highest frequency.
+nulld <- replicate(n=1000, sum(diff(sort(runif(n=length(KBwt), max=24)))^2))
 hist(nulld)
 @
 \end{Answer}
@@ -403,6 +352,7 @@ true.
 Find the decision threshold at level 1\%.
 \end{Exercise}
 \begin{Answer}
+% 0.1%-99.9 quantiles from 1,000 replications: 2.070796--2.138858
 << >>=
 quantile(nulld, 0.99)
 @
@@ -451,13 +401,13 @@ or larger than the observed value of the statistic.
 
 
 \begin{Exercise}[name=Question]
-Estimate the p-value of the test. Give an upper bound.
+Estimate the p-value of the test.
 \end{Exercise}
 \begin{Answer}
 << >>=
 mean(nulld >= 4.346533)
 @
-Out of 100,000 trials, the null distribution has never produced a value
+Out of 1,000 trials, the null distribution has never produced a value
 greater than or equal to 4.346533. We conclude that the probability of
 producing such a large value must be lower than 1/1000.
 \end{Answer}
@@ -493,7 +443,7 @@ capacity to keep track of time~\cite{konopka1971clock}. They recorded the
 same type of data on the mutant, which you can load into your R session
 with the command below.
 << >>=
-url <- "https://raw.githubusercontent.com/gui11aume/BIOB20/main/chapter_4/KB71_mut.txt"
+url <- "https://raw.githubusercontent.com/gui11aume/BIOB20/main/tutorial_04/KB71_mut.txt"
 KBmut <- scan(url)
 @
 
@@ -512,14 +462,11 @@ length(KBmut)
 
 \begin{Exercise}[name=Question]
 Make a circular plot of the data using the command of
-Question~\ref{excirc} as a template. How many points are in the tallest
-stack in the interval from 3:00 to 4:00?
+Question~\ref{excirc} as a template.
 \end{Exercise}
 \begin{Answer}
 << fig=TRUE >>=
 plot(circular(KBmut, template="clock24", units="hours"), stack=TRUE)
-# There are 5 points inthe tallest stack in the
-# interval from 3:00 to 4:00.
 @
 \end{Answer}
 
@@ -530,10 +477,10 @@ is larger than for the previous data set.
 
 \begin{Exercise}[name=Question]
 Recompute the null distribution of Question~\ref{exnulld} for the data set
-\texttt{KBmut}. Compute the mean of this new null distribution.
-\par\noindent\textcolor{BrickRed}{\textbf{Quercus:} use seed 123.}
+\texttt{KBmut}. What is the mean of this new null distribution?
 \end{Exercise}
 \begin{Answer}
+% 0.1%-99.9 quantiles from 1,000 replications: 0.903293--0.9082478
 << >>=
 set.seed(123)
 nulld <- replicate(n=1000, sum(diff(sort(runif(n=length(KBmut), max=24)))^2))
@@ -543,43 +490,31 @@ mean(nulld)
 
 
 \begin{Exercise}[name=Question]
-Compute the value of the statistic for this mutant. What is your
-conclusion?
+Compute the value of the observed statistic for this mutant and use it to
+estimate the p-value.
 \end{Exercise}
 \begin{Answer}
+% 0.1%-99.9 quantiles from 1,000 replications: 0.167--0.239
 << >>=
-sum(diff(sort(KBmut %% 24))^2)
-@
-\end{Answer}
-
-
-\begin{Exercise}[name=Question]
-Estimate the p-value that is associated with your previous conclusion.
-\end{Exercise}
-\begin{Answer}
-<< >>=
-mean(nulld >= 0.9263827)
+obs <- print(sum(diff(sort(KBmut %% 24))^2))
+mean(nulld >= obs)
 @
 Approximately 21.7\% of the values sampled in the null distribution are
 greater than or equal to the observed statistic.
 \end{Answer}
 
-
 \begin{Exercise}[name=Question]
 Plot the histogram of the null distribution with default parameters. Add a
 vertical red line for the threshold at level 1\%. Add a vertical blue line
-at the value of the observed statistic. Are the red line and the blue line
-within the same bar of the histogram?
+at the value of the observed statistic.
 \end{Exercise}
 \begin{Answer}
 << fig=TRUE >>=
 hist(nulld)
-# The blue line and the red line are in different bars.
 abline(v=quantile(nulld, 0.99), col="red")
 abline(v=sum(diff(sort(KBmut %% 24))^2), col="blue")
 @
 \end{Answer}
-
 
 The p-value is small when the null hypothesis is rejected and the p-value
 is large when the null hypothesis is accepted. Intuitievly, if the null
@@ -591,7 +526,8 @@ will be among the typical values of the null distribution and the
 probability of obtaining greater values is high.
 
 These considerations explain why p-values are commonly used to quantify
-the confidence in accepting or rejecting the null hypothesis.
+the confidence in accepting or rejecting the null hypothesis. Based on
+those results, what is your conclusion regarding the mutant?
 
 
 \section{Bonus points: the exponential distribution}
@@ -599,10 +535,11 @@ the confidence in accepting or rejecting the null hypothesis.
 
 The standard uniform distribution has a special status in computational
 statistics because it can be used to generate samples from every other
-distribution. This is why pseudo random number generators aim to replicate
-the standard uniform distribution. Sampling from the binomial, the Poisson
-and many other distributions is then achieved by first sampling from the
-standard uniform distribution and then transforming the result.
+distribution. Actually, pseudo random number only produce numbers from the
+standard uniform distribution. Sampling from other distributions, such as
+the binomial, the Poisson and many other distributions is achieved by
+first sampling from the standard uniform distribution and then
+transforming the result.
 
 This can be seen by defining the function $F(u) = P(X \leq u)$ for an
 arbitrary random variable $X$. Then $F(X)$ is a new random variable, where
@@ -622,17 +559,14 @@ from the exponential distribution.
 
 
 \begin{Exercise}[name=Question]
-Generate a standard uniform sample of size 100,000. Compute the logarithm
+Generate a standard uniform sample of size 10,000. Compute the logarithm
 of the values and invert the sign. Finally, plot the histogram of the
-sample with default parameters. What is the range of values with highest
-frequency?
-\par\noindent\textcolor{BrickRed}{\textbf{Quercus:} use seed 123.}
+sample with default parameters.
 \end{Exercise}
 \begin{Answer}
 << fig=TRUE >>=
 set.seed(123)
-# Values in the range 0.0-0.5 have highest frequency.
-hist(-log(runif(n=100000)))
+hist(-log(runif(n=10000)))
 @
 \end{Answer}
 
@@ -644,13 +578,11 @@ Using the documentation if necessary, generate a random sample of size
 10,000 from the exponential distribution with the function
 \texttt{rexp(...)}. Plot the histogram of the sample with default
 parameters. What is the range of values with highest frequency?
-\par\noindent\textcolor{BrickRed}{\textbf{Quercus:} use seed 123.}
 \end{Exercise}
 \begin{Answer}
 << fig=TRUE >>=
 set.seed(123)
-# Values in the range 0.0-0.5 have highest frequency.
-hist(rexp(n=100000))
+hist(rexp(n=10000))
 @
 \end{Answer}
 

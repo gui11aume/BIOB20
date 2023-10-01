@@ -155,7 +155,7 @@ The option \texttt{pch} of the function \texttt{plot(...)} changes the
 symbol used in the scatter plot and the option \texttt{col} changes the
 color of the symbols. Both of them can be encoded as numbers like
 \texttt{0}, \texttt{1}, \texttt{2}... Draw the scatter plot of
-Question~\ref{cytcfig} again, this time with gray closed circles.
+Question~\ref{cytcfig} again, this time with gray filled circles.
 \end{Exercise}
 \begin{Answer}
 << fig=TRUE >>=
@@ -181,7 +181,6 @@ the graph itself such as \texttt{xlab}, \texttt{ylab} or
 \texttt{panel.first} are ignored.
 Add to your graph points from the series \texttt{glob} as red filled
 circles, and points from the series \texttt{fibr} as blue filled circles.
-Do all the points of the dataset appear on the graph?
 \end{Exercise}
 \begin{Answer}
 Some points are missing because the y-axis is limited to 50.
@@ -194,14 +193,14 @@ points(x=prot$time[17:22], y=prot$diff[17:22], pch=16, col=4)
 \end{Answer}
 
 
-The argument \texttt{ylim} of the function \texttt{plot(...)} allows us to
-specify a range for the y-axis. Since the largest value of the column
-\texttt{diff} is 573, we can use 600 as a boundary for the y-axis.
+Not all the points of the dataset appear on the graph. The argument
+\texttt{ylim} of the function \texttt{plot(...)} allows us to specify a
+range for the y-axis. Since the largest value of the column \texttt{diff}
+is 573, we can use 600 as a boundary for the y-axis.
 
 \begin{Exercise}[name=Question]
 Draw the plot of Question~\ref{plot3}, but this time use the argument
-\texttt{ylim} to force the y-axis to go from 0 to 600. What is the highest
-graduation appearing on the y-axis?
+\texttt{ylim} to force the y-axis to go from 0 to 600.
 \end{Exercise}
 \begin{Answer}
 << fig=TRUE >>=
@@ -394,8 +393,8 @@ sum(dpois(lambda=prot$time[1:10]*theta0, x=prot$diff[1:10], log=TRUE))
 
 
 \begin{Exercise}[name=Question]
-Add and remove 0.001 to $\theta_0$. Which value has higher likelihood than
-that of $\theta_0$? What does that mean for the maximum likelihood
+Add and remove 0.001 to $\theta_0$. Which value has higher log-likelihood
+than that of $\theta_0$? What does that mean for the maximum likelihood
 estimate of $\theta$?
 \end{Exercise}
 \begin{Answer}
