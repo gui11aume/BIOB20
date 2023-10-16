@@ -455,125 +455,125 @@ p-value is below 1\% so we reject the null hypothesis.
 \end{Answer}
 
 
-\section{Type II errors}
-
-There are two ways to be wrong when performing a statistical test. The
-first is to reject the null hypothesis when it is true, and the second is
-to accept it when it is false. Those are called type I and type II errors,
-respectively. The level of a test is the probability of a type I error.
-Now, what is the probability of a type II error?
-
-There are multiple answers to this question because there are multiple
-ways for the null hypothesis to be false. In our case, we are interested
-in whether $\mu$ equals $1.48$, so the probability of a type II error
-depends on the value of $\mu \neq 1.48$.
-
-\begin{Exercise}[name=Question]
-Assume $\mu = 1.48 + \sigma$ and therefore that the null hypothesis is
-false. Set the variable \texttt{sigma} to any value and draw a random
-sample of the statistic (from a population of 11 measurements) in these
-conditions. Reset the random seed and change the value of \texttt{sigma}.
-Does the value of \texttt{sigma} have any influence?
-\end{Exercise}
-\begin{Answer}
-The value of  \texttt{sigma} has no influence.
-<< >>=
-sigma <- 1.827
-set.seed(123)
-statistic(rnorm(n=11, mean=1.48 + sigma, sd=sigma))
-sigma <- 182.7
-set.seed(123)
-statistic(rnorm(n=11, mean=1.48 + sigma, sd=sigma))
-@
-\end{Answer}
-
-
-\begin{Exercise}[name=Question]
-Using \texttt{replicate(...)}, generate 10,000 random values of the
-statistic when $\mu = 1.48 + \sigma$. Take the absolute value and plot the
-histogram using default parameters.
-\end{Exercise}
-\begin{Answer}
-<< fig=TRUE >>=
-sigma <- 1.827
-mu <- 1.48 + sigma
-set.seed(123)
-altd <- replicate(n=10000, expr=abs(statistic(rnorm(n=11, mean=mu, sd=sigma))))
-hist(altd, breaks=80)
-@
-
-This histogram is different (it is right-skewed in comparison to the null
-distribution).
-\end{Answer}
-
-
-\begin{Exercise}[name=Question]
-\label{t}
-Call $t$ the threshold at level 1\% taken from the null distribution at
-Question~\ref{fini}. Compute the probability that the statistic is greater
-than or equal to $t$ when $\mu = 1.48 + \sigma$? Is this probability
-greater or smaller than when $\mu = 1.48$ (\textit{i.e.}, when the null
-hypothesis is true)?
-\end{Exercise}
-\begin{Answer}
-% 1%-99% quantiles from 1000 replications: 0.5401--0.5631
-<< >>=
-t <- print(quantile(nulld, .99))
-mean(altd >= t)
-@
-When the null hypothesis is true, the probability that the statistic is
-greater than $t$ is 0.01 by definition of $t$. Here the probability of
-rejecting the null hypothesis is greater than 1\%.
-\end{Answer}
-
-
-\begin{Exercise}[name=Question]
-Based on your answer at Question~\ref{t}, give an estimation of the
-probability of a type II error when $\mu = 1.48 + \sigma$.
-\end{Exercise}
-\begin{Answer}
-The probability of rejecting the null hypothesis is approximately 0.554
-when $\mu = 1.48 + \sigma$, therefore the probability of failing to reject
-it is $1 - 0.554 = 0.446$ (remember that $\mu \neq 1.48$, so the null
-hypothesis is false and accepting it is a mistake).
-\end{Answer}
-
-
-It is interesting to know the values of $\mu$ for which we are almost
-guaranteed to reject the null hypothesis. This gives some idea of the
-sensitivity of the statistical test.
-
-\begin{Exercise}[name=Question]
-Set $\mu$ to $1.48 + 2\sigma, 1.48 + 3\sigma, \ldots$ and keep computing
-the probability of rejecting the null hypothesis. What is the smallest
-value for which this probability is 99\% or greater? Call it $1.48 +
-k\sigma$. Estimate the relative variation \texttt{k * sd(PO) / 1.48} (this
-is the deviation from 1.48 that our test is almost certain to identify as
-``not due to chance'').
-\end{Exercise}
-\begin{Answer}
-For $\mu = 1.48 + 2\sigma$ the probability of rejecting the null
-hypothesis is already higher than 99\%.
-<< >>=
-sigma <- 1.827
-mu <- 1.48 + 2*sigma
-set.seed(123)
-altd <- replicate(n=10000, expr=abs(statistic(rnorm(n=11, mean=mu, sd=sigma))))
-mean(altd >= t)
-2*sd(PO) / 1.48
-@
-We are almost certain to reject the null hypothesis if $\mu$ is $\approx
-13\%$ larger or smaller than the target value 1.48.
-\end{Answer}
-
-
-This example shows that computing the probability of a type II error is
-more difficult than computing the probability of a type I error. Also, the
-level or risk of type I error is chosen by the analyst, but not the risk
-of a type II error. Some statistical tests are better than others in the
-sense that they provide a smaller risk of type II error for the same risk
-of type I error. This depends on the statistic that we choose, which is
-why this step is critical for the design of a test.
+%\section{Type II errors}
+%
+%There are two ways to be wrong when performing a statistical test. The
+%first is to reject the null hypothesis when it is true, and the second is
+%to accept it when it is false. Those are called type I and type II errors,
+%respectively. The level of a test is the probability of a type I error.
+%Now, what is the probability of a type II error?
+%
+%There are multiple answers to this question because there are multiple
+%ways for the null hypothesis to be false. In our case, we are interested
+%in whether $\mu$ equals $1.48$, so the probability of a type II error
+%depends on the value of $\mu \neq 1.48$.
+%
+%\begin{Exercise}[name=Question]
+%Assume $\mu = 1.48 + \sigma$ and therefore that the null hypothesis is
+%false. Set the variable \texttt{sigma} to any value and draw a random
+%sample of the statistic (from a population of 11 measurements) in these
+%conditions. Reset the random seed and change the value of \texttt{sigma}.
+%Does the value of \texttt{sigma} have any influence?
+%\end{Exercise}
+%\begin{Answer}
+%The value of  \texttt{sigma} has no influence.
+%<< >>=
+%sigma <- 1.827
+%set.seed(123)
+%statistic(rnorm(n=11, mean=1.48 + sigma, sd=sigma))
+%sigma <- 182.7
+%set.seed(123)
+%statistic(rnorm(n=11, mean=1.48 + sigma, sd=sigma))
+%@
+%\end{Answer}
+%
+%
+%\begin{Exercise}[name=Question]
+%Using \texttt{replicate(...)}, generate 10,000 random values of the
+%statistic when $\mu = 1.48 + \sigma$. Take the absolute value and plot the
+%histogram using default parameters.
+%\end{Exercise}
+%\begin{Answer}
+%<< fig=TRUE >>=
+%sigma <- 1.827
+%mu <- 1.48 + sigma
+%set.seed(123)
+%altd <- replicate(n=10000, expr=abs(statistic(rnorm(n=11, mean=mu, sd=sigma))))
+%hist(altd, breaks=80)
+%@
+%
+%This histogram is different (it is right-skewed in comparison to the null
+%distribution).
+%\end{Answer}
+%
+%
+%\begin{Exercise}[name=Question]
+%\label{t}
+%Call $t$ the threshold at level 1\% taken from the null distribution at
+%Question~\ref{fini}. Compute the probability that the statistic is greater
+%than or equal to $t$ when $\mu = 1.48 + \sigma$? Is this probability
+%greater or smaller than when $\mu = 1.48$ (\textit{i.e.}, when the null
+%hypothesis is true)?
+%\end{Exercise}
+%\begin{Answer}
+%% 1%-99% quantiles from 1000 replications: 0.5401--0.5631
+%<< >>=
+%t <- print(quantile(nulld, .99))
+%mean(altd >= t)
+%@
+%When the null hypothesis is true, the probability that the statistic is
+%greater than $t$ is 0.01 by definition of $t$. Here the probability of
+%rejecting the null hypothesis is greater than 1\%.
+%\end{Answer}
+%
+%
+%\begin{Exercise}[name=Question]
+%Based on your answer at Question~\ref{t}, give an estimation of the
+%probability of a type II error when $\mu = 1.48 + \sigma$.
+%\end{Exercise}
+%\begin{Answer}
+%The probability of rejecting the null hypothesis is approximately 0.554
+%when $\mu = 1.48 + \sigma$, therefore the probability of failing to reject
+%it is $1 - 0.554 = 0.446$ (remember that $\mu \neq 1.48$, so the null
+%hypothesis is false and accepting it is a mistake).
+%\end{Answer}
+%
+%
+%It is interesting to know the values of $\mu$ for which we are almost
+%guaranteed to reject the null hypothesis. This gives some idea of the
+%sensitivity of the statistical test.
+%
+%\begin{Exercise}[name=Question]
+%Set $\mu$ to $1.48 + 2\sigma, 1.48 + 3\sigma, \ldots$ and keep computing
+%the probability of rejecting the null hypothesis. What is the smallest
+%value for which this probability is 99\% or greater? Call it $1.48 +
+%k\sigma$. Estimate the relative variation \texttt{k * sd(PO) / 1.48} (this
+%is the deviation from 1.48 that our test is almost certain to identify as
+%``not due to chance'').
+%\end{Exercise}
+%\begin{Answer}
+%For $\mu = 1.48 + 2\sigma$ the probability of rejecting the null
+%hypothesis is already higher than 99\%.
+%<< >>=
+%sigma <- 1.827
+%mu <- 1.48 + 2*sigma
+%set.seed(123)
+%altd <- replicate(n=10000, expr=abs(statistic(rnorm(n=11, mean=mu, sd=sigma))))
+%mean(altd >= t)
+%2*sd(PO) / 1.48
+%@
+%We are almost certain to reject the null hypothesis if $\mu$ is $\approx
+%13\%$ larger or smaller than the target value 1.48.
+%\end{Answer}
+%
+%
+%This example shows that computing the probability of a type II error is
+%more difficult than computing the probability of a type I error. Also, the
+%level or risk of type I error is chosen by the analyst, but not the risk
+%of a type II error. Some statistical tests are better than others in the
+%sense that they provide a smaller risk of type II error for the same risk
+%of type I error. This depends on the statistic that we choose, which is
+%why this step is critical for the design of a test.
 
 
 \section{Bonus points: one-sided vs two-sided tests}

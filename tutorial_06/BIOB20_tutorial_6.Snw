@@ -32,7 +32,7 @@ Answer to Question \ExerciseHeaderNB}\par}
 % Options.
 \SweaveOpts{keep.source=TRUE}
 
-\title{The gamma distribution / mutations in cancer }
+\title{The gamma distribution}
 \author{}
 \date{}
 
@@ -78,7 +78,7 @@ Download the data containing the age of patients in months at the time of
 diagnosis for bilateral retinoblastoma.
 
 << >>=
-url <- "https://raw.githubusercontent.com/gui11aume/BIOB20/main/chapter_6/bil.txt"
+url <- "https://raw.githubusercontent.com/gui11aume/BIOB20/main/tutorial_06/bil.txt"
 bil <- scan(url)
 @
 
@@ -153,8 +153,6 @@ from an exponential distribution.
 Load the library \texttt{ggplot2}. Use it to draw a scatter plot to
 visualize whether the values of the sample \texttt{bil} are drawn from an
 exponential distribution and conclude.
-\par\noindent\textcolor{BrickRed}{\textbf{Quercus:} What is the lowest
-graduation on the y-axis?}
 \end{Exercise}
 \begin{Answer}
 << fig=TRUE >>=
@@ -195,13 +193,11 @@ guess for the maximum likelihood estimate of \texttt{scale}.
 \label{maxlik}
 Using the maximum likelihood method, show that the guess of
 Question~\ref{guess} is actually the maximum likelihood estimate of
-\texttt{scale}.
-\par\noindent\textcolor{BrickRed}{\textbf{Quercus:} What is the
-log-likelihood of the guess?}
+\texttt{scale}. What is the log-likelihood of the guess?
 \end{Exercise}
 \begin{Answer}
 << >>=
-guess <- mean(bil)
+guess <- print(mean(bil))
 sum(dgamma(x=bil, shape=1, scale=guess, log=TRUE))
 sum(dgamma(x=bil, shape=1, scale=guess-0.1, log=TRUE))
 sum(dgamma(x=bil, shape=1, scale=guess+0.1, log=TRUE))
@@ -216,8 +212,6 @@ estimate.
 Using the library \texttt{ggplot2}, add to the scatter plot of
 Question~\ref{scatter} a line with slope $-1/s$, where $s$ is the maximum
 likelihood estimate of the \texttt{scale} parameter.
-\par\noindent\textcolor{BrickRed}{\textbf{Quercus:} Does the line cross
-the x-axis on the left of graduation 50?}
 \end{Exercise}
 \begin{Answer}
 << fig=TRUE >>=
@@ -244,7 +238,7 @@ other words, \texttt{scale}, the average time of an event, should be half
 of the sample average.
 
 << >>=
-guess <- mean(bil)/2
+guess <- print(mean(bil)/2)
 sum(dgamma(x=bil, shape=2, scale=guess, log=TRUE))
 sum(dgamma(x=bil, shape=2, scale=guess-0.1, log=TRUE))
 sum(dgamma(x=bil, shape=2, scale=guess+0.1, log=TRUE))
@@ -279,7 +273,7 @@ Download the data containing the age of patients in months at the time of
 diagnosis for unilateral retinoblastoma.
 
 << >>=
-url <- "https://raw.githubusercontent.com/gui11aume/BIOB20/main/chapter_6/unil.txt"
+url <- "https://raw.githubusercontent.com/gui11aume/BIOB20/main/tutorial_06/unil.txt"
 unil <- scan(url)
 @
 
@@ -304,8 +298,6 @@ familial form.
 Use the strategy of Question~\ref{scatter} to visualize whether the values
 of the sample \texttt{unil} are drawn from an exponential distribution and
 conclude.
-\par\noindent\textcolor{BrickRed}{\textbf{Quercus:} What is the lowest
-graduation on the y-axis?}
 \end{Exercise}
 \begin{Answer}
 << fig=TRUE >>=
@@ -329,7 +321,7 @@ parameter \texttt{scale} for the sample \texttt{unil}.
 \end{Exercise}
 \begin{Answer}
 << >>=
-guess <- mean(unil)/2
+guess <- print(mean(unil)/2)
 sum(dgamma(x=unil, shape=2, scale=guess, log=TRUE))
 sum(dgamma(x=unil, shape=2, scale=guess-0.1, log=TRUE))
 sum(dgamma(x=unil, shape=2, scale=guess+0.1, log=TRUE))
@@ -404,8 +396,6 @@ Return to the complete sample \texttt{unil}. Use the library
 the parameter \texttt{scale} for \texttt{shape=2} and for
 \texttt{shape=4}. Plot the values of \texttt{scale} in the range 5--20 and
 use different colors for the lines.
-\par\noindent\textcolor{BrickRed}{\textbf{Quercus:} which curve has
-highest peak log-likelihood?}
 \end{Exercise}
 \begin{Answer}
 << fig=TRUE >>=
