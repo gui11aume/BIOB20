@@ -70,13 +70,13 @@ investigate whether the dates changed compared to the past.
 
 \section{Grape harvest dates}
 
-The records from 1990 were extracted from the dataset of
+The records from 1990 were extracted from the data set of
 reference~\cite{labbe2019longest}. For each year, the grape harvest date
 in Beaune is indicated in number of days from the beginning of the year
 (the harvest starts from mid-August to end-October in this region).
 
 << >>=
-url <- "https://raw.githubusercontent.com/gui11aume/BIOB20/main/chapter_8/ghd.txt"
+url <- "https://raw.githubusercontent.com/gui11aume/BIOB20/main/tutorial_08/ghd.txt"
 ghd <- read.delim(url)
 @
 

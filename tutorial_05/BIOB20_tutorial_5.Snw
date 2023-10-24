@@ -666,8 +666,8 @@ statistic is on the right side, we reject the null hypothesis (we treat
 the patient because we believe that this will be beneficial). Since we
 must reject the null hypothesis 1\% of the time when it is true
 (\textit{i.e.}, when $\mu = 1.48$), then the threshold must be the
-quantile 0.99, even if we do not take the absolute value.
-% 1%-99% quantiles from 1000 replications: 0.0584--0.0697
+quantile 0.99, without taking the absolute value.
+% 1%-99% quantiles from 1000 replications: 0.1004--0.1151
 << fig=TRUE >>=
 set.seed(123)
 nulld <- replicate(n=10000, expr=statistic(rnorm(n=3, mean=1.48)))
@@ -675,7 +675,7 @@ hist(nulld, breaks=80)
 threshold <- print(quantile(nulld, .99))
 # Thresholds with a red line.
 abline(v=threshold, col=2)
-obs <- print(statistic(c(1.75, 1.82, 1.53)))
+obs <- print(statistic(c(1.75, 1.82, 1.46)))
 # Observed statistic with a blue line.
 abline(v=obs, col=4)
 # And the p-value.

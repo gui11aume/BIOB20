@@ -455,7 +455,7 @@ than 2 million years ago.
 The quality of the estimates crucially depends on the assumptions and on
 the calibration of the linear regression model. Parameters are always
 estiamted with some uncertainty that is carried forward to predictions or
-estimations. Larger datasets allow for more accurate estimations, but it
+estimations. Larger data sets allow for more accurate estimations, but it
 is important to distinguish two types of predictions. The first is the
 average value of the y variable, which can be estimate to within great
 accuracy if the sample is large enough. The second is the value of an

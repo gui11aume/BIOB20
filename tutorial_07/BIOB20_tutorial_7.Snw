@@ -32,7 +32,7 @@ Answer to Question \ExerciseHeaderNB}\par}
 % Options.
 \SweaveOpts{keep.source=TRUE}
 
-\title{Student's t-test / gene expression }
+\title{Student's $t$ test}
 \author{}
 \date{}
 
@@ -42,7 +42,7 @@ Answer to Question \ExerciseHeaderNB}\par}
 
 \section{Overview}
 
-In this chapter we explain what makes Student's t-test popular. We
+In this chapter we explain what makes Student's $t$ test popular. We
 introduce the central limit theorem with some applications in gene
 expression.
 
@@ -82,14 +82,13 @@ the age of the donor was above 60 years at the time of death, and whether
 the donor died on a respirator.
 
 << >>=
-url <- "https://raw.githubusercontent.com/gui11aume/BIOB20/main/chapter_7/ACE2.txt"
+url <- "https://raw.githubusercontent.com/gui11aume/BIOB20/main/tutorial_07/ACE2.txt"
 ACE2 <- read.delim(url)
 @
 
 \begin{Exercise}[name=Question]
-Run the usual checks for imported data. What are the column names?
-\par\noindent\textcolor{BrickRed}{\textbf{Quercus:} What is the number of
-rows of the data set?}
+Run the usual checks for imported data and write down the column names.
+What is the number of rows of the data set?
 \end{Exercise}
 \begin{Answer}
 << >>=
@@ -188,7 +187,7 @@ The difference is weaker than in Question~\ref{2histo}.
 \end{Answer}
 
 
-\section{Student's t-test}
+\section{Student's $t$ test}
 
 Some early reports suggested that COVID-19 becomes more severe as age
 increases. It was proposed that the expression of ACE2 might increase with
@@ -240,7 +239,6 @@ distribution that has the same mean and the same standard deviation,
 Generate a sample of 1000 averages of 10 standard uniform random numbers.
 Generate a second sample of 1000 numbers from $N(1/2, 1/\sqrt{120})$.
 Compare the histogram of their distribution. Do they look similar?
-\par\noindent\textcolor{BrickRed}{\textbf{Quercus:} Upload the figure.}
 \end{Exercise}
 \begin{Answer}
 << fig=TRUE >>=
@@ -265,7 +263,6 @@ is also a normal variable.
 Generate a sample of 1000 differences between two standard normal
 variables. Generate a second sample of 1000 numbers from $N(0, \sqrt{2})$.
 Compare the histogram of their distribution. Do they look similar?
-\par\noindent\textcolor{BrickRed}{\textbf{Quercus:} Upload the figure.}
 \end{Exercise}
 \begin{Answer}
 << fig=TRUE >>=
@@ -321,9 +318,11 @@ years, respectively. Generate a sample \texttt{s1} of size 1000 from the
 null distribution when the statistic is computed over two standard normal
 samples of sizes $n_1$ and $n_2$. What is the threshold at level 1\%
 computed from this sample?
-\par\noindent\textcolor{BrickRed}{\textbf{Quercus:} Use seed 123.}
+\par\noindent\textcolor{Blue}{\textbf{Note:} The statistic is positive, so
+the rejection region is one-sided, above a certain threshold.}
 \end{Exercise}
 \begin{Answer}
+% 1%-99 quantiles from 1000 replications: 0.1009587--0.1228702
 << >>=
 set.seed(123)
 s1 <- replicate(n=1000, statistic(rnorm(364), rnorm(212)))
@@ -337,9 +336,11 @@ quantile(s1, .99)
 Generate another sample of size 1000 from the null distribution when the
 statistic is computed over two standard uniform samples of sizes $n_1$ and
 $n_2$. What is the threshold at level 1\% computed from this sample?
-\par\noindent\textcolor{BrickRed}{\textbf{Quercus:} Use seed 123.}
+\par\noindent\textcolor{Blue}{\textbf{Note:} The statistic is positive, so
+the rejection region is one-sided, above a certain threshold.}
 \end{Exercise}
 \begin{Answer}
+% 1%-99 quantiles from 1000 replications: 0.1009649--0.122915
 << >>=
 set.seed(123)
 s2 <- replicate(n=1000, statistic(runif(364), runif(212)))
@@ -351,7 +352,6 @@ quantile(s2, .99)
 \begin{Exercise}[name=Question]
 Overlay on the same graph the histograms of \texttt{s1} and \texttt{s2} from
 Questions~\ref{s1} and \ref{s2}.
-\par\noindent\textcolor{BrickRed}{\textbf{Quercus:} Upload the figure.}
 \end{Exercise}
 \begin{Answer}
 << fig=TRUE >>=
@@ -372,14 +372,15 @@ know the distribution of \textit{ACE2} expression.
 Generate a random sample of size 1000 from the null distribution of
 Question~\ref{s1} using the normal distribution. Use it to finish the
 statistical test and to conclude. What is the p-value?
-\par\noindent\textcolor{Blue}{\textbf{Note:} Perform a one-sided test.}
-\par\noindent\textcolor{BrickRed}{\textbf{Quercus:} Use seed 123.}
+\par\noindent\textcolor{Blue}{\textbf{Note:} The statistic is positive, so
+the rejection region is one-sided, above a certain threshold.}
 \end{Exercise}
 \begin{Answer}
+% 1%-99 quantiles from 1000 replications: 0.278--0.34802
 << >>=
 group1 <- ACE2$x[ACE2$age_above_60 == 0]
 group2 <- ACE2$x[ACE2$age_above_60 == 1]
-obs <- statistic(group1, group2)
+obs <- print(statistic(group1, group2))
 set.seed(123)
 s1 <- replicate(n=1000, statistic(rnorm(364), rnorm(212)))
 obs
@@ -395,16 +396,15 @@ below that this is probably not the case.
 \end{Answer}
 
 
-The answer to Question~\ref{ttest} is essentially a Student's t-test. The
-R programming language contains a standard implementation of the t-test
+The answer to Question~\ref{ttest} is essentially a Student's $t$ test. The
+R programming language contains a standard implementation of the $t$ test
 with several improvements. We can replace the tedious process of computing
 approximate null distributions for bespoke statistics with the function
 \texttt{t.test(...)}.
 
 \begin{Exercise}[name=Question]
-Use the function \texttt{t.test(...)} on the same two samples as in
-Question~\ref{ttest}. What is the p-value? Is it very different from your
-answer at Question~\ref{ttest}?
+Use the function \texttt{t.test(...)} with the two samples of
+Question~\ref{ttest} and give the p-value.
 \end{Exercise}
 \begin{Answer}
 << >>=
@@ -413,8 +413,12 @@ group2 <- ACE2$x[ACE2$age_above_60 == 1]
 t.test(group1, group2)
 @
 
+The p-value provided by R is actually quite close to the answer we
+obtained at Question~\ref{ttest}.
+
+
 The p-values are not very different. The implementation of Student's
-t-test is vastly superior to the one we came up with here. When addressing
+$t$ test is vastly superior to the one we came up with here. When addressing
 real-world problems, always use the standard implementation of R; never
 use your own implementation.
 \end{Answer}
@@ -475,7 +479,7 @@ making any difference less statistically significant.
 \section{Bonus points: the \texttt{t.test(...)} options}
 
 The function \texttt{t.test(...)} is flexible and allows the user to run
-different kinds of Student's t-tests.
+different kinds of Student's $t$ tests.
 
 \begin{Exercise}[name=Question]
 Redo the t-test of Question~\ref{last} but make it one-sided and reject
@@ -494,7 +498,7 @@ t.test(group1, group2, alternative="less")
 Here we studied the expression of the gene \textit{ACE2} encoding the
 receptor of SARS-CoV-2. We used the publicly available GTEx data to
 estimate \textit{ACE2} expression in the lungs in the human population,
-and used the Student's t-test to evaluate differences among various
+and used the Student's $t$ test to evaluate differences among various
 groups.
 
 We found that donors who died on a respirator had an elevated level of
@@ -523,7 +527,7 @@ an automatic method using the function \texttt{t.test(...)}. The
 implementation of \texttt{t.test(...)} takes care of several technical
 aspects that we did not touch upon (most notably the difference of
 variance between the samples) and it is recommended to always use the R
-implementation when performing a Student's t-test.
+implementation when performing a Student's $t$ test.
 
 Automating the statistical process with a single function like
 \texttt{t.test(...)} saves a lot of time, but it also makes it easy to

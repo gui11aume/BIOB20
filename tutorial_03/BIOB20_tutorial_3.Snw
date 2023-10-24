@@ -75,7 +75,7 @@ occasional gains or loss of functions~\cite{kimura1983neutral}.
 
 \section{The molecular clock in picture}
 
-We will work with a dataset that was published in
+We will work with a data set that was published in
 2016~\cite{robinson2016revisiting} (with some edits for teaching
 purposes).
 
@@ -96,7 +96,7 @@ nrow(prot)
 \end{Answer}
 
 
-The dataset is small enough to be shown in full. For this we just have to
+The data set is small enough to be shown in full. For this we just have to
 call the name of the variable it is stored in.
 << >>=
 prot
@@ -117,7 +117,7 @@ understand the major trends. This is typically a good first approach.
 
 \begin{Exercise}[name=Question]
 Plot the column \texttt{diff} against the column \texttt{time} for the
-whole dataset. Label the x-axis as ``Time (Myr)'' and the y-axis as
+whole data set. Label the x-axis as ``Time (Myr)'' and the y-axis as
 ``Differences''. Add a grid to the plot.
 \end{Exercise}
 \begin{Answer}
@@ -193,7 +193,7 @@ points(x=prot$time[17:22], y=prot$diff[17:22], pch=16, col=4)
 \end{Answer}
 
 
-Not all the points of the dataset appear on the graph. The argument
+Not all the points of the data set appear on the graph. The argument
 \texttt{ylim} of the function \texttt{plot(...)} allows us to specify a
 range for the y-axis. Since the largest value of the column \texttt{diff}
 is 573, we can use 600 as a boundary for the y-axis.
@@ -325,14 +325,14 @@ sum(dpois(lambda=prot$time[1:10]*theta0, x=prot$diff[1:10]) < .05)
 \end{Answer}
 
 
-To compute the probability of the complete cytochrome c dataset, we will
+To compute the probability of the complete cytochrome c data set, we will
 assume that events are independent. The probability of co-occurrence of
 independent events is the product of their individual probability of
 occurrence.
 
 \begin{Exercise}[name=Question]
 Use the function \texttt{prod(...)} to find the probability of observing
-the whole cytochrome dataset (\textit{i.e.}, the probability of the 10
+the whole cytochrome data set (\textit{i.e.}, the probability of the 10
 data points) if $\theta$ were equal to $\theta_0$.
 \par\noindent\textcolor{BrickRed}{\textbf{Quercus:} is the value larger
 than $10^{-16}$?}
@@ -348,7 +348,7 @@ prod(dpois(lambda=prot$time[1:10]*theta0, x=prot$diff[1:10])) < 1e-16
 
 Note that we obtain a \emph{tiny} probability. This is normal, every
 observation only \emph{decreases} the collective probability because
-probabilities are lower than 1. The larger the dataset, the lower the
+probabilities are lower than 1. The larger the data set, the lower the
 probability of the observations. But this is not a problem since we only
 search the value of $\theta$ that makes this probability as large as
 possible (\textit{i.e.}, in relative terms). We do not care about the
@@ -357,7 +357,7 @@ the maximum is reached.
 
 \begin{definition}[likelihood]
 The likelihood of a parameter at value $\theta$ is the probability of the
-observed dataset when the parameter is equal to $\theta$. The likelihood
+observed data set when the parameter is equal to $\theta$. The likelihood
 is thus a function that takes a model as input (or a parameter, it is the
 same thing) and outputs a positive number.
 \end{definition}
@@ -381,7 +381,7 @@ we are not losing anything by taking the logarithm).
 In most distributions implemented in R, the argument \texttt{log=TRUE}
 requests to return the logarithm of the probability instead of the
 probability. Compute the log-likelihood of $\theta$ at the value
-$\theta_0$ for the cytochrome c dataset. 
+$\theta_0$ for the cytochrome c data set. 
 \par\noindent\textcolor{Blue}{\textbf{Note:} using \texttt{log=TRUE} is
 faster and more accurate than using the function \texttt{log(...)}.}
 \end{Exercise}
@@ -567,7 +567,7 @@ legend(legend=c("cytc", "glob", "fibr"), pch=16, col=c(8,2,4),
 @
 \end{Answer}
 
-Notice the differences between the datasets: for which does the straight
+Notice the differences between the data sets: for which does the straight
 line fit best? What are the implications for the molecular clock
 hypothesis?
 
@@ -586,13 +586,13 @@ hypothesis?
 %Consider the log-likelihood curve of Questions~\ref{ll1}. By eye, estimate
 %the length of the interval of all the values with a log-likelihood at most
 %10 units below the maximum. Do the same for the log-likelihood curves of
-%Questions~\ref{ll2} and \ref{ll3}. For which dataset is the interval the
+%Questions~\ref{ll2} and \ref{ll3}. For which data set is the interval the
 %smallest?
 %\end{Exercise}
 %\begin{Answer}
-%For the dataset \texttt{cytc}, the interval goes approximately from 0.030
-%to 0.065 (length 0.035). For the dataset \texttt{glob}, the interval goes
-%approximatelyfrom 0.24 to 0.38 (length 0.14). For the dataset
+%For the data set \texttt{cytc}, the interval goes approximately from 0.030
+%to 0.065 (length 0.035). For the data set \texttt{glob}, the interval goes
+%approximatelyfrom 0.24 to 0.38 (length 0.14). For the data set
 %\texttt{fibr}, the interval goes approximately from 7 to 8 (length 1).
 %\end{Answer}
 %
@@ -615,18 +615,18 @@ hypothesis?
 %\end{center}
 %
 %\begin{Exercise}[name=Question]
-%For which of the dataset do we have the most information about the
+%For which of the data set do we have the most information about the
 %evolutionary rate?
 %\end{Exercise}
 %\begin{Answer}
-%We have more information for the dataset \texttt{cytc}. The interval
+%We have more information for the data set \texttt{cytc}. The interval
 %computed at Question~\ref{intvl} is smaller because the peak is sharper so
 %the second derivative is larger (in absolute value).
 %\end{Answer}
 %
 %
-%It is not a coincidence that the dataset for which we have the most
-%information about the parameter is also the dataset for which the fit with
+%It is not a coincidence that the data set for which we have the most
+%information about the parameter is also the data set for which the fit with
 %the model is the best. When a model fits the data poorly, the
 %log-likelihood curve is broad because the model carries a lot of
 %uncertainty about the parameters. In conclusion, the shape of the
