@@ -33,7 +33,7 @@ Answer to Question \ExerciseHeaderNB}\par}
 % Options.
 \SweaveOpts{keep.source=TRUE}
 
-\title{Wilcoxon's test / climate research }
+\title{The Wilcoxon-Mann-Whitney U test}
 \author{}
 \date{}
 
@@ -44,17 +44,17 @@ Answer to Question \ExerciseHeaderNB}\par}
 
 \section{Overview}
 
-In this chapter we introduce the Wilcoxon test. We explain how it differs
-from Student's t-test with some application in agriculture and climate
-change.
+In this chapter we introduce the Wilcoxon or Wilcoxon-Mann-Whitney $U$
+test. We explain how it differs from Student's $t$ test with some
+application in agriculture and climate change.
 
 
 %% The problem %%
 \section{The problem}
 
 Agriculture depends crucially on the climate. This gives opportunities to
-study the climate of the past, which is typically less well documented
-than agricultural practice.
+study the climate of the past, which is usually less well documented than
+agricultural practice.
 
 In 2019, an international team of European researchers assembled the
 complete time series of grape harvest dates in the vineyard of Beaune,
@@ -65,15 +65,15 @@ which practically no data is available.
 We want to test whether grape harvest dates are a good indicator of the
 local temperature over the year. For this, we will take advantage of the
 rapid increase in temperature observed in the last 20 years and
-investigate whether the dates changed compared to the past.
+investigate whether the harvest dates have changed as well.
 
 
 \section{Grape harvest dates}
 
-The records from 1990 were extracted from the data set of
-reference~\cite{labbe2019longest}. For each year, the grape harvest date
-in Beaune is indicated in number of days from the beginning of the year
-(the harvest starts from mid-August to end-October in this region).
+The records from 1990 to 2018 were extracted from the data set of
+reference~\cite{labbe2019longest}. For each year, the first day of grape
+harvest in Beaune is indicated in number of days from the beginning of the
+year (the harvest starts from mid-August to end-October in this region).
 
 << >>=
 url <- "https://raw.githubusercontent.com/gui11aume/BIOB20/main/tutorial_08/ghd.txt"
@@ -81,9 +81,8 @@ ghd <- read.delim(url)
 @
 
 \begin{Exercise}[name=Question]
-Run the usual checks for imported data. What are the column names?
-\par\noindent\textcolor{BrickRed}{\textbf{Quercus:} What is the number of
-rows of the data set?}
+Run the usual checks for imported data. What is the number of rows of the
+data set? 
 \end{Exercise}
 \begin{Answer}
 << >>=
@@ -93,8 +92,9 @@ nrow(ghd)
 \end{Answer}
 
 
-If we compare the average harvest dates in the intervals 1990--2000 and
-2001--2018, we see that harvests have moved earlier in the year by 7 days.
+If we compare the average harvest dates in the intervals 1990--2000 vs
+2001--2018, we see that harvests are approximately 7 days earlier in the
+later period.
 << >>=
 mean(ghd$days[1:11])
 mean(ghd$days[12:29])
@@ -103,34 +103,34 @@ mean(ghd$days[12:29])
 In the interval 2001--2018, the temperature of the Earth has increased by
 approximately 0.5$^{\circ}$C~\cite{allen2018framing}, which is comparable
 to the region of Beaune~\cite{duc2010potentiels}. A difference of 7 days
-seems relatively small compared to the year-to-year variations around 20
-days. To know if we can use the grape harvest date as an indicator of the
-temperature, it is thus important to know whether this difference of 7
-days is a statistical fluctuation or whether it reflects the change of
-temperature in the period.
+seems relatively small compared to year-to-year variations of
+approximately 20 days. To know if we can use grape harvest dates as an
+indicator of the temperature, it is thus important to know whether this
+difference of 7 days is a statistical fluctuation or whether it reflects
+the change of temperature in the period.
 
 
 \section{Using ranks}
 
-We may want to use Student's t-test to compare the harvest dates in the
-intervals 1990--2000 and 2001--2018. However, the sample sizes are below
-30 so the means may not have an approximately Gaussian distribution
+We may want to use Student's $t$ test to compare the harvest dates in the
+intervals 1990--2000 vs 2001--2018. However, the sample sizes are below 30
+so the means may not have an approximately Gaussian distribution
 (especially if the original distribution is discrete and asymmetric). We
-thus face a problem where we neither know the distribution of the
-observation, nor of their mean.
+thus face a problem where we do not know the distribution of the
+observations and we cannot rely on the central limit theorem. 
 
 We need an entirely new strategy. We will use ranks to measure the
 differences between samples. The reason is that those ranks do not depend
 on the initial distribution, as we will see below.
 
 The function \texttt{rank(...)} returns the ranks of each element in the
-input in the ascending order.
+input, in ascending order.
 << >>=
 rank(c(2.1, -1.9, 3.7))
 @
 
 When there are ties, ranks are split so that the average rank remains the
-same, \textit{i.e.}, $(n+1)/2$ for a vector of length $n$.
+same, \textit{i.e.}, $n(n+1)/2$ for a vector of length $n$.
 << >>=
 rank(c(2.1, 2.1, 3.7))
 @
@@ -151,30 +151,33 @@ Use it to compute the statistic on the intervals 1990--2000 and
 \end{Exercise}
 \begin{Answer}
 << >>=
-obs <- statistic(ghd$days[1:11], ghd$days[12:29])
-obs
+obs <- print(statistic(ghd$days[1:11], ghd$days[12:29]))
 @
 \end{Answer}
 
 
-\begin{Exercise}[name=Question]
-See the example below where a sample from the null distribution
+We will now use this function to compute various null distributions. In
+the example below, a sample from the null distribution
 \texttt{nulld\_norm} is generated by computing the statistic on two normal
 samples.
 << >>=
 set.seed(123)
 nulld_norm <- replicate(n=10000, statistic(rnorm(11), rnorm(18)))
 @
-Generate a sample from a null distribution \texttt{nulld\_unif} by
-computing the statistic on two uniform samples. Generate a sample from a
-null distribution \texttt{nulld\_exp} by computing the statistic on two
-exponential samples. Compare the three distributions by overlaying their
+
+\begin{Exercise}[name=Question]
+Using \texttt{nulld\_norm} as a template, generate a sample
+\texttt{nulld\_unif} by computing the statistic on two uniform samples,
+and generate a sample \texttt{nulld\_exp} by computing the statistic on
+two exponential samples. Compare \texttt{nulld\_norm},
+\texttt{nulld\_unif} and \texttt{nulld\_exp} by overlaying their
 histograms using the library \texttt{ggplot2}.
-\par\noindent\textcolor{BrickRed}{\textbf{Quercus:} Upload the figure.}
 \end{Exercise}
 \begin{Answer}
 << fig=TRUE >>=
+set.seed(123)
 nulld_unif <- replicate(n=10000, statistic(runif(11), runif(18)))
+set.seed(123)
 nulld_exp <- replicate(n=10000, statistic(rexp(11), rexp(18)))
 dat <- data.frame(value=c(nulld_norm, nulld_unif, nulld_exp),
   type=factor(rep(1:3, each=10000)))
@@ -185,10 +188,14 @@ ggplot(dat, aes(x=value, fill=type, color=type)) +
 \end{Answer}
 
 
-As long as the two samples \texttt{x} and \texttt{y} have the same
-distribution, the distribution of the function \texttt{statistic(...)}
-remains the same. This strong invariance property allows us to formulate a
-very general pair of null / alternative hypotheses.
+As long as the  distribution, of \texttt{x} and \texttt{y} is the same,
+the distribution of \texttt{statistic(...)} remains the same. This strong
+invariance property allows us to obtain the null distribution of the
+statistic, even if we do not know the underlying distribution of the
+observations.
+
+Using the ranks instead of the original values, we can thus formulate
+hypotheses that are applicable to a wide range of situations.
 \begin{enumerate}
 \item
 Null hypothesis: the distributions of the two samples are identical.
@@ -198,40 +205,39 @@ shift.
 \end{enumerate}
 
 In other words, the alternative hypothesis specifies that the two
-distribution have exactly the same shape so that they can be superimposed
-by sliding one relative to the other. If this is the case, then one can
-objectively say that the values in one distribution are overall higher
-than in the other one.
+distributions have exactly the same shape, so that they can be
+superimposed by sliding one onto the other. In this scenario, one
+distribution can be said to have lower values than the other, even if they
+may overlap.
 
 
 \begin{Exercise}[name=Question]
-Using a level of 1\%, set a lower and an upper threshold. Finish the test
-and conclude.
+Using a level of 5\% (not 1\%), define a two-sided rejection region with a
+lower and an upper threshold. Finish the test and conclude.
 \end{Exercise}
 \begin{Answer}
 << >>=
 # Lower threshold.
-quantile(nulld_norm, .005)
+quantile(nulld_norm, .025)
 # Upper threshold.
-quantile(nulld_norm, .995)
+quantile(nulld_norm, .975)
 # Observed value.
 obs
 @
 
 The observed value of the statistic is above the upper threshold. We
-reject the null hypothesis at level 1\%.
+reject the null hypothesis at level 5\%.
 \end{Answer}
 
 
 \begin{Exercise}[name=Question]
 \label{pval}
-Compute the p-value of the test.
-\par\noindent\textcolor{Blue}{\textbf{Hint:} Use absolute values because
-the test is two-sided.}
-\par\noindent\textcolor{BrickRed}{\textbf{Quercus:} Use seed 123 and
-\texttt{nulld\_norm} with size 10,000}
+Compute the p-value of the test using \texttt{nulld\_norm}.
+\par\noindent\textcolor{Blue}{\textbf{Hint:} Remember that the test is
+two-sided.}
 \end{Exercise}
 \begin{Answer}
+% 1%-99 quantiles from 1000 replications: 0.006--0.0103
 << >>=
 mean(abs(nulld_norm) >= obs)
 @
@@ -239,17 +245,16 @@ mean(abs(nulld_norm) >= obs)
 
 
 The statistical test above is called the Wilcoxon-Mann-Whitney $U$ test.
-It is called a \emph{non-parametric} test because it does not depend on
-the distribution of the data (but it relies on the assumption that the
+It is a \emph{non-parametric} test because it does not depend on the
+distribution of the data (but it relies on the assumption that the
 distributions are either identical or shifted relative to each other). In
 that sense, it is very general and can be used in many circumstances. This
 test is available in R with the function \texttt{wilcox.test(...)}.
 
 \begin{Exercise}[name=Question]
 Use the function \texttt{wilcox.test(...)} to test whether there is a
-difference in the grape harvest day between the intervals 1990--2000 and
-2001--2018. What is the p-value of the test? How does it compare to the
-empirical estimate of Question~\ref{pval}?
+difference in the grape harvest dates between the intervals 1990--2000 and
+2001--2018. What is the p-value of the test?
 \end{Exercise}
 \begin{Answer}
 << >>=
@@ -264,30 +269,31 @@ an indicator of the local temperature that year.
 \section{Power of a statistical test}
 
 The Wilcoxon-Mann-Whitney $U$ test serves the same function as Student's
-t-test. Both tests are used to highlight differences in the typical values
-of two populations. The Student t-test can be used either when the data
-has a Gaussian distribution or when the samples are large. The
-Wilcoxon-Mann-Whitney $U$ test can also be used on those conditions, so a
-natural question to ask is which test to use?
+$t$ test. Both tests are used to discover differences in the typical or
+central values of two populations. The Student's $t$ test can be used
+either when the data has a Gaussian distribution or when the samples are
+large. The Wilcoxon-Mann-Whitney $U$ test can also be used in those
+conditions, so a natural question to ask is which test to use?
 
 The answer to that question depends on a critical feature of a test, which
-is known as its power.
+is known as its statistical power.
 
 \begin{definition}[power of a statistical test]
 The probability of rejecting the null hypothesis is known as the power of
 a statistical test. It depends on the true distribution of the statistic
-and is therefore not a number but a \emph{function}.
+and is therefore not a number but a \emph{function} (because there are
+many possible distributions of the statistic).
 \end{definition}
 
-Before going into examples, let us see how to extract p-values from
-statistical tests in R.
+Before explaining this in more details, we will need to learn how to
+extract p-values from statistical tests in R. The p-value of the
+Wilcoxon-Mann-Whitney $U$ test can be computed directly with the command
+\texttt{wilcox.test(...)\$p.value}, where \texttt{...} is replaced with
+the samples and the options of the test. 
 
 \begin{Exercise}[name=Question]
-The p-value of the Wilcoxon-Mann-Whitney $U$ test can be computed directly
-with the command \texttt{wilcox.test(...)\$p.value}, where \texttt{...} is
-replaced by the samples and the options of the test. What is the p-value
-of the Wilcoxon-Mann-Whitney $U$ test for the samples $(-1.2, 2.3, 3.4)$
-and $(2.7, 4.5, -1.1)$?
+What is the p-value of the Wilcoxon-Mann-Whitney $U$ test for the samples
+$(-1.2, 2.3, 3.4)$ and $(2.7, 4.5, -1.1)$?
 \end{Exercise}
 \begin{Answer}
 << >>=
@@ -296,16 +302,16 @@ wilcox.test(c(-1.2, 2.3, 3.4), c(2.7, 4.5, -1.1))$p.value
 \end{Answer}
 
 
-Let us now take two large samples from the exponential distribution
+Let us now take two samples from the exponential distribution.
 << >>=
 set.seed(123)
-x <- rexp(n=120)
-y <- rexp(n=120) + 0.2
+x <- rexp(n=110)
+y <- rexp(n=110) + 0.2
 @
 
 The distribution of the sample \texttt{y} differs from the distribution of
 the sample \texttt{x} by a shift of 0.2. Therefore, the null hypothesis of
-the Wilcoxon test is false and the alternative is true.
+the Wilcoxon-Mann-Whitney $U$ test is false and the alternative is true.
 
 \begin{Exercise}[name=Question]
 What is the p-value of the Wilcoxon-Mann-Whitney $U$ test on the samples
@@ -318,11 +324,11 @@ wilcox.test(x, y)$p.value
 \end{Answer}
 
 
-The central limit theorem applies for exponential samples of size 120, so
-we can also use Student's t-test.
+The central limit theorem applies for exponential samples of size 110, so
+we can also use Student's $t$ test.
 
 \begin{Exercise}[name=Question]
-What is the p-value of Student's t-test on the samples \texttt{x} and
+What is the p-value of Student's $t$ test on the samples \texttt{x} and
 \texttt{y}?
 \end{Exercise}
 \begin{Answer}
@@ -331,23 +337,22 @@ t.test(x, y)$p.value
 @
 \end{Answer}
 
-The example above shows that at level 1\%, the null hypothesis is rejected
-with a test, but accepted with the other. Since the null hypothesis is
-false in this case, only one of the tests leads to the right decision. But
-is this test always better or only for that specific sample?
+The example above shows that if we choose a level of 5\%, the null
+hypothesis is rejected with one test, but accepted with the other. Since
+the null hypothesis is false in this case, only one of the tests leads to
+the right decision. But is this test always better?
 
 \begin{Exercise}[name=Question]
 \label{u}
 Use the function \texttt{replicate(...)} to compute 1000 p-values using
-the Wilcoxon-Mann-Wilcoxon $U$ test on samples defined like \texttt{x} and
-\texttt{y}. What is the proportion of p-values below 0.01?
-\par\noindent\textcolor{BrickRed}{\textbf{Quercus:} Use seed 123.}
+the Wilcoxon-Mann-Whitney $U$ test on samples defined like \texttt{x} and
+\texttt{y}. What is the proportion of p-values below 0.05?
 \end{Exercise}
 \begin{Answer}
 << >>=
 set.seed(123)
-pvals_u <- replicate(n=1000, wilcox.test(rexp(120), rexp(120)+0.2)$p.value)
-mean(pvals_u < .01)
+pvals_u <- replicate(n=1000, wilcox.test(rexp(110), rexp(110)+0.2)$p.value)
+mean(pvals_u < .05)
 @
 \end{Answer}
 
@@ -355,31 +360,29 @@ mean(pvals_u < .01)
 \begin{Exercise}[name=Question]
 \label{t}
 Use the function \texttt{replicate(...)} to compute 1000 p-values using
-Student's t-test on samples defined like \texttt{x} and
-\texttt{y}. What is the proportion of p-values below 0.01?
-\par\noindent\textcolor{BrickRed}{\textbf{Quercus:} Use seed 123.}
+Student's $t$ test on samples defined like \texttt{x} and
+\texttt{y}. What is the proportion of p-values below 0.05?
 \end{Exercise}
 \begin{Answer}
 << >>=
 set.seed(123)
-pvals_t <- replicate(n=1000, t.test(rexp(120), rexp(120)+0.2)$p.value)
-mean(pvals_t < .01)
+pvals_t <- replicate(n=1000, t.test(rexp(110), rexp(110)+0.2)$p.value)
+mean(pvals_t < .05)
 @
 \end{Answer}
 
 
 For such samples with an exponential distribution, one of the two tests
 clearly has a higher average rejection rate. In other words, one of the
-two tests clearly has greater power at level 1\%.
+two tests has greater power at level 5\%.
 
 \begin{Exercise}[name=Question]
 \label{powu}
-Using a for-loop, compute the power at level 1\% for the
+Using a for-loop, compute the power at level 5\% for the
 Wilcoxon-Mann-Whitney $U$ test on the model of Question~\ref{u} by
 replacing the shift 0.2 with values from 0 to 0.6 with an increment of
 0.1. Store the power values in a vector \texttt{power\_u}. For which value
 of the shift is the power the highest?
-\par\noindent\textcolor{BrickRed}{\textbf{Quercus:} Use seed 123.}
 \end{Exercise}
 \begin{Answer}
 << >>=
@@ -387,7 +390,7 @@ set.seed(123)
 shift <- seq(from=0, to=.6, by=.1)
 power_u <- rep(NA, 7)
 for (i in 1:7) { power_u[i] <- mean(replicate(n=1000,
-   wilcox.test(rexp(120), rexp(120)+shift[i])$p.value) < .01) }
+   wilcox.test(rexp(110), rexp(110)+shift[i])$p.value) < .05) }
 power_u
 @
 
@@ -397,11 +400,10 @@ The power is highest for a shift of 0.6.
 
 \begin{Exercise}[name=Question]
 \label{powt}
-Using a for-loop, compute the power at level 1\% for Student's t-test on
+Using a for-loop, compute the power at level 5\% for Student's $t$ test on
 the model of Question~\ref{t} by replacing the shift 0.2 with values from
 0 to 0.6 with an increment of 0.1. Store the power values in a vector
 \texttt{power\_t}. For which value of the shift is the power the highest?
-\par\noindent\textcolor{BrickRed}{\textbf{Quercus:} Use seed 123.}
 \end{Exercise}
 \begin{Answer}
 << >>=
@@ -409,7 +411,7 @@ set.seed(123)
 shift <- seq(from=0, to=.6, by=.1)
 power_t <- rep(NA, 7)
 for (i in 1:7) { power_t[i] <- mean(replicate(n=1000,
-   t.test(rexp(120), rexp(120)+shift[i])$p.value) < .01) }
+   t.test(rexp(110), rexp(110)+shift[i])$p.value) < .01) }
 power_t
 @
 
@@ -422,27 +424,27 @@ The power is highest for a shift of 0.6.
 Using the library \texttt{ggplot2} or the standard R plotting functions,
 plot \texttt{power\_u} and \texttt{power\_t} as lines against the shift on
 the same graph. Label the axes and show the legend.
-\par\noindent\textcolor{BrickRed}{\textbf{Quercus:} Upload the figure.}
 \end{Exercise}
 \begin{Answer}
 << fig=TRUE >>=
-plot(x=shift, y=power_u, type="l", lwd=2,
+plot(x=shift, y=power_u, type="l", lwd=2, ylim=c(0,1),
   xlab="Shift", ylab="Power for exponential samples", panel.first=grid())
 lines(x=shift, y=power_t, lwd=2, col=2)
-legend(x="bottomright", lwd=2, col=c(1,2), legend=c("U test", "t-test"))
+legend(x="bottomright", lwd=2, col=c(1,2), legend=c("U test", "t test"))
 @
 \end{Answer}
 
 
 Observe that the two curves start at the same point for a shift of 0. This
 is because a shift of 0 corresponds to the null hypothesis, for which the
-probability of rejection is fixed at 1\% by construction.
+probability of rejection is fixed at 5\% by construction.
 
 Let us generate samples \texttt{x} and \texttt{y} from a normal
 distribution.
 << >>=
-x <- rnorm(120)
-y <- rnorm(120) + 0.2
+set.seed(123)
+x <- rnorm(110)
+y <- rnorm(110) + 0.2
 @
 
 \begin{Exercise}[name=Question]
@@ -450,7 +452,6 @@ Make a similar plot as in Question~\ref{power} where you compute the power
 for normal samples instead of exponential samples, \textit{i.e.}, redo
 Questions~\ref{powu}, \ref{powt} and \ref{power} with \texttt{rnorm(...)}
 instead of \texttt{rexp(...)}, again using shifts from 0 to 0.6.
-\par\noindent\textcolor{BrickRed}{\textbf{Quercus:} Upload the figure.}
 \end{Exercise}
 \begin{Answer}
 << fig=TRUE >>=
@@ -458,14 +459,14 @@ set.seed(123)
 shift <- seq(from=0, to=.6, by=.1)
 power_u <- rep(NA, 7)
 for (i in 1:7) { power_u[i] <- mean(replicate(n=1000,
-   wilcox.test(rnorm(120), rnorm(120)+shift[i])$p.value) < .01) }
+   wilcox.test(rnorm(110), rnorm(110)+shift[i])$p.value) < .05) }
 power_t <- rep(NA, 7)
 for (i in 1:7) { power_t[i] <- mean(replicate(n=1000,
-   t.test(rnorm(120), rnorm(120)+shift[i])$p.value) < .01) }
-plot(x=shift, y=power_u, type="l", lwd=2,
+   t.test(rnorm(110), rnorm(110)+shift[i])$p.value) < .05) }
+plot(x=shift, y=power_u, type="l", lwd=2, ylim=c(0,1),
   xlab="Shift", ylab="Power for normal samples", panel.first=grid())
 lines(x=shift, y=power_t, lwd=2, col=2)
-legend(x="bottomright", lwd=2, col=c(1,2), legend=c("U test", "t-test"))
+legend(x="bottomright", lwd=2, col=c(1,2), legend=c("U test", "t test"))
 @
 \end{Answer}
 
@@ -484,32 +485,31 @@ pressure to acquire more data.
 
 \begin{Exercise}[name=Question]
 Make a similar plot as in Question~\ref{power} where you compute the power
-for normal samples using Student's t-test only (use shifts from 0 to 0.6).
-Make three curves for normal samples of size 40, 80 and 120, i.e., two
-samples each of size 40, then two samples each of size 80, then two
-samples each of size 120. Use three different colors (one for each sample
+for normal samples using Student's $t$ test only (use shifts from 0 to 0.6).
+Make three curves for normal samples of size 30, 55 and 110, i.e., two
+samples each of size 30, then two samples each of size 55, then two
+samples each of size 110. Use three different colors (one for each sample
 size) and label them in the legend.
-\par\noindent\textcolor{BrickRed}{\textbf{Quercus:} Upload the figure.}
 \end{Exercise}
 \begin{Answer}
 << fig=TRUE >>=
 set.seed(123)
 shift <- seq(from=0, to=.6, by=.1)
-power_t40 <- rep(NA, 7)
-power_t80 <- rep(NA, 7)
-power_t120 <- rep(NA, 7)
-for (i in 1:7) { power_t40[i] <- mean(replicate(n=1000,
-   t.test(rnorm(40), rnorm(40)+shift[i])$p.value) < .01) }
-for (i in 1:7) { power_t80[i] <- mean(replicate(n=1000,
-   t.test(rnorm(80), rnorm(80)+shift[i])$p.value) < .01) }
-for (i in 1:7) { power_t120[i] <- mean(replicate(n=1000,
-   t.test(rnorm(120), rnorm(120)+shift[i])$p.value) < .01) }
-plot(x=shift, y=power_t40, type="l", lwd=2,
+power_t30 <- rep(NA, 7)
+power_t55 <- rep(NA, 7)
+power_t110 <- rep(NA, 7)
+for (i in 1:7) { power_t30[i] <- mean(replicate(n=1000,
+   t.test(rnorm(30), rnorm(30)+shift[i])$p.value) < .05) }
+for (i in 1:7) { power_t55[i] <- mean(replicate(n=1000,
+   t.test(rnorm(55), rnorm(55)+shift[i])$p.value) < .05) }
+for (i in 1:7) { power_t110[i] <- mean(replicate(n=1000,
+   t.test(rnorm(110), rnorm(110)+shift[i])$p.value) < .05) }
+plot(x=shift, y=power_t30, type="l", lwd=2,
   xlab="Shift", ylab="Power for normal samples", panel.first=grid())
-lines(x=shift, y=power_t80, lwd=2, col=2)
-lines(x=shift, y=power_t120, lwd=2, col=4)
+lines(x=shift, y=power_t55, lwd=2, col=2)
+lines(x=shift, y=power_t110, lwd=2, col=4)
 legend(x="bottomright", lwd=2, col=c(1,2,4),
-  legend=c("n=40", "n=80", "n=120"))
+  legend=c("n=30", "n=55", "n=110"))
 @
 \end{Answer}
 
@@ -517,13 +517,14 @@ legend(x="bottomright", lwd=2, col=c(1,2,4),
 \section{Conclusions}
 
 We have introduced the Wilcoxon-Mann-Whitney $U$ test, which is more
-widely applicable than Student's test because it makes fewer assumptions
-regarding the distribution of the observations. For the same reason, the
-test is called non-parametric. This test allowed us to conclude that grape
-harvest dates have changed over the last 20 years in a way that parallels
-the increasing temperature of the Earth. One should not take a statistical
-association for a proof of causation, but there is other evidence that the
-harvest date indeed reflects a change in climate~\cite{labbe2019longest}.
+widely applicable than Student's $t$ test because it makes fewer
+assumptions regarding the distribution of the observations. For the same
+reason, the test is called non-parametric. This test allowed us to
+conclude that grape harvest dates have changed over the last 20 years in a
+way that parallels the increasing temperature of the Earth. One should not
+take a statistical association for a proof of causation, but there is
+other evidence that the harvest date indeed reflects a change in
+climate~\cite{labbe2019longest}.
 
 It is sometimes said that the Wilcoxon-Mann-Whitney $U$ test makes no
 assumption about the distribution of the observation, but strictly
@@ -535,15 +536,15 @@ Wilcoxon-Mann-Whitney $U$ test applies to all distributions if these
 constraints are respected. This is permitted by working with the ranks of
 the observations instead of their values.
 
-The Wilcoxon-Mann-Whitney $U$ test and the Student t-test have sensibly
-the same purpose, but they differ by their power. In other words, they do
-not have the same probability of rejecting the null hypothesis when it is
-false. We have seen that the power of the Wilcoxon-Mann-Whitney $U$ test
-is higher than the power of Student's t-test for skewed observations.
-However, for normal and more generally symmetric observations, the power
-of Student's t-test is slightly higher. Overall, none of these tests
-clearly outperforms the other. In most scientific applications, they are
-both accepted as standard procedure.
+The Wilcoxon-Mann-Whitney $U$ test and the Student's $t$ test have
+sensibly the same purpose, but they differ by their power. In other words,
+they do not have the same probability of rejecting the null hypothesis
+when it is false. We have seen that the power of the Wilcoxon-Mann-Whitney
+$U$ test is higher than the power of Student's $t$ test for skewed
+observations. However, for normal and more generally symmetric
+observations, the power of Student's $t$ test is slightly higher. Overall,
+none of these tests clearly outperforms the other. In most scientific
+applications, they are both accepted as standard procedure.
 
 
 \bibliography{references}

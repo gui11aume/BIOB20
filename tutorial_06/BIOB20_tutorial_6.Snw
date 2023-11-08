@@ -453,9 +453,9 @@ log-likelihood
 
 \begin{Exercise}[name=Question]
 Create a function \texttt{dxi} from expression~(\ref{logxi}). Use it to
-plot log-likelihood curves for \texttt{shape} values of 2, 3, 4 and 5 for
-\texttt{scale} in the range 5--40. Which value of \texttt{shape} is the
-most likely?
+plot log-likelihood curves for $k$ values of 2, 3, 4 and 5 for $s$ in the
+range 5--40. Which value of $k$ (the \texttt{shape} parameter) is the most
+likely?
 \end{Exercise}
 \begin{Answer}
 << fig=TRUE >>=

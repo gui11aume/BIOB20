@@ -79,14 +79,12 @@ the center North. The donors are patients who visited the clinics of Salud
 Digna para Todos between 2014 and 2016.
 
 << >>=
-url <- "https://raw.githubusercontent.com/gui11aume/BIOB20/main/chapter_9/btO.txt"
+url <- "https://raw.githubusercontent.com/gui11aume/BIOB20/main/tutorial_09/btO.txt"
 btO <- as.matrix(read.delim(url, row.names=1))
 @
 
 \begin{Exercise}[name=Question]
-Run the usual checks for imported data.
-\par\noindent\textcolor{BrickRed}{\textbf{Quercus:} What is the number of
-rows of the data set?}
+Run the usual checks for imported data. What is the number of rows of the data set?
 \end{Exercise}
 \begin{Answer}
 << >>=
@@ -137,17 +135,17 @@ not their fraction or percentage).
 \end{Exercise}
 \begin{Answer}
 << >>=
-N <- sum(btO) # Number of patients.
-pNL <- sum(btO[2,]) / N
-pO <- sum(btO[,2]) / N
+N <- print(sum(btO)) # Number of patients.
+pNL <- print(sum(btO[2,])) / N
+pO <- print(sum(btO[,2])) / N
 # Expected number of patients from Nuevo Leon having blood type O
 pNL * pO * N
 @
 \end{Answer}
 
 
-The numbers are reasonably similar, but not identical. Is this because of
-random fluctuations or because the variables are not independent? To find
+The observed numbers are close to the expectation under the assumption of
+independence. Is this because the variables are not independent? To find
 out, we will resample the data.
 
 \begin{Exercise}[name=Question]
@@ -155,10 +153,10 @@ out, we will resample the data.
 Assume that the two variables are independent and that sampling follows a
 binomial distribution. Using the values of $P_{NL}$, $P_O$ and $N$ from
 Question~\ref{pq}, sample 100,000 times the number of patients from Nuevo
-Leon with blood type O. Use this as a proxy for a null distribution. Set
-the level to 1\% and find the lower and the upper bounds of a rejection
-region. Is the observed value in the rejection region?
-\par\noindent\textcolor{BrickRed}{\textbf{Quercus:} Use seed 123.}
+Leon with blood type O. Use this as a proxy for a null distribution (the
+statistic is just the number of people from Nuevo Leon with blood type O).
+Set the level to 1\% and find the lower and the upper bounds of a
+rejection region. Is the observed value in the rejection region?
 \end{Exercise}
 \begin{Answer}
 << >>=
@@ -167,8 +165,6 @@ nulld <- rbinom(n=100000, prob=pNL*pO, size=N)
 lower <- print(quantile(nulld, .005))
 upper <- print(quantile(nulld, .995))
 obs <- print(btO[2,2])
-obs < lower
-obs > upper
 @
 
 The observed value is in the acceptance region.
@@ -209,9 +205,9 @@ Shuffle only the second column of \texttt{patients} using the function
 type O in the shuffled \texttt{data.frame}?
 \par\noindent\textcolor{Blue}{\textbf{Hint:} Use the function
 \texttt{table(...)} to extract the information.}
-\par\noindent\textcolor{BrickRed}{\textbf{Quercus:} Use seed 123.}
 \end{Exercise}
 \begin{Answer}
+% 1%-99 quantiles from 1000 replications: 305--348
 << >>=
 set.seed(123)
 patients$NL <- sample(patients$NL)
@@ -224,29 +220,28 @@ table(patients)[2,2]
 
 \begin{Exercise}[name=Question]
 \label{wo_replace}
-Shuffle the second column of \texttt{patients} 100,000 times using the
+Shuffle the second column of \texttt{patients} 1,000 times using the
 function \texttt{sample(...)} and record the number of patients from Nuevo
 Leon with type O in the shuffled \texttt{data.frame}. Use this as a proxy
 for a null distribution. Set the level to 1\% and find the lower and the
 upper bounds of a rejection region. Is the observed value in the rejection
 region?
 \par\noindent\textcolor{Blue}{\textbf{Hint:} Use a for-loop.}
-\par\noindent\textcolor{BrickRed}{\textbf{Quercus:} Use seed 123.}
 \end{Exercise}
 \begin{Answer}
 << >>=
 set.seed(123)
-nulld <- rep(NA, 100000)
-for (i in 1:100000) {
+nulld <- rep(NA, 1000)
+for (i in 1:1000) {
   patients$NL <- sample(patients$NL)
   nulld[i] <- table(patients)[2,2]
 }
 lower <- print(quantile(nulld, .005))
 upper <- print(quantile(nulld, .995))
 obs <- print(btO[2,2])
-obs < lower
-obs > upper
 @
+
+The observed value is in the acceptance region.
 \end{Answer}
 
 
@@ -259,25 +254,24 @@ an urn without replacement.
 Say that white balls are patients with blood type O and that black balls
 are patients with other blood types, and that one draws from the urn a
 number of balls equal to the number of patients from Nuevo Leon. Use the
-function \texttt{rhyper(...)} to simulate 100,000 random draws from this
+function \texttt{rhyper(...)} to simulate 1,000 random draws from this
 urn. Use this as a proxy for a null distribution. Set the level to 1\% and
 find the lower and the upper bounds of a rejection region. Is the observed
 value in the rejection region? How close are the upper and lower bounds
 compared to Question~\ref{wo_replace}?
 \par\noindent\textcolor{Blue}{\textbf{Note:} The sample size for
 \texttt{rhyper(...)} is given by \texttt{nn} and not \texttt{n}.}
-\par\noindent\textcolor{BrickRed}{\textbf{Quercus:} Use seed 123.}
 \end{Exercise}
 \begin{Answer}
 << >>=
 set.seed(123)
-nulld <- rhyper(nn=100000, m=sum(btO[,2]), n=sum(btO[,1]), k=sum(btO[2,]))
+nulld <- rhyper(nn=1000, m=sum(btO[,2]), n=sum(btO[,1]), k=sum(btO[2,]))
 lower <- print(quantile(nulld, .005))
 upper <- print(quantile(nulld, .995))
 obs <- print(btO[2,2])
-obs < lower
-obs > upper
 @
+
+The observed value is in the acceptance region.
 \end{Answer}
 
 
@@ -314,20 +308,20 @@ depend on them.
 \begin{Exercise}[name=Question]
 \label{cell}
 Recall the values of $N$, $P_{NL}$ and $P_O$ from Question~\ref{pq}.
-Compute the null distribution as in Question~\ref{binom}, but subtract
-$P_{NL}P_ON$ from the score, and divide the result by
-$\sqrt{P_{NL}P_O(1-P_{NL}P_O)N}$. Draw 100,000 numbers from this new null
-distribution and plot their density using the function
-\texttt{density(...)}. Compare it to the density of the standard normal
-distribution. How good is the Gaussian approximation?
+Compute the statistic and the null distribution as in
+Question~\ref{binom}, but this time subtract $P_{NL}P_ON$ from the scores,
+and divide the result by $\sqrt{P_{NL}P_O(1-P_{NL}P_O)N}$. Draw 10,000
+numbers from this new null distribution and plot their density using the
+function \texttt{density(...)}. Compare it to the density of the standard
+normal distribution. How good is the Gaussian approximation?
 \par\noindent\textcolor{BrickRed}{\textbf{Quercus:} Upload the figure.}
 \end{Exercise}
 \begin{Answer}
 << fig=TRUE >>=
-nulld <- (rbinom(n=100000, prob=pNL*pO, size=N) - pNL*pO*N) /
+nulld <- (rbinom(n=10000, prob=pNL*pO, size=N) - pNL*pO*N) /
   sqrt(pNL*pO*(1-pNL*pO)*N)
 plot(density(nulld), panel.first=grid())
-lines(density(rnorm(n=100000)), col=2)
+lines(density(rnorm(n=10000)), col=2)
 @
 \end{Answer}
 
@@ -340,9 +334,9 @@ $P_O$ or $N$.
 
 \begin{Exercise}[name=Question]
 \label{pval}
-Compute the observed statistic with this new score and compute the p-value
-of the test when using the standard normal distribution as the null
-distribution.
+Compute the observed statistic with this new score of Question~\ref{cell}
+and compute the p-value of the test when using the standard normal
+distribution as the null distribution.
 \par\noindent\textcolor{Blue}{\textbf{Hint:} For two-sided tests with a
 Gaussian null distribution, the p-value is of the form
 \texttt{2*pnorm(observed)} if \texttt{observed} is negative and
@@ -415,23 +409,29 @@ Note that the default $\chi^2$ statistic computed by
 are several $\chi^2$ statistics but here we will focus exclusively on the
 version originally proposed by Pearson.
 
-\begin{Exercise}[name=Question]
-\label{resample1}
-Compute the expected \emph{probabilities} (not the expected counts) of
-each cell of \texttt{btO} under the hypothesis of independence and store
-them in a matrix \texttt{P}. Use the function \texttt{rmultinom(...)} to
-draw a random matrix with $N$ counts (the total number of patients).
-Compute the Pearson $\chi^2$ statistic on this resampled matrix.
-\par\noindent\textcolor{Blue}{\textbf{Hint:} Wrap the output of
-\texttt{rmultinom(...)} in \texttt{matrix(..., ncol=2)} to obtain a
-matrix.}
-\par\noindent\textcolor{BrickRed}{\textbf{Quercus:} Use seed 123.}
-\end{Exercise}
-\begin{Answer}
+We are now ready to replay the entire procedure under the null hypothesis,
+resample the score and obtain the null distribution. First, we compute the
+expected probabilities of each cell of \texttt{btO} under the hypothesis
+of independence as shown below.
 << >>=
 set.seed(123)
 P <- print(outer(rowSums(btO), colSums(btO)) / N^2)
+@
+
+Now we can use the function \texttt{rmultinom(...)} to draw a random
+matrix with $N$ counts (the total number of patients) and with
+probabilities as given by \texttt{P}.
+<< >>=
 mat <- print(matrix(rmultinom(n=1, size=N, prob=P), ncol=2))
+@
+
+\begin{Exercise}[name=Question]
+\label{resample1}
+Compute the Pearson $\chi^2$ statistic on this resampled matrix
+\texttt{mat}.
+\end{Exercise}
+\begin{Answer}
+<< >>=
 chisq.test(mat, correct=FALSE)
 @
 \end{Answer}
@@ -439,7 +439,7 @@ chisq.test(mat, correct=FALSE)
 
 \begin{Exercise}[name=Question]
 \label{finale}
-Repeat the procedure of Question~\ref{resample1} 100,000 times to produce
+Repeat the procedure of Question~\ref{resample1} 10,000 times to produce
 a null distribution. Plot it using the function \texttt{density(...)} and
 overlay the density of the $\chi^2$ distribution with 1 degree of freedom.
 \par\noindent\textcolor{Blue}{\textbf{Hint:} Use a for-loop and compute
@@ -451,12 +451,12 @@ proper options.}
 << fig=TRUE >>=
 set.seed(123)
 P <- print(outer(rowSums(btO), colSums(btO)) / N^2)
-nulld <- rep(NA, 100000)
-for (i in 1:100000) { nulld[i] <-
+nulld <- rep(NA, 10000)
+for (i in 1:10000) { nulld[i] <-
   chisq.test(matrix(rmultinom(n=1, size=N, prob=P), ncol=2), correct=FALSE)$statistic
 }
 plot(density(nulld), panel.first=grid())
-lines(density(rgamma(n=100000, shape=.5, scale=2)), col=2)
+lines(density(rgamma(n=10000, shape=.5, scale=2)), col=2)
 @
 \end{Answer}
 
@@ -480,7 +480,7 @@ $m \times n$ contingency tables. Load the data and run the usual checks
 for imported data.
 
 << >>=
-url <- "https://raw.githubusercontent.com/gui11aume/BIOB20/main/chapter_9/ABO.txt"
+url <- "https://raw.githubusercontent.com/gui11aume/BIOB20/main/tutorial_09/ABO.txt"
 ABO <- as.matrix(read.delim(url, row.names=1))
 @
 
@@ -490,7 +490,7 @@ between men and women.
 \begin{Exercise}[name=Question]
 Compute the expected counts in each cell of the contingency table
 \texttt{ABO} under the hypothesis of independence. Use this information to
-resample 100,000 contingency tables as in Question~\ref{finale} and plot
+resample 10,000 contingency tables as in Question~\ref{finale} and plot
 the density of this null distribution. Overlay the density of the $\chi^2$
 distribution with 3 degrees of freedom.
 \par\noindent\textcolor{BrickRed}{\textbf{Quercus:} Upload the figure.}
@@ -499,12 +499,12 @@ distribution with 3 degrees of freedom.
 << fig=TRUE >>=
 set.seed(123)
 P <- print(outer(rowSums(ABO), colSums(ABO)) / sum(ABO)^2)
-nulld <- rep(NA, 100000)
-for (i in 1:100000) { nulld[i] <-
+nulld <- rep(NA, 10000)
+for (i in 1:10000) { nulld[i] <-
   chisq.test(matrix(rmultinom(n=1, size=sum(ABO), prob=P), ncol=4), correct=FALSE)$statistic
 }
 plot(density(nulld), panel.first=grid())
-lines(density(rgamma(n=100000, shape=3*.5, scale=2)), col=2)
+lines(density(rgamma(n=10000, shape=3*.5, scale=2)), col=2)
 @
 \end{Answer}
 
