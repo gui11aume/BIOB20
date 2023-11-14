@@ -97,11 +97,10 @@ The object \texttt{btO} is a $2 \times 2$ contingency table.
 
 \begin{definition}[contingency table]
 A contingency table is a matrix showing the counts of two categorical
-variables in a sample of interest. Each row indicates a modality of the
-first categorical variable, each column indicates a modality of the second
-categorical variable. Thus, an $m \times n$ contingency table shows the
-combined counts of a variable with $m$ modalities and a variable with $n$
-modalities.
+variables in a sample of interest. Each row indicates a category of the
+first variable, each column indicates a category of the second variable.
+Thus, an $m \times n$ contingency table shows the combined counts of a
+variable with $m$ categories and a variable with $n$ categories.
 \end{definition}
 
 The $2 \times 2$ contingency table \texttt{btO} crosses the geographic
@@ -152,7 +151,7 @@ out, we will resample the data.
 \label{binom}
 Assume that the two variables are independent and that sampling follows a
 binomial distribution. Using the values of $P_{NL}$, $P_O$ and $N$ from
-Question~\ref{pq}, sample 100,000 times the number of patients from Nuevo
+Question~\ref{pq}, sample 10,000 times the number of patients from Nuevo
 Leon with blood type O. Use this as a proxy for a null distribution (the
 statistic is just the number of people from Nuevo Leon with blood type O).
 Set the level to 1\% and find the lower and the upper bounds of a
@@ -161,7 +160,7 @@ rejection region. Is the observed value in the rejection region?
 \begin{Answer}
 << >>=
 set.seed(123)
-nulld <- rbinom(n=100000, prob=pNL*pO, size=N)
+nulld <- rbinom(n=10000, prob=pNL*pO, size=N)
 lower <- print(quantile(nulld, .005))
 upper <- print(quantile(nulld, .995))
 obs <- print(btO[2,2])
@@ -220,7 +219,7 @@ table(patients)[2,2]
 
 \begin{Exercise}[name=Question]
 \label{wo_replace}
-Shuffle the second column of \texttt{patients} 1,000 times using the
+Shuffle the second column of \texttt{patients} 10,000 times using the
 function \texttt{sample(...)} and record the number of patients from Nuevo
 Leon with type O in the shuffled \texttt{data.frame}. Use this as a proxy
 for a null distribution. Set the level to 1\% and find the lower and the
@@ -231,8 +230,8 @@ region?
 \begin{Answer}
 << >>=
 set.seed(123)
-nulld <- rep(NA, 1000)
-for (i in 1:1000) {
+nulld <- rep(NA, 10000)
+for (i in 1:10000) {
   patients$NL <- sample(patients$NL)
   nulld[i] <- table(patients)[2,2]
 }
@@ -254,7 +253,7 @@ an urn without replacement.
 Say that white balls are patients with blood type O and that black balls
 are patients with other blood types, and that one draws from the urn a
 number of balls equal to the number of patients from Nuevo Leon. Use the
-function \texttt{rhyper(...)} to simulate 1,000 random draws from this
+function \texttt{rhyper(...)} to simulate 10,000 random draws from this
 urn. Use this as a proxy for a null distribution. Set the level to 1\% and
 find the lower and the upper bounds of a rejection region. Is the observed
 value in the rejection region? How close are the upper and lower bounds
@@ -265,7 +264,7 @@ compared to Question~\ref{wo_replace}?
 \begin{Answer}
 << >>=
 set.seed(123)
-nulld <- rhyper(nn=1000, m=sum(btO[,2]), n=sum(btO[,1]), k=sum(btO[2,]))
+nulld <- rhyper(nn=10000, m=sum(btO[,2]), n=sum(btO[,1]), k=sum(btO[2,]))
 lower <- print(quantile(nulld, .005))
 upper <- print(quantile(nulld, .995))
 obs <- print(btO[2,2])
@@ -301,7 +300,7 @@ patients from Nuevo Leon and on the number of patients with blood type O
 in the sample. Without those numbers, one cannot sample from the correct
 binomial distribution.
 
-However, this may be an illustion... Maybe $P_{NL}$ and $P_O$ are nuisance
+However, this may be an illusion... Maybe $P_{NL}$ and $P_O$ are nuisance
 parameters and there may exist a statistic whose distribution does not
 depend on them.
 
@@ -337,8 +336,8 @@ $P_O$ or $N$.
 Compute the observed statistic with this new score of Question~\ref{cell}
 and compute the p-value of the test when using the standard normal
 distribution as the null distribution.
-\par\noindent\textcolor{Blue}{\textbf{Hint:} For two-sided tests with a
-Gaussian null distribution, the p-value is of the form
+\par\noindent\textcolor{Blue}{\textbf{Hint:} For two-sided tests where
+the null distribution is Gaussian, the p-value is of the form
 \texttt{2*pnorm(observed)} if \texttt{observed} is negative and
 \texttt{2*pnorm(observed, lower.tail=FALSE)} if it is positive.}
 \end{Exercise}

@@ -56,14 +56,12 @@ In this tutorial, we are going to revisit the results and design
 confidence intervals to quantify the uncertainty about our estimate.
 
 
-\section{The mRNA-1273 clinical trial}
+\section{Revisiting the mRNA-1273 clinical trial}
 
 In the course of the mRNA-1273 clinical trial, 15210 participants received
 the placebo and 15210 received the vaccine~\cite{baden2020efficacy}. 196
 participants developed symptomatic COVID-19, including 11 patients who
 received the vaccein and 185 who received the placebo.
-
-Let us first review the results of testing approaches.
 
 \begin{Exercise}[name=Question]
 \label{chi2}
@@ -84,12 +82,17 @@ very small so we reject the null hypothesis and conclude that the
 vaccination status has an effect.
 \end{Answer}
 
+We assumed earlier that the organizers initially decided to stop the
+clinical trial as soon as 196 participants develop symptomatic COVID-19.
+However, there is no mention of this in the method, so this is probably
+not the case. Instead, the organizers may have stopped the trial whey they
+deemed the number to be sufficiently high.
 
 \begin{Exercise}[name=Question]
 \label{fisher}
-Using the table you prepare in Question~\ref{chi2}, perform Fisher's exact
-test using the function \texttt{fisher.test(...)}. What is the conclusion
-of the test?
+Using the table you prepared in Question~\ref{chi2}, perform Fisher's
+exact test using the function \texttt{fisher.test(...)}. What is the
+conclusion of the test?
 \end{Exercise}
 \begin{Answer}
 << >>=
@@ -105,7 +108,7 @@ hypothesis and conclude that the vaccination status has an effect.
 
 \begin{Exercise}[name=Question]
 \label{binom}
-Formulate the problem from the point of view of a binomial trial. Use the
+Formulate the problem from the point of view of Bernoulli trials. Use the
 function \texttt{pbinom(...)} to estimate the p-value (assume that the
 test is one-sided for simplicity).
 \end{Exercise}
@@ -143,19 +146,20 @@ article~\cite{baden2020efficacy}
 
 \section{Estimating vaccine efficiency}
 
-The estimated efficiency of the vaccine is defined in this context as
-$\theta = 1-f$ where $f$ is the ratio of vaccinated to non-vaccinated
-participants among those who develop COVID-19. Here $\theta = 1 - f = 1 -
-11/185 = 0.94$ --- note that with this definition, the efficiency is null
-when there are as many participants with the vaccine and with the placebo
-among those who develop COVID-19.
+The estimated efficiency of the vaccine is defined as $\theta = 1-f$ where
+$f$ is the ratio of vaccinated to non-vaccinated participants among those
+who develop COVID-19. Here $\theta = 1 - f = 1 - 11/185 = 0.94$ --- note
+that with this definition, the efficiency is zero when there are as many
+participants who received the vaccine as the placebo among those who
+develop COVID-19.
 
 Because of sampling effects, the estimated efficiency always fluctuates
-around the true value. It is important to quantify how certain we are that
-the efficiency is so high. On the one hand, the clinical trial is large
+around the true value. It is therefore important to quantify how certain
+we are about the estimate. On the one hand, the clinical trial is large
 because it involves over 30,000 participants, but on the other hand, the
-number of people who developed COVID-19 is much smaller. Could such high
-values occur randomly when 196 participants become ill?
+number of people who developed COVID-19 is much smaller. The vaccine is
+more efficient than the placebo, but how sure are we that that efficiency
+is high?
 
 
 \begin{Exercise}[name=Question]
@@ -179,10 +183,11 @@ of the vaccine is 0.94.
 
 
 It is not surprising that the new null hypothesis seems to be more
-consistent with the data because we used the data to formulate it. But one
-can formulate arbitrary null hypotheses without data. To demonstrate this
-let us test whether the efficiency is 80\%, which is an arbitrary high
-number.
+consistent with the data because we used the data to formulate it (0.94 is
+the maximum-lieklihood estimate so it would be odd to reject the null
+hypothesis here). But one can formulate arbitrary null hypotheses without
+data. To demonstrate this let us test whether the efficiency is 80\%,
+which is an arbitrary high number.
 
 \begin{Exercise}[name=Question]
 Using the same approach as in Question~\ref{test} test the the null
@@ -199,15 +204,13 @@ the efficiency must be above 80\%.
 \end{Answer}
 
 
-It is important to realize that accepting a null hypothesis is not a
-statement that the null hypothesis is true. It means that the null
-hypothesis is comptabile with the observations. Ore more accurately, it
-means that the null hypothesis is \emph{not incompatible} with the
-observations (the difference being about the onus, we do not reject the
-null for lack of evidence that it is incompatible with the observation).
-
-So there is no inconsistency in accepting distinct null hypotheses and we
-can search collections of hypotheses that are acceptable.
+It is important to highlight that accepting a null hypothesis is not a
+statement that the null hypothesis is true. Neither is it a statement that
+other hypotheses are false. Accepting the null hypothesis means that the
+null hypothesis is \emph{compatible} with the observations (or more
+accurately \emph{not incompatible} with the observations). So there is no
+inconsistency in accepting distinct null hypotheses and we can search
+collections of hypotheses that are acceptable.
 
 \begin{Exercise}[name=Question]
 \label{pvals}
@@ -289,7 +292,7 @@ $x\%$ chance that $\theta$ belongs to the interval.
 Note that the definition does not say that for any observed sample there
 is an $x\%$ chance that $\theta$ belongs to the interval. Just like for
 statistical tests, the guarantees of accuracy are given to the procedure
-but they may not apply on a particular case (and like fro statistical
+but they may not apply in a particular case (and like for statistical
 tests, precision can be guaranteed \emph{before} the data is collected).
 
 The intervals of Questions~\ref{95} and \ref{99} are 95\% and 99\%
@@ -297,10 +300,11 @@ confidence intervals, respectively. To prove this, say that the true
 efficiency of the vaccine is $\theta$. Our procedure is to include
 \emph{all} the efficiencies that are associated with a p-value of 0.05 or
 higher --- respectively 0.01 or higher. The true value is $\theta$ so
-there is a 95\% chance of accepting the null when testing this hypothesis,
-so there is a 95\% chance that $\theta$ is included in the set ---
-respectively 99\%. Note that the other values are irrelevant, we just want
-some guarantee that $\theta$ is in the set.
+there is a 95\% chance of accepting the null when testing the hypothesis
+that the parameter is equal to $\theta$. This in turn implies that there
+is a 95\% chance that $\theta$ is included in the set --- respectively
+99\%. Note that the other values are irrelevant, we just want some
+guarantee that $\theta$ is in the set.
 
 Since we used one-sided tests for simplicity, the intervals of
 Questions~\ref{95} and \ref{99} are of the form $\theta \geq \theta^*$,
@@ -309,9 +313,9 @@ irrelevant, as long as the true value $\theta$ has a known chance of
 belonging to the test before data is collected.
 
 Confidence intervals are widely misinterpreted. A 95\% confidence interval
-does not have a 95\% chance of containing $\theta$ the true value of the
-parameter. Also, a confidence interval makes no use of any prior knowledge
-we may have about $\theta$. Let us give an example for clarity.
+does not have a 95\% chance of containing the true value of the parameter.
+In addition, a confidence interval makes no use of any prior knowledge we
+may have about $\theta$. Let us give an example for clarity.
 
 << echo=FALSE, eval=TRUE >>=
 set.seed(71) # Chosen carefully.
@@ -319,8 +323,8 @@ set.seed(71) # Chosen carefully.
 
 \begin{Exercise}[name=Question]
 \label{wrong}
-A parameter \texttt{mu} was created with a 50:50 chance to be -100 or
-+100. Then a normal sample with mean \texttt{mu} was drawn.
+A parameter \texttt{mu} is created with a 50:50 chance to be -100 or +100.
+Then a normal sample with mean \texttt{mu} is drawn.
 << >>=
 mu <- ifelse(runif(n=1) >= .5, -100, +100)
 rnorm(n=10, mean=mu)
@@ -352,13 +356,13 @@ true parameter $\theta$, but the example above shows that this does not
 imply that a \emph{given} confidence interval has a 95\% chance of
 containing the true parameter $\theta$. It is sometimes possible to update
 our knowledge about $\theta$ from the context and the observations.
-However, the confidence interval procedure has to remain the same to main
-the initial guarantees, so the bounds of the confidence interval are not
-changed, even when they are inadequate in some \emph{given} instance.
+However, the confidence interval procedure has to remain the same to
+maintain the initial guarantees, so the bounds of the confidence interval
+cannot be changed, even when they are inadequate in some \emph{given}
+instance.
 
-We have proceeded with a one-sided test for simplicity, but this is not
-the standard form of confidence interval estimation. Let us investigate
-how two-sided tests modify the confidence intervals.
+Using one-sided tests is not the standard approach to generating
+confidence intervals. This is usually done with two-sided tests.
 
 \begin{Exercise}[name=Question]
 Using a binomial distribution as in Question~\ref{binom}, test the the null
