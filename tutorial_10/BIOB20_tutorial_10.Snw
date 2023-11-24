@@ -42,14 +42,14 @@ Answer to Question \ExerciseHeaderNB}\par}
 
 \section{Overview}
 
-In this chapter we revisit the example of randomized clinical and
+In this chapter we revisit the example of randomized clinical trials and
 introduce confidence intervals in this context.
 
 
 %% The problem %%
 \section{The problem}
 
-When we analzyed the results of the clinical trial for the mRNA-1273
+When we analyzed the results of the clinical trial for the mRNA-1273
 vaccine in tutorial 1, we concluded that the vaccine was more efficient
 than the placebo, but we did not estimate the efficiency of the vaccine.
 In this tutorial, we are going to revisit the results and design
@@ -59,9 +59,10 @@ confidence intervals to quantify the uncertainty about our estimate.
 \section{Revisiting the mRNA-1273 clinical trial}
 
 In the course of the mRNA-1273 clinical trial, 15210 participants received
-the placebo and 15210 received the vaccine~\cite{baden2020efficacy}. 196
-participants developed symptomatic COVID-19, including 11 patients who
-received the vaccein and 185 who received the placebo.
+the placebo and 15210 participants received the
+vaccine~\cite{baden2020efficacy}. In total, 196 participants developed
+symptomatic COVID-19, among which 11 patients received the vaccine and 185
+received the placebo.
 
 \begin{Exercise}[name=Question]
 \label{chi2}
@@ -81,12 +82,6 @@ outcome of the disease (the two variables are independent). The p-value is
 very small so we reject the null hypothesis and conclude that the
 vaccination status has an effect.
 \end{Answer}
-
-We assumed earlier that the organizers initially decided to stop the
-clinical trial as soon as 196 participants develop symptomatic COVID-19.
-However, there is no mention of this in the method, so this is probably
-not the case. Instead, the organizers may have stopped the trial whey they
-deemed the number to be sufficiently high.
 
 \begin{Exercise}[name=Question]
 \label{fisher}
@@ -125,6 +120,11 @@ that participants who received the vaccine are less likely to develop
 symptomatic COVID-19 than the participants who received the placebo.
 \end{Answer}
 
+We assumed earlier that the organizers initially decided to stop the
+clinical trial as soon as 196 participants develop symptomatic COVID-19.
+However, there is no mention of this in the methods, so this is probably
+not the case. Instead, the organizers may have stopped the trial when they
+deemed the number to be sufficiently high.
 
 \begin{Exercise}[name=Question]
 One of the tests from Questions~\ref{chi2}, \ref{fisher} and \ref{binom}
@@ -185,9 +185,9 @@ of the vaccine is 0.94.
 It is not surprising that the new null hypothesis seems to be more
 consistent with the data because we used the data to formulate it (0.94 is
 the maximum-lieklihood estimate so it would be odd to reject the null
-hypothesis here). But one can formulate arbitrary null hypotheses without
-data. To demonstrate this let us test whether the efficiency is 80\%,
-which is an arbitrary high number.
+hypothesis here). But it is possible to formulate arbitrary null
+hypotheses without data. To demonstrate this let us test whether the
+efficiency is 80\%, which is an arbitrary high number.
 
 \begin{Exercise}[name=Question]
 Using the same approach as in Question~\ref{test} test the the null
@@ -326,11 +326,11 @@ set.seed(71) # Chosen carefully.
 A parameter \texttt{mu} is created with a 50:50 chance to be -100 or +100.
 Then a normal sample with mean \texttt{mu} is drawn.
 << >>=
-mu <- ifelse(runif(n=1) >= .5, -100, +100)
+mu <- sample(c(100,-100), size=1)
 rnorm(n=10, mean=mu)
 @
-What is the 95\% confidence interval for \texttt{mu} given by the function
-\texttt{t.test(...)}?
+From the outcome above, what is the 95\% confidence interval for
+\texttt{mu} given by the function \texttt{t.test(...)}?
 \par\noindent\textcolor{BrickRed}{\textbf{Quercus:} Give the lower bound.}
 \end{Exercise}
 \begin{Answer}

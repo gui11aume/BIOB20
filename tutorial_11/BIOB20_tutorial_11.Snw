@@ -66,7 +66,7 @@ It is challenging to estimate the atmospheric \ce{CO2} of past periods.
 This is usually done using so-called ice cores, \textit{i.e.}, cylinders
 of ice drilled from glaciers. Air from the atmosphere constantly gets
 trapped by falling snow, which later turns into ice that is burried in the
-depth of glaciers. Ice cores from Antarctica can revaled the composition
+depth of glaciers. Ice cores from Antarctica can reveal the composition
 of the atmosphere as far back as 800,000 years ago, but not beyond.
 
 However, fossils of plant specimens can provide a window on the
@@ -77,10 +77,10 @@ atmospheric \ce{CO2} of the distant past.
 
 In 1987, Ian Woodward, a researcher at Cambridge University established a
 method to measure atmospheric \ce{CO2} from specimens of plant from the
-oldest herbariums of England~\cite{woodward1987stomatal}. Woodward
-measured the density of stomata on the leaves on specimens that were
-collected from 1750. Stomata are openings on the surface of leaves to
-allow the passage of gases for respiration and photosynthesis. Their
+oldest herbariums of England~\cite{woodward1987stomatal}. Specifically,
+Woodward measured the density of stomata on the leaves on specimens that
+were collected from 1750. Stomata are openings on the surface of leaves,
+that allow the passage of gases for respiration and photosynthesis. Their
 amount is regulated by the plant to optimize its energy metabolism.
 
 Woodward noticed that the amount of stomata seemed to decrease as
@@ -114,7 +114,7 @@ nrow(stom)
 \begin{Exercise}[name=Question]
 \label{scatter}
 Make a scatter plot with the year on the x-axis and the stomatal density
-on the y-axis. As usual, label the axes and indicates the units wherever
+on the y-axis. As usual, label the axes and indicate the units wherever
 needed.
 \par\noindent\textcolor{BrickRed}{\textbf{Quercus:} Upload the figure.}
 \end{Exercise}
@@ -158,12 +158,12 @@ The intercept is 440.42.
 \end{Answer}
 
 
-The slope is the gain or loss of stomatal density in a year. The intercept
-is the predicted stomatal density when the x value is 0, \textit{i.e.} at
-year 0. Year 0 is far off from the records, and it is usually understood
-in this kind of model that the intercept serves primarily as a way to
-adjust the vertical position of the line, but that it is not always
-possible to extrapolate outside the range of the data that is available.
+The slope is the change of stomatal density in a year. The intercept
+is the predicted stomatal density when the value of $x$ is 0,
+\textit{i.e.}, at year 0. Note there is no observation to support the
+estimate at year 0. It is usually understood that the intercept serves
+as a way to adjust the vertical position of the line, but that it is not
+always possible to extrapolate outside the range of available data.
 
 \begin{Exercise}[name=Question]
 \label{line}
@@ -187,15 +187,15 @@ In the classical approach, the parameter $b$ is assumed to be an unknown
 constant. Its maximum likelihood estimator as given by the function
 \texttt{lm(...)} is a random variable with a certain dispersion around the
 true value of $b$. It is thus interesting to know how accurately the true
-value of $b$ is esimated. As usual, we can proceed with a statistical test
-to know whether the parameter fits a certain null hypothesis. In this
-case, it is natural to test $b = 0$ because it corresponds to the absence
-of trend.
+value of $b$ is estimated. As usual, we can proceed with a statistical
+test to know whether the parameter fits a certain null hypothesis. In this
+case, it is natural to test whether $b = 0$ because it corresponds to the
+absence of trend.
 
 \begin{Exercise}[name=Question]
-When $b = 0$, the maximum likelihood estimate of the regression line is
-a horizontal line at the height of the average y value. Add this line in
-blue to the plot of Question~\ref{line}.
+If $b = 0$, the regression line is a horizontal line at the height of the
+average value of the $y$ variable. Add this line in blue to the plot of
+Question~\ref{line}.
 \par\noindent\textcolor{BrickRed}{\textbf{Quercus:} Upload the figure.}
 \end{Exercise}
 \begin{Answer}
@@ -212,8 +212,8 @@ abline(h=mean(stom$SD), col=4)
 One can perform a statistical test for $b = 0$ to decide if the blue line
 is compatible with the data by calling the function \texttt{anova(...)} on
 the output of \texttt{lm(...)}. Perform a test for $b = 0$ and conclude.
-Is it plausible that the relationship that appears on the scatter plot is
-due to random sampling alone?
+Is it plausible that the trend appearing on the scatter plot is due to
+random sampling?
 \par\noindent\textcolor{Blue}{\textbf{Hint:} The p-value of the test is
 indicated in the column \texttt{Pr(>F)}.}
 \end{Exercise}
@@ -233,15 +233,14 @@ the assumption that the residuals have a normal distribution.
 We will not delve deeper into the theory, all that matters to us is that
 such a test exists, which also gives us access to confidence interval
 estimation. By choosing the values of $b$ that are accepted using a test
-at level 5\%, one can construct a confidence interval for $b$.
+at level 5\%, one can construct a 95\% confidence interval for $b$.
 
 \begin{Exercise}[name=Question]
 \label{confint}
 Use the function \texttt{confint(...)} on the output of \texttt{lm(...)}.
-Specify as an additional parameter \texttt{"stom\$Year"} (note the double
-quotes) to specify which parameter to estimate. Does the value 0 belong to
-the interval? Does this confirm your previous conclusions about the trend
-of stomatal density?
+Add the additional parameter \texttt{"stom\$Year"} (note the double
+quotes) to specify the parameter to estimate. Does the value 0 belong to
+the interval? Does this confirm your previous conclusions.
 \par\noindent\textcolor{BrickRed}{\textbf{Quercus:} Input the length of
 the interval.}
 \end{Exercise}
@@ -254,7 +253,7 @@ confint(lm(stom$SD~stom$Year), "stom$Year")
 
 \section{Making predictions}
 
-The section above shows how Linear models can be useful for inference,
+The section above shows how linear models can be useful for inference,
 \textit{i.e.}, to understand existing relationships between variables. But
 they can also be used for prediction.
 
@@ -270,11 +269,9 @@ flora of England in 2030.
 \end{Answer}
 
 
-Pointwise predictions cannot be exact for continuous variables, the
-probability is 0 that they take a given value. It is more useful to give
-an interval where the measurement may be in the future. This has a chance
-of being correct and it conveys the uncertainty around the predicted
-value.
+Pointwise predictions cannot be exact for continuous variables. It is more
+useful to give an interval where the measurement may and it conveys the
+uncertainty around the predicted value.
 
 \begin{Exercise}[name=Question]
 Assume for simplicity that $a$ is estimated perfectly. Use the results of
@@ -302,7 +299,7 @@ this is to recalibrate the model as more data becomes available.
 
 \section{Stomata and atmospheric \ce{CO2}}
 
-Let us now investigate the relationship between stomatal density and and
+Let us now investigate the relationship between stomatal density and
 atmospheric \ce{CO2}.
 
 
@@ -311,7 +308,7 @@ atmospheric \ce{CO2}.
 Make a scatter plot with the atmospheric \ce{CO2} as the x-axis and the
 stomatal density as the y-axis. Label the axes as usual and indicate the
 units wherever needed. Add the regression line in red as in
-Question~\ref{line}
+Question~\ref{line}.
 \par\noindent\textcolor{BrickRed}{\textbf{Quercus:} Upload the figure.}
 \end{Exercise}
 \begin{Answer}
@@ -347,26 +344,26 @@ percent stomatal density per year in the first linear regression and in
 percent stomatal density per $\mu$mol of \ce{CO2} per mol of air in the
 second linear regression.
 
-Also, one can perform the regression of the x variable over the y
-varialbe, and one obtains another coefficient $b$ with other units. In the
-cases that we just want to know whether the variables are related, it is
-awkward to force the choice of one of these two coefficients.
+Also, one could equally well perform the regression of the $x$ variable
+over the $y$ variable, and one obtains another coefficient $b$ with other
+units. In the cases that we just want to know whether the variables are
+related, it is awkward to force the choice of one of these two
+coefficients.
 
-It would be useful if we could get an idea as to wether the x and y
-variables depend strongly each other or not. This is one of the main
-purposes of the Pearson correlation coefficient, often notend $r$. This
-value is always between -1 and +1, where -1 indicates a deterministic
-negative trend, 0 indicates no trend at all, and +1 indicates a
-deterministic positive trend. In R, the Pearson correlation coefficient
-can be computed with the function \texttt{cor(...)}.
+It would be useful if we could get an idea as to wether the $x$ and $y$
+variables depend strongly on each other or not. This is one of the main
+purposes of the Pearson correlation coefficient, often noted $r$. This
+value is always between $-1$ and $+1$, where $-1$ indicates a
+deterministic negative trend, 0 indicates no trend at all, and +1
+indicates a deterministic positive trend. In R, the Pearson correlation
+coefficient can be computed with the function \texttt{cor(...)}.
 
 \begin{Exercise}[name=Question]
 Compute the Pearson correlation coefficient between stomatal density and
 atmospheric \ce{CO2}. Check that the order of the variables in the
 function does not matter.
 \par\noindent\textcolor{Blue}{\textbf{Hint:} When NAs are present in
-the data, one has to set the parameter \texttt{use} to
-\texttt{"complete.obs"}.}
+the data, one has to set \texttt{use="complete.obs"}.}
 \end{Exercise}
 \begin{Answer}
 << >>=
@@ -402,8 +399,8 @@ null hypothesis is based on the same statistic, so one can also perform
 statistical tests on the Pearson coefficient of correlation and give
 confidence intervals in the same way.
 
-In R, the function to perform a statistical test for the Pearson
-coefficient of correlation is \texttt{cor.test(...)}.
+In R, the function to set up a test for the Pearson coefficient of
+correlation is \texttt{cor.test(...)}.
 
 \begin{Exercise}[name=Question]
 Perform a test for the Pearson coefficient of correlation between stomatal
@@ -457,9 +454,9 @@ the calibration of the linear regression model. Parameters are always
 estiamted with some uncertainty that is carried forward to predictions or
 estimations. Larger data sets allow for more accurate estimations, but it
 is important to distinguish two types of predictions. The first is the
-average value of the y variable, which can be estimate to within great
+average value of the $y$ variable, which can be estimate to within great
 accuracy if the sample is large enough. The second is the value of an
-individual observation of the y varialble, which contains some irreducible
+individual observation of the $y$ varialble, which contains some irreducible
 randomness. The observations are not exactly along a straight line, and
 this fact will not change even in a large sample.
 
