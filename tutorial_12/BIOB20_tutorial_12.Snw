@@ -52,8 +52,8 @@ introduce the Bayesian approach in this context.
 We analzyed the results of the clinical trial for the mRNA-1273 vaccine in
 tutorials 1 and 10. In tutorial 1, we concluded that the vaccine was more
 efficient than the placebo and in tutorial 10 we estimated the efficiency
-with a confidence interval. In this tutorial, we will go one step further
-and estimate the efficiency with Bayesian methods.
+of the vaccibne with a confidence interval. In this tutorial, we will
+explore a different way to estimate the efficiency with Bayesian methods.
 
 
 \section{The mRNA-1273 clinical trial}
@@ -63,7 +63,7 @@ the placebo and 15210 received the vaccine~\cite{baden2020efficacy}. 196
 participants developed symptomatic COVID-19, including 11 patients who
 received the vaccein and 185 who received the placebo.
 
-Let us first review the results of estimation by confidence intervals.
+Let us first review the results of estimation with confidence intervals.
 
 \begin{Exercise}[name=Question]
 \label{binom.test}
@@ -90,8 +90,8 @@ probability of ``success'' in the binomial distribution (the probability
 that a participant who develops symptomatic COVID-19 is vaccinated).
 Instead, the efficiency is 0 when half of the participants who develop
 symptomatic COVID-19 are vaccinated, so $\theta = (1-2p) / (1-p)$. In
-tutorial 10 we estimated $\theta$ whereas here we estimate $p$, explaining
-why the numbers are dissimilar.
+tutorial 10 we estimated $\theta$ whereas here we estimate $p$, so we
+do not expect the numbers to be similar.
 
 Confidence intervals address the limitations of point estimation by
 providing a measure of uncertainty around the estimate. The main feature
@@ -99,26 +99,27 @@ of confidence intervals (and the most common confusion about their
 intrepretation) is that the guarantees of precision apply to the method in
 general, but not to a particular interval.
 
-This consideration highlights the main limitation of confidence intervals.
-When protocols are not scrupulously respected, confidence intervals
-provide guarantees for methods that are not followed. In this clinical
+So when protocols are not scrupulously respected, confidence intervals
+provide guarantees for methods that were not followed. In this clinical
 trial, it does not seem that the protocol specifically mentioned that the
 results would be analayzed as soons as 196 participants develop
 symptomatic COVID-19. If this number cannot be fixed beforehand, the null
 distribution of the score cannot be computed and the protocol for
 constructing a confidence interval cannot be completed. The bounds of the
 confidence interval are thus given by a protocol that was not followed.
+This is a potentially serious limitation.
 
 
 \section{The Bayesian point of view}
 
 A different approach to estimation and inference is to consider that
-unknown parameters are random variables instead of unknown constants. The
-analyst conjures up a probability distribution that represtents the
-current state of knowledge about the parameters. For instance, if a
-parameter is thought to be between between 11 and 15, the analyst may
-assume that it has a normal distribution with mean 13 and standard
-deviation 2/3 (more than 99.7\% of the probability in a normal
+unknown parameters are random variables instead of unknown constants. This
+amounts to saying that there is no fundamental difference between
+\emph{unknown} and \emph{random}. The analyst conjures up a probability
+distribution that represtents the state of knowledge about the parameters.
+For instance, if a parameter is thought to be between between 11 and 15,
+the analyst may assume that it has a normal distribution with mean 13 and
+standard deviation 2/3 (more than 99.7\% of the probability in a normal
 distribution is in an interval of 3 standard deviations). This
 distribution is called the \emph{prior}.
 
@@ -145,9 +146,9 @@ can recall that for a variable $X$ with the uniform distribution $P(X < x)
 \begin{Exercise}[name=Question]
 \label{X_sample}
 Simulate the outcome of 100,000 clinical trials where $p$ has a uniform
-distribution and $X$ has a $B(196, p)$ distribution. Store the result in a
-variable called \texttt{X\_sample}. What is the average value of $X$ in
-\texttt{X\_sample}?
+distribution and $X$ has a binomial $B(196, p)$ distribution. Store the
+result in a variable called \texttt{X\_sample}. What is the average value
+of $X$ in \texttt{X\_sample}?
 \par\noindent\textcolor{Blue}{\textbf{Hint:} Using the vector
 notation to sample 100,000 values with a single call to
 \texttt{rbinom(...)} is faster than a for-loop.}
@@ -160,9 +161,9 @@ mean(X_sample)
 \end{Answer}
 
 
-The distribution of $X$ is not the null distribution associated with the
-null hypothesis $p = 0.5$. Actually, it is not a null distribution at all
-because it is not linked to a target value of $p$.
+Note that the distribution of $X$ is not the null distribution associated
+with the null hypothesis $p = 0.5$. Actually, it is not a null
+distribution at all because it is not linked to a target value of $p$.
 
 \begin{Exercise}[name=Question]
 \label{histo_1}
@@ -190,27 +191,29 @@ P(p|X) = P(X|p) \frac{P(p)}{P(X)}.
 In this expression, $P(X|p)$ is a simple binomial distribution, $P(p)$ is
 the uniform distribution, and $P(X)$ is the distribution of
 \texttt{X\_sample} that was computed at Question~\ref{X_sample}. We can
-thus substitute $X$ by 11 to obtain the full posterior distribution of
+thus substitute $X$ with 11 to obtain the full posterior distribution of
 $p$.
 
 However, $p$ is a continuous random variable, so it is only available
-through a probability density. We can use sample methods to estimate this
-density.
+through a probability density. We can use sampling methods to estimate
+this density.
+
+\newpage
 
 \begin{Exercise}[name=Question]
 \label{posterior}
-Produce 1000,000 values of $p$ from a uniform distribution and then sample
-$X$ as $B(196, p)$. Keep only the values of $p$ such that $X=11$ and store
-the results into a variable called \texttt{p\_posterior\_sample}. Plot the
-density of \texttt{p\_posterior\_sample}.
+Produce 100,000 values of $p$ from a uniform distribution and then sample
+$X$ as $B(196, p)$. Keep only the values of $p$ where $X=11$ and store the
+results into a variable \texttt{p\_posterior\_sample}. Plot the density of
+\texttt{p\_posterior\_sample}.
 \par\noindent\textcolor{Blue}{\textbf{Hint:} Using the vector
 notation as in Question~\ref{X_sample} is faster than a for-loop.}
 \par\noindent\textcolor{BrickRed}{\textbf{Quercus:} Upload the figure.}
 \end{Exercise}
 \begin{Answer}
 << fig=TRUE >>=
-p_prior_sample <- runif(n=1000000)
-X_sample <- rbinom(size=196, prob=p_prior_sample, n=1000000)
+p_prior_sample <- runif(n=100000)
+X_sample <- rbinom(size=196, prob=p_prior_sample, n=100000)
 p_posterior_sample <- p_prior_sample[X_sample==11]
 plot(density(p_posterior_sample), xlim=c(0,1), panel.first=grid())
 @
@@ -225,7 +228,7 @@ any kind of inference about $p$.
 Using the function \texttt{quantile(...)} on
 \texttt{p\_posterior\_sample}, give the boundaries of an interval that
 contains 95\% of the posterior probability of $p$. Set the interval so
-that each tails contains 2.5\% of the probability.
+that each tail contains 2.5\% of the probability.
 \par\noindent\textcolor{BrickRed}{\textbf{Quercus:} Input the length of
 the interval.}
 \end{Exercise}
@@ -239,9 +242,8 @@ quantile(p_posterior_sample, c(.025, .975))
 The intervals produced from the posterior distribution as in
 Question~\ref{credible} are called \textit{credible intervals}. The common
 misinterpretation of confidence interval is actually the correct
-interpretation of credible intervals. One can say that ther is a 95\%
-probability that $p$ belongs to the actual interval of
-Question~\ref{credible}.
+interpretation of credible intervals. There is a 95\% probability that $p$
+belongs to the actual interval of Question~\ref{credible}.
 
 
 \begin{Exercise}[name=Question]
@@ -258,8 +260,8 @@ mean(p_posterior_sample < 0.1)
 
 It is interesting to compare the answers to Questions~\ref{prior} and
 \ref{posterior10}. This shows how much the observations can change our
-belief about the parameter. This is actually reassuring as the objective
-part of the process should dominate, not the prior beliefs.
+belief about the parameter. This is reassuring, as the objective
+part of the process should be dominant over the prior beliefs.
 
 
 \section{The prior distribution}
@@ -316,7 +318,7 @@ on $\theta$ in order to investigate how much the results change.
 
 \begin{Exercise}[name=Question]
 \label{posterior_2}
-Produce 1000,000 values of $\theta$ from a uniform distribution and then
+Produce 100,000 values of $\theta$ from a uniform distribution and then
 proceed as in Question~\ref{posterior} to obtain a random sample from the
 posterior distribution of $\theta$. Store the result into
 a variable called \texttt{theta\_posterior\_sample}. Plot the density of
@@ -327,9 +329,9 @@ to the graph.
 \end{Exercise}
 \begin{Answer}
 << fig=TRUE >>=
-theta_prior_sample <- runif(n=1000000)
+theta_prior_sample <- runif(n=100000)
 p_sample = (theta_prior_sample - 1) / (theta_prior_sample - 2)
-X_sample <- rbinom(size=196, prob=p_sample, n=1000000)
+X_sample <- rbinom(size=196, prob=p_sample, n=100000)
 theta_posterior_sample <- theta_prior_sample[X_sample==11]
 plot(density(theta_posterior_sample), xlim=c(0,1), panel.first=grid())
 theta_from_p <- (1-2*p_posterior_sample) / (1-p_posterior_sample)
@@ -349,7 +351,7 @@ observations overrule prior beliefs.
 Using the function \texttt{quantile(...)} on
 \texttt{theta\_posterior\_sample}, give the boundaries of an interval that
 contains 95\% of the posterior probability of $\theta$, the efficiency of
-the vaccine. Set the interval so that each tails contains 2.5\% of the
+the vaccine. Set the interval so that each tail contains 2.5\% of the
 probability.
 \par\noindent\textcolor{BrickRed}{\textbf{Quercus:} Input the length of
 the interval.}
@@ -359,9 +361,6 @@ the interval.}
 quantile(theta_posterior_sample, c(.025, .975))
 @
 \end{Answer}
-
-This concludes the tutorials of course and gives an answer to the very
-first question we asked in tutorial 1.
 
 
 \section{Conclusions}
@@ -379,10 +378,10 @@ on the results, then the confidence intervals are erroneous ---
 satisfied with the results.
 
 The Bayesian approach does not have this kind of problem. The fact that
-the stopping time was not scripted can even be used as information to
-about the vaccine efficiency $\theta$ by introducing additional
-distributions. And even if the decision to stop the trial was based on the
-results, the posteriod distribution of $\theta$ is still valid.
+the stopping time was not scripted can even be used as information about
+the vaccine efficiency $\theta$ by introducing additional distributions.
+And even if the decision to stop the trial was based on the results, the
+posteriod distribution of $\theta$ is still valid.
 
 Another advantage of Bayesian approaches is that they are typically easier
 to interpret. The posterior distribution of $\theta$ carries more
