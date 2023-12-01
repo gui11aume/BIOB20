@@ -42,7 +42,7 @@ Answer to Question \ExerciseHeaderNB}\par}
 
 \section{Overview}
 
-In this chapter we revisit the example of randomized clinical and
+In this chapter we revisit the example of randomized clinical trials and
 introduce the Bayesian approach in this context.
 
 
@@ -52,7 +52,7 @@ introduce the Bayesian approach in this context.
 We analzyed the results of the clinical trial for the mRNA-1273 vaccine in
 tutorials 1 and 10. In tutorial 1, we concluded that the vaccine was more
 efficient than the placebo and in tutorial 10 we estimated the efficiency
-of the vaccibne with a confidence interval. In this tutorial, we will
+of the vaccine with a confidence interval. In this tutorial, we will
 explore a different way to estimate the efficiency with Bayesian methods.
 
 
@@ -61,7 +61,7 @@ explore a different way to estimate the efficiency with Bayesian methods.
 In the course of the mRNA-1273 clinical trial, 15210 participants received
 the placebo and 15210 received the vaccine~\cite{baden2020efficacy}. 196
 participants developed symptomatic COVID-19, including 11 patients who
-received the vaccein and 185 who received the placebo.
+received the vaccine and 185 who received the placebo.
 
 Let us first review the results of estimation with confidence intervals.
 
