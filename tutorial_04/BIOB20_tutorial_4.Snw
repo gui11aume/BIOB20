@@ -112,7 +112,7 @@ package will prove particularly useful to represent the data at hand.
 You should already have installed the package. If this is not the case,
 run the code below:
 << eval=FALSE, echo=TRUE >>=
-install.packages(circular)
+install.packages("circular")
 @
 
 Depending on your machine and on how you installed R, you will either have
